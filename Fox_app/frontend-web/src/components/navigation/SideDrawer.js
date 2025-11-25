@@ -51,7 +51,8 @@ const MENU_ITEMS = [
 
   // Test Engineers section
   { text: 'Test Engineers', icon: <AssessmentIcon />, children: [
-    { text: 'Fixtures', icon: <GridViewIcon />, route: '/fixtures' }
+    { text: 'Inventory', icon: <GridViewIcon />, route: '/fixtures' },
+    { text: 'Fixture Maintenance', icon: <GridViewIcon />, route: '/fixture-maintenance' }
   ]},
 
   { text: 'Station Reports', icon: <GradingIcon />, children:[

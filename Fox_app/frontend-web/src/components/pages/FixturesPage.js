@@ -9,6 +9,9 @@
 //     and parent B Tester selection for LA/RA Slots.
 //   - Selecting a Parent B Tester automatically fills IP, MAC, Rack, and Test Type.
 //   - Test Type selection works correctly for B Tester; read-only for LA/RA Slots.
+//   - Cosmetic validation (max lengths + examples) added for Fixture Name, IP, and MAC.
+//   - Form reset implemented on open/close/cancel.
+//   - Cosmetic improvement: Create dialog & MRT table "fit to screen" with scrolling.
 // ============================================================================
 
 import React, { useState, useEffect, useMemo } from "react";
@@ -64,6 +67,23 @@ const FixturesPage = () => {
   const [parentOptions, setParentOptions] = useState([]);
 
   // =====================================================
+  // HELPERS - RESET FORM (NEW)
+  // =====================================================
+  const resetNewFixture = () => {
+    setNewFixture({
+      test_type: "",
+      fixture_name: "",
+      fixture_sn: "",
+      rack: "",
+      ip_address: "",
+      mac_address: "",
+      creator: "",
+      parent: null,
+    });
+    setSelectedTesterType("B Tester");
+  };
+
+  // =====================================================
   // FETCH FUNCTIONS
   // =====================================================
   const fetchFixtures = async () => {
@@ -105,13 +125,12 @@ const FixturesPage = () => {
     try {
       setError("");
 
-      // Map frontend tester type to DB-compliant value
       const testerTypeDB =
         selectedTesterType === "LA Slot"
           ? "Left A Slot"
           : selectedTesterType === "RA Slot"
           ? "Right A Slot"
-          : selectedTesterType; // B Tester stays the same
+          : selectedTesterType;
 
       const fixtureToCreate = {
         fixture_name: newFixture.fixture_name,
@@ -126,22 +145,8 @@ const FixturesPage = () => {
       };
 
       await createFixture(fixtureToCreate);
-
-      // Refresh fixtures list
       fetchFixtures();
-
-      // Reset form
-      setNewFixture({
-        test_type: "",
-        fixture_name: "",
-        fixture_sn: "",
-        rack: "",
-        ip_address: "",
-        mac_address: "",
-        creator: "",
-        parent: null,
-      });
-      setSelectedTesterType("B Tester");
+      resetNewFixture();
       setOpenCreate(false);
     } catch (err) {
       console.error("Create fixture error", err);
@@ -213,7 +218,13 @@ const FixturesPage = () => {
     ),
     positionActionsColumn: "last",
     renderTopToolbarCustomActions: () => (
-      <Button variant="contained" onClick={() => setOpenCreate(true)}>
+      <Button
+        variant="contained"
+        onClick={() => {
+          resetNewFixture();
+          setOpenCreate(true);
+        }}
+      >
         Create Fixture
       </Button>
     ),
@@ -227,12 +238,30 @@ const FixturesPage = () => {
       <h1>Fixtures</h1>
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <MaterialReactTable table={table} />
+      {/* MRT TABLE CONTAINER — Fit to screen */}
+      <div style={{ height: "calc(100vh - 150px)", overflowY: "auto" }}>
+        <MaterialReactTable table={table} />
+      </div>
 
       {/* =====================================================
-          CREATE FIXTURE DIALOG
+          CREATE FIXTURE DIALOG — Fit to screen with scrolling
       ===================================================== */}
-      <Dialog open={openCreate} onClose={() => setOpenCreate(false)} fullWidth>
+      <Dialog
+        open={openCreate}
+        onClose={() => {
+          setOpenCreate(false);
+          resetNewFixture();
+        }}
+        fullWidth
+        maxWidth="sm"
+        sx={{
+          "& .MuiDialog-paper": {
+            height: "80vh",
+            maxHeight: "80vh",
+            overflowY: "auto",
+          },
+        }}
+      >
         <DialogTitle>Create New Fixture</DialogTitle>
         <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
 
@@ -281,6 +310,8 @@ const FixturesPage = () => {
           <TextField
             label="Fixture Name"
             value={newFixture.fixture_name}
+            inputProps={{ maxLength: 15 }}
+            helperText="Example: NCT001-01 or NCT001-01-LR (Max 15 characters)"
             onChange={(e) => setNewFixture({ ...newFixture, fixture_name: e.target.value })}
           />
           <TextField
@@ -292,17 +323,22 @@ const FixturesPage = () => {
             label="Rack"
             value={newFixture.rack}
             InputProps={{ readOnly: selectedTesterType !== "B Tester" }}
+            helperText={selectedTesterType !== "B Tester" ? "Inherited from parent tester" : ""}
             onChange={(e) => setNewFixture({ ...newFixture, rack: e.target.value })}
           />
           <TextField
             label="IP Address"
             value={newFixture.ip_address}
+            inputProps={{ maxLength: 15 }}
+            helperText="Format: 192.168.0.1 (Max 15 characters)"
             InputProps={{ readOnly: selectedTesterType !== "B Tester" }}
             onChange={(e) => setNewFixture({ ...newFixture, ip_address: e.target.value })}
           />
           <TextField
             label="MAC Address"
             value={newFixture.mac_address}
+            inputProps={{ maxLength: 17 }}
+            helperText="Format: AA:BB:CC:DD:EE:01 (Max 17 characters)"
             InputProps={{ readOnly: selectedTesterType !== "B Tester" }}
             onChange={(e) => setNewFixture({ ...newFixture, mac_address: e.target.value })}
           />
@@ -311,8 +347,6 @@ const FixturesPage = () => {
             value={newFixture.creator}
             onChange={(e) => setNewFixture({ ...newFixture, creator: e.target.value })}
           />
-
-          {/* TEST TYPE */}
           {selectedTesterType === "B Tester" ? (
             <FormControl fullWidth>
               <InputLabel>Test Type</InputLabel>
@@ -326,17 +360,20 @@ const FixturesPage = () => {
               </Select>
             </FormControl>
           ) : (
-            <TextField
-              label="Test Type"
-              value={newFixture.test_type || ""}
-              InputProps={{ readOnly: true }}
-            />
+            <TextField label="Test Type" value={newFixture.test_type || ""} InputProps={{ readOnly: true }} />
           )}
 
         </DialogContent>
 
         <DialogActions>
-          <Button onClick={() => setOpenCreate(false)}>Cancel</Button>
+          <Button
+            onClick={() => {
+              setOpenCreate(false);
+              resetNewFixture();
+            }}
+          >
+            Cancel
+          </Button>
           <Button variant="contained" onClick={handleCreate}>
             Create
           </Button>

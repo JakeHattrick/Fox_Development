@@ -18,6 +18,16 @@ export const getEligibleBTesters = (slotType) =>
   API.get(`/fixtures/available-parents?slot=${slotType}`);
 
 // ========================
+// Fixture Maintenance CRUD
+// ========================
+export const getAllMaintenance = () => API.get("/fixture-maintenance");
+export const getMaintenanceById = (id) => API.get(`/fixture-maintenance/${id}`);
+export const createMaintenance = (data) => API.post("/fixture-maintenance", data);
+export const updateMaintenance = (id, data) => API.patch(`/fixture-maintenance/${id}`, data);
+export const deleteMaintenance = (id) => API.delete(`/fixture-maintenance/${id}`);
+
+
+// ========================
 // Export Axios instance
 // ========================
 export default API;
