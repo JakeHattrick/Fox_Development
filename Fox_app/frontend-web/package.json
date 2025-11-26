@@ -46,6 +46,7 @@
     "dayjs": "^1.11.19",
     "idb-keyval": "^6.2.1",
     "material-react-table": "^3.2.1",
+    "nstall": "^0.2.0",
     "papaparse": "^5.5.3",
     "react": "^19.1.0",
     "react-chartjs-2": "^5.3.0",
