@@ -8,6 +8,27 @@ CREATE DATABASE postgres
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
+CREATE TABLE b_testers (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    fixture_name VARCHAR(32) UNIQUE NOT NULL,
+    rack VARCHAR(32),
+    fixture_sn VARCHAR(32),
+    test_type VARCHAR(32) CHECK (test_type IN ('Refurbish', 'Sort', 'Debug')),
+    ip_address VARCHAR(16),
+    mac_address VARCHAR(17),
+    create_date TIMESTAMPTZ,
+    creator VARCHAR(32)
+);
+
+CREATE TABLE fixture_parts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tester_type VARCHAR(32) CHECK (tester_type IN ('LA Slot', 'RA Slot')) NOT NULL,
+    parent_id UUID NOT NULL,
+    FOREIGN KEY (parent_id) REFERENCES b_testers(id) ON DELETE CASCADE,
+    create_date TIMESTAMPTZ,
+    creator VARCHAR(32)
+);
+
 CREATE TABLE fixtures (
 id UUID PRIMARY KEY DEFAULT gen_random_uuid() ,
 tester_type VARCHAR(32),

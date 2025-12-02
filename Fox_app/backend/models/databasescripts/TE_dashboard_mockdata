@@ -1,3 +1,72 @@
+INSERT INTO b_testers (fixture_name, rack, fixture_sn, test_type, ip_address, mac_address, create_date, creator)
+VALUES
+-- 
+('NCT017-01', 'Rack-1',  'SN-B001', 'Refurbish', '192.168.0.1',  'AA:BB:CC:DD:EE:01', NOW(), 'admin'),
+('NCT017-02', 'Rack-1',  'SN-B002', 'Refurbish', '192.168.0.2',  'AA:BB:CC:DD:EE:02', NOW(), 'admin'),
+('NCT017-03', 'Rack-1',  'SN-B003', 'Refurbish', '192.168.0.3',  'AA:BB:CC:DD:EE:03', NOW(), 'admin'),
+('NCT017-04', 'Rack-1',  'SN-B004', 'Refurbish', '192.168.0.4',  'AA:BB:CC:DD:EE:04', NOW(), 'admin'),
+
+-- 
+('NCT020-01', 'Rack-2',  'SN-B005', 'Sort',      '192.168.0.5',  'AA:BB:CC:DD:EE:05', NOW(), 'admin'),
+('NCT020-02', 'Rack-2',  'SN-B006', 'Sort',      '192.168.0.6',  'AA:BB:CC:DD:EE:06', NOW(), 'admin'),
+('NCT020-03', 'Rack-2',  'SN-B007', 'Sort',      '192.168.0.7',  'AA:BB:CC:DD:EE:07', NOW(), 'admin'),
+('NCT020-04', 'Rack-2',  'SN-B008', 'Sort',      '192.168.0.8',  'AA:BB:CC:DD:EE:08', NOW(), 'admin'),
+
+-- 
+('NCT025-01', 'Rack-3',  'SN-B009', 'Debug',     '192.168.0.9',  'AA:BB:CC:DD:EE:09', NOW(), 'admin'),
+('NCT025-02', 'Rack-3',  'SN-B010', 'Debug',     '192.168.0.10', 'AA:BB:CC:DD:EE:10', NOW(), 'admin'),
+('NCT025-03', 'Rack-3',  'SN-B011', 'Debug',     '192.168.0.11', 'AA:BB:CC:DD:EE:11', NOW(), 'admin'),
+('NCT025-04', 'Rack-3',  'SN-B012', 'Debug',     '192.168.0.12', 'AA:BB:CC:DD:EE:12', NOW(), 'admin'),
+
+-- 
+('NCT030-01', 'Rack-4',  'SN-B013', 'Refurbish', '192.168.0.13', 'AA:BB:CC:DD:EE:13', NOW(), 'admin'),
+('NCT030-02', 'Rack-4',  'SN-B014', 'Refurbish', '192.168.0.14', 'AA:BB:CC:DD:EE:14', NOW(), 'admin'),
+('NCT030-03', 'Rack-4',  'SN-B015', 'Refurbish', '192.168.0.15', 'AA:BB:CC:DD:EE:15', NOW(), 'admin'),
+('NCT030-04', 'Rack-4',  'SN-B016', 'Refurbish', '192.168.0.16', 'AA:BB:CC:DD:EE:16', NOW(), 'admin'),
+
+-- 
+('NCT035-01', 'Rack-5',  'SN-B017', 'Sort',      '192.168.0.17', 'AA:BB:CC:DD:EE:17', NOW(), 'admin'),
+('NCT035-02', 'Rack-5',  'SN-B018', 'Sort',      '192.168.0.18', 'AA:BB:CC:DD:EE:18', NOW(), 'admin'),
+('NCT035-03', 'Rack-5',  'SN-B019', 'Sort',      '192.168.0.19', 'AA:BB:CC:DD:EE:19', NOW(), 'admin'),
+('NCT035-04', 'Rack-5',  'SN-B020', 'Sort',      '192.168.0.20', 'AA:BB:CC:DD:EE:20', NOW(), 'admin');
+
+
+INSERT INTO fixture_parts (id, tester_type, parent_id, create_date, creator)
+VALUES
+-- NCT017: both LA and RA slots
+(gen_random_uuid(), 'LA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT017-01'), NOW(), 'admin'),
+(gen_random_uuid(), 'RA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT017-01'), NOW(), 'admin'),
+(gen_random_uuid(), 'LA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT017-02'), NOW(), 'admin'),
+(gen_random_uuid(), 'RA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT017-02'), NOW(), 'admin'),
+(gen_random_uuid(), 'LA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT017-03'), NOW(), 'admin'),
+(gen_random_uuid(), 'RA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT017-03'), NOW(), 'admin'),
+(gen_random_uuid(), 'LA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT017-04'), NOW(), 'admin'),
+(gen_random_uuid(), 'RA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT017-04'), NOW(), 'admin'),
+
+-- NCT020: both LA and RA slots
+(gen_random_uuid(), 'LA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT020-01'), NOW(), 'admin'),
+(gen_random_uuid(), 'RA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT020-01'), NOW(), 'admin'),
+(gen_random_uuid(), 'LA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT020-02'), NOW(), 'admin'),
+(gen_random_uuid(), 'RA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT020-02'), NOW(), 'admin'),
+(gen_random_uuid(), 'LA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT020-03'), NOW(), 'admin'),
+(gen_random_uuid(), 'RA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT020-03'), NOW(), 'admin'),
+(gen_random_uuid(), 'LA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT020-04'), NOW(), 'admin'),
+(gen_random_uuid(), 'RA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT020-04'), NOW(), 'admin'),
+
+-- NCT030: only LA Slot
+(gen_random_uuid(), 'LA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT030-01'), NOW(), 'admin'),
+(gen_random_uuid(), 'LA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT030-02'), NOW(), 'admin'),
+(gen_random_uuid(), 'LA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT030-03'), NOW(), 'admin'),
+(gen_random_uuid(), 'LA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT030-04'), NOW(), 'admin'),
+
+-- NCT035: only RA Slot
+(gen_random_uuid(), 'RA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT035-01'), NOW(), 'admin'),
+(gen_random_uuid(), 'RA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT035-02'), NOW(), 'admin'),
+(gen_random_uuid(), 'RA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT035-03'), NOW(), 'admin'),
+(gen_random_uuid(), 'RA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT035-04'), NOW(), 'admin');
+
+
+
 INSERT INTO fixtures (id,tester_type, fixture_name, rack, fixture_sn, test_type, ip_address, mac_address, parent, creator, create_date)
 VALUES
 ('f81d4fae-7dec-11d0-a765-00a0c91e6bf6','B Tester','NCT001-01','1','AAAAAAAAAA','Refurbish','192.168.102.100','AA:BB:CC:DD',Null,'Nicholas','2025-09-23 16:30:40-07'),
