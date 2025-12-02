@@ -1,100 +1,329 @@
-INSERT INTO b_testers (fixture_name, rack, fixture_sn, test_type, ip_address, mac_address, create_date, creator)
+INSERT INTO fixtures (fixture_name, rack, fixture_sn, test_type, ip_address, mac_address, create_date, creator)
 VALUES
--- 
-('NCT017-01', 'Rack-1',  'SN-B001', 'Refurbish', '192.168.0.1',  'AA:BB:CC:DD:EE:01', NOW(), 'admin'),
-('NCT017-02', 'Rack-1',  'SN-B002', 'Refurbish', '192.168.0.2',  'AA:BB:CC:DD:EE:02', NOW(), 'admin'),
-('NCT017-03', 'Rack-1',  'SN-B003', 'Refurbish', '192.168.0.3',  'AA:BB:CC:DD:EE:03', NOW(), 'admin'),
-('NCT017-04', 'Rack-1',  'SN-B004', 'Refurbish', '192.168.0.4',  'AA:BB:CC:DD:EE:04', NOW(), 'admin'),
+-- Rack 1 - Refurbish
+('NCT017-01', 'Rack-1', 'SN-B001', 'Refurbish', '192.168.0.1',  'AA:BB:CC:DD:EE:01', NOW(), 'admin'),
+('NCT017-02', 'Rack-1', 'SN-B002', 'Refurbish', '192.168.0.2',  'AA:BB:CC:DD:EE:02', NOW(), 'admin'),
+('NCT017-03', 'Rack-1', 'SN-B003', 'Refurbish', '192.168.0.3',  'AA:BB:CC:DD:EE:03', NOW(), 'admin'),
+('NCT017-04', 'Rack-1', 'SN-B004', 'Refurbish', '192.168.0.4',  'AA:BB:CC:DD:EE:04', NOW(), 'admin'),
 
--- 
-('NCT020-01', 'Rack-2',  'SN-B005', 'Sort',      '192.168.0.5',  'AA:BB:CC:DD:EE:05', NOW(), 'admin'),
-('NCT020-02', 'Rack-2',  'SN-B006', 'Sort',      '192.168.0.6',  'AA:BB:CC:DD:EE:06', NOW(), 'admin'),
-('NCT020-03', 'Rack-2',  'SN-B007', 'Sort',      '192.168.0.7',  'AA:BB:CC:DD:EE:07', NOW(), 'admin'),
-('NCT020-04', 'Rack-2',  'SN-B008', 'Sort',      '192.168.0.8',  'AA:BB:CC:DD:EE:08', NOW(), 'admin'),
+-- Rack 2 - Sort
+('NCT020-01', 'Rack-2', 'SN-B005', 'Sort',      '192.168.0.5',  'AA:BB:CC:DD:EE:05', NOW(), 'admin'),
+('NCT020-02', 'Rack-2', 'SN-B006', 'Sort',      '192.168.0.6',  'AA:BB:CC:DD:EE:06', NOW(), 'admin'),
+('NCT020-03', 'Rack-2', 'SN-B007', 'Sort',      '192.168.0.7',  'AA:BB:CC:DD:EE:07', NOW(), 'admin'),
+('NCT020-04', 'Rack-2', 'SN-B008', 'Sort',      '192.168.0.8',  'AA:BB:CC:DD:EE:08', NOW(), 'admin'),
 
--- 
-('NCT025-01', 'Rack-3',  'SN-B009', 'Debug',     '192.168.0.9',  'AA:BB:CC:DD:EE:09', NOW(), 'admin'),
-('NCT025-02', 'Rack-3',  'SN-B010', 'Debug',     '192.168.0.10', 'AA:BB:CC:DD:EE:10', NOW(), 'admin'),
-('NCT025-03', 'Rack-3',  'SN-B011', 'Debug',     '192.168.0.11', 'AA:BB:CC:DD:EE:11', NOW(), 'admin'),
-('NCT025-04', 'Rack-3',  'SN-B012', 'Debug',     '192.168.0.12', 'AA:BB:CC:DD:EE:12', NOW(), 'admin'),
+-- Rack 3 - Debug
+('NCT025-01', 'Rack-3', 'SN-B009', 'Debug',     '192.168.0.9',  'AA:BB:CC:DD:EE:09', NOW(), 'admin'),
+('NCT025-02', 'Rack-3', 'SN-B010', 'Debug',     '192.168.0.10', 'AA:BB:CC:DD:EE:10', NOW(), 'admin'),
+('NCT025-03', 'Rack-3', 'SN-B011', 'Debug',     '192.168.0.11', 'AA:BB:CC:DD:EE:11', NOW(), 'admin'),
+('NCT025-04', 'Rack-3', 'SN-B012', 'Debug',     '192.168.0.12', 'AA:BB:CC:DD:EE:12', NOW(), 'admin'),
 
--- 
-('NCT030-01', 'Rack-4',  'SN-B013', 'Refurbish', '192.168.0.13', 'AA:BB:CC:DD:EE:13', NOW(), 'admin'),
-('NCT030-02', 'Rack-4',  'SN-B014', 'Refurbish', '192.168.0.14', 'AA:BB:CC:DD:EE:14', NOW(), 'admin'),
-('NCT030-03', 'Rack-4',  'SN-B015', 'Refurbish', '192.168.0.15', 'AA:BB:CC:DD:EE:15', NOW(), 'admin'),
-('NCT030-04', 'Rack-4',  'SN-B016', 'Refurbish', '192.168.0.16', 'AA:BB:CC:DD:EE:16', NOW(), 'admin'),
+-- Rack 4 - Refurbish
+('NCT030-01', 'Rack-4', 'SN-B013', 'Refurbish', '192.168.0.13', 'AA:BB:CC:DD:EE:13', NOW(), 'admin'),
+('NCT030-02', 'Rack-4', 'SN-B014', 'Refurbish', '192.168.0.14', 'AA:BB:CC:DD:EE:14', NOW(), 'admin'),
+('NCT030-03', 'Rack-4', 'SN-B015', 'Refurbish', '192.168.0.15', 'AA:BB:CC:DD:EE:15', NOW(), 'admin'),
+('NCT030-04', 'Rack-4', 'SN-B016', 'Refurbish', '192.168.0.16', 'AA:BB:CC:DD:EE:16', NOW(), 'admin'),
 
--- 
-('NCT035-01', 'Rack-5',  'SN-B017', 'Sort',      '192.168.0.17', 'AA:BB:CC:DD:EE:17', NOW(), 'admin'),
-('NCT035-02', 'Rack-5',  'SN-B018', 'Sort',      '192.168.0.18', 'AA:BB:CC:DD:EE:18', NOW(), 'admin'),
-('NCT035-03', 'Rack-5',  'SN-B019', 'Sort',      '192.168.0.19', 'AA:BB:CC:DD:EE:19', NOW(), 'admin'),
-('NCT035-04', 'Rack-5',  'SN-B020', 'Sort',      '192.168.0.20', 'AA:BB:CC:DD:EE:20', NOW(), 'admin');
+-- Rack 5 - Sort
+('NCT035-01', 'Rack-5', 'SN-B017', 'Sort',      '192.168.0.17', 'AA:BB:CC:DD:EE:17', NOW(), 'admin'),
+('NCT035-02', 'Rack-5', 'SN-B018', 'Sort',      '192.168.0.18', 'AA:BB:CC:DD:EE:18', NOW(), 'admin'),
+('NCT035-03', 'Rack-5', 'SN-B019', 'Sort',      '192.168.0.19', 'AA:BB:CC:DD:EE:19', NOW(), 'admin'),
+('NCT035-04', 'Rack-5', 'SN-B020', 'Sort',      '192.168.0.20', 'AA:BB:CC:DD:EE:20', NOW(), 'admin');
 
-
-INSERT INTO fixture_parts (id, tester_type, parent_id, create_date, creator)
+INSERT INTO fixture_parts (id, tester_type, parent_fixture_id, create_date, creator)
 VALUES
 -- NCT017: both LA and RA slots
-(gen_random_uuid(), 'LA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT017-01'), NOW(), 'admin'),
-(gen_random_uuid(), 'RA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT017-01'), NOW(), 'admin'),
-(gen_random_uuid(), 'LA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT017-02'), NOW(), 'admin'),
-(gen_random_uuid(), 'RA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT017-02'), NOW(), 'admin'),
-(gen_random_uuid(), 'LA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT017-03'), NOW(), 'admin'),
-(gen_random_uuid(), 'RA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT017-03'), NOW(), 'admin'),
-(gen_random_uuid(), 'LA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT017-04'), NOW(), 'admin'),
-(gen_random_uuid(), 'RA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT017-04'), NOW(), 'admin'),
+(gen_random_uuid(), 'LA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT017-01'), NOW(), 'admin'),
+(gen_random_uuid(), 'RA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT017-01'), NOW(), 'admin'),
+(gen_random_uuid(), 'LA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT017-02'), NOW(), 'admin'),
+(gen_random_uuid(), 'RA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT017-02'), NOW(), 'admin'),
+(gen_random_uuid(), 'LA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT017-03'), NOW(), 'admin'),
+(gen_random_uuid(), 'RA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT017-03'), NOW(), 'admin'),
+(gen_random_uuid(), 'LA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT017-04'), NOW(), 'admin'),
+(gen_random_uuid(), 'RA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT017-04'), NOW(), 'admin'),
 
 -- NCT020: both LA and RA slots
-(gen_random_uuid(), 'LA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT020-01'), NOW(), 'admin'),
-(gen_random_uuid(), 'RA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT020-01'), NOW(), 'admin'),
-(gen_random_uuid(), 'LA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT020-02'), NOW(), 'admin'),
-(gen_random_uuid(), 'RA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT020-02'), NOW(), 'admin'),
-(gen_random_uuid(), 'LA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT020-03'), NOW(), 'admin'),
-(gen_random_uuid(), 'RA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT020-03'), NOW(), 'admin'),
-(gen_random_uuid(), 'LA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT020-04'), NOW(), 'admin'),
-(gen_random_uuid(), 'RA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT020-04'), NOW(), 'admin'),
+(gen_random_uuid(), 'LA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT020-01'), NOW(), 'admin'),
+(gen_random_uuid(), 'RA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT020-01'), NOW(), 'admin'),
+(gen_random_uuid(), 'LA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT020-02'), NOW(), 'admin'),
+(gen_random_uuid(), 'RA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT020-02'), NOW(), 'admin'),
+(gen_random_uuid(), 'LA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT020-03'), NOW(), 'admin'),
+(gen_random_uuid(), 'RA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT020-03'), NOW(), 'admin'),
+(gen_random_uuid(), 'LA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT020-04'), NOW(), 'admin'),
+(gen_random_uuid(), 'RA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT020-04'), NOW(), 'admin'),
+
+-- NCT025: both LA and RA slots (since in fixtures table earlier)
+(gen_random_uuid(), 'LA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT025-01'), NOW(), 'admin'),
+(gen_random_uuid(), 'RA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT025-01'), NOW(), 'admin'),
+(gen_random_uuid(), 'LA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT025-02'), NOW(), 'admin'),
+(gen_random_uuid(), 'RA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT025-02'), NOW(), 'admin'),
+(gen_random_uuid(), 'LA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT025-03'), NOW(), 'admin'),
+(gen_random_uuid(), 'RA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT025-03'), NOW(), 'admin'),
+(gen_random_uuid(), 'LA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT025-04'), NOW(), 'admin'),
+(gen_random_uuid(), 'RA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT025-04'), NOW(), 'admin'),
 
 -- NCT030: only LA Slot
-(gen_random_uuid(), 'LA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT030-01'), NOW(), 'admin'),
-(gen_random_uuid(), 'LA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT030-02'), NOW(), 'admin'),
-(gen_random_uuid(), 'LA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT030-03'), NOW(), 'admin'),
-(gen_random_uuid(), 'LA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT030-04'), NOW(), 'admin'),
+(gen_random_uuid(), 'LA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT030-01'), NOW(), 'admin'),
+(gen_random_uuid(), 'LA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT030-02'), NOW(), 'admin'),
+(gen_random_uuid(), 'LA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT030-03'), NOW(), 'admin'),
+(gen_random_uuid(), 'LA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT030-04'), NOW(), 'admin'),
 
 -- NCT035: only RA Slot
-(gen_random_uuid(), 'RA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT035-01'), NOW(), 'admin'),
-(gen_random_uuid(), 'RA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT035-02'), NOW(), 'admin'),
-(gen_random_uuid(), 'RA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT035-03'), NOW(), 'admin'),
-(gen_random_uuid(), 'RA Slot', (SELECT id FROM b_testers WHERE fixture_name='NCT035-04'), NOW(), 'admin');
+(gen_random_uuid(), 'RA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT035-01'), NOW(), 'admin'),
+(gen_random_uuid(), 'RA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT035-02'), NOW(), 'admin'),
+(gen_random_uuid(), 'RA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT035-03'), NOW(), 'admin'),
+(gen_random_uuid(), 'RA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT035-04'), NOW(), 'admin');
 
-
-
-INSERT INTO fixtures (id,tester_type, fixture_name, rack, fixture_sn, test_type, ip_address, mac_address, parent, creator, create_date)
+INSERT INTO health (id, fixture_id, status, comments, creator, create_date)
 VALUES
-('f81d4fae-7dec-11d0-a765-00a0c91e6bf6','B Tester','NCT001-01','1','AAAAAAAAAA','Refurbish','192.168.102.100','AA:BB:CC:DD',Null,'Nicholas','2025-09-23 16:30:40-07'),
-('1f8a9e2b-3c4f-4e16-9a23-f1d4e6d7b8c9','LA Slot',null,'1','BBBBBBBBBB','NA','NA','NA','f81d4fae-7dec-11d0-a765-00a0c91e6bf6','Nicholas','2025-09-23 16:30:40-07'),
-('e7d3a210-58bf-49f6-b33b-3b51d1c9a0a4','RA Slot',null,'1','CCCCCCCCCC','NA','NA','NA','f81d4fae-7dec-11d0-a765-00a0c91e6bf6','Nicholas','2025-09-23 16:30:40-07'),
-('e3d9f4a4-7f5d-4d62-a944-bb5e034b287a','B Tester','NV-NCT02-2','2','DDDDDDDDDD','Refurbish','192.168.102.101','AA:BB:CC:EE',Null,'Nicholas','2025-09-23 16:30:40-07'),
-('92c748e4-d84e-4638-ae21-c43d9b7dc273','LA Slot',null,'2','EEEEEEEEEE','NA','NA','NA','e3d9f4a4-7f5d-4d62-a944-bb5e034b287a','Nicholas','2025-09-23 16:30:40-07'),
-('a1b2c3d4-5678-4e2f-91ab-ccddee009988','RA Slot',null,'2','FFFFFFFFFF','NA','NA','NA','e3d9f4a4-7f5d-4d62-a944-bb5e034b287a','Nicholas','2025-09-23 16:30:40-07')
-;
+-- 1: Active
+(gen_random_uuid(),
+ (SELECT id FROM fixtures WHERE fixture_name='NCT017-01'),
+ 'active',
+ 'Fixture responding normally.',
+ 'admin',
+ NOW()),
 
+-- 2: No Response
+(gen_random_uuid(),
+ (SELECT id FROM fixtures WHERE fixture_name='NCT020-02'),
+ 'no_response',
+ 'Ping timeout; fixture not reachable.',
+ 'admin',
+ NOW()),
 
-INSERT INTO health (fixture_id, status, comments, creator, create_date)
+-- 3: Under Maintenance
+(gen_random_uuid(),
+ (SELECT id FROM fixtures WHERE fixture_name='NCT025-03'),
+ 'under_maintenance',
+ 'Technician inspecting intermittent faults.',
+ 'admin',
+ NOW()),
+
+-- 4: Active
+(gen_random_uuid(),
+ (SELECT id FROM fixtures WHERE fixture_name='NCT030-01'),
+ 'active',
+ 'Unit passed all checks.',
+ 'admin',
+ NOW()),
+
+-- 5: RMA
+(gen_random_uuid(),
+ (SELECT id FROM fixtures WHERE fixture_name='NCT035-04'),
+ 'RMA',
+ 'Sent back to vendor for evaluation.',
+ 'admin',
+ NOW()),
+
+-- 6: No Response
+(gen_random_uuid(),
+ (SELECT id FROM fixtures WHERE fixture_name='NCT017-03'),
+ 'no_response',
+ 'Unresponsive after power cycle.',
+ 'admin',
+ NOW()),
+
+-- 7: Active
+(gen_random_uuid(),
+ (SELECT id FROM fixtures WHERE fixture_name='NCT020-01'),
+ 'active',
+ 'Operating within expected parameters.',
+ 'admin',
+ NOW());
+
+INSERT INTO usage (
+    id, fixture_part_id, test_slot, test_station, test_type,
+    gpu_pn, gpu_sn, log_path, creator, create_date
+)
 VALUES
-('f81d4fae-7dec-11d0-a765-00a0c91e6bf6', 'active', 'none', 'Nicholas', '2025-09-24 08:26:40-07'),
-('e3d9f4a4-7f5d-4d62-a944-bb5e034b287a', 'no_response', 'ping timed out', 'Nicholas', '2025-09-24 08:26:40-07'),
-('f81d4fae-7dec-11d0-a765-00a0c91e6bf6', 'no_response', 'ping timed out',  'Nicholas', '2025-09-24 08:26:40-07'),
-('f81d4fae-7dec-11d0-a765-00a0c91e6bf6', 'RMA', 'sent to PW', 'Nicholas', '2025-09-24 08:26:40-07'),
-('e3d9f4a4-7f5d-4d62-a944-bb5e034b287a', 'under_maintenance', 'something', 'Nick', '2025-09-24 08:26:40-07'),
-('e3d9f4a4-7f5d-4d62-a944-bb5e034b287a', 'active', 'none', 'Nicholas', '2025-09-24 08:26:40-07')
-;
+-- 1
+(gen_random_uuid(),
+ (SELECT id FROM fixture_parts 
+    WHERE parent_fixture_id = (SELECT id FROM fixtures WHERE fixture_name='NCT017-01')
+      AND tester_type='LA Slot'),
+ 'LA',
+ 'FLA',
+ 'Refurbish',
+ '692-2G520-0280-5R1',
+ '1653241501478',
+ 'mnt/nv/server_logs/NCT017-01-LA',
+ 'admin',
+ NOW()),
 
-INSERT INTO usage (fixture_id, test_slot,test_station,test_type,gpu_pn,gpu_sn,log_path,creator,create_date)
+-- 2
+(gen_random_uuid(),
+ (SELECT id FROM fixture_parts 
+    WHERE parent_fixture_id = (SELECT id FROM fixtures WHERE fixture_name='NCT017-01')
+      AND tester_type='RA Slot'),
+ 'RA',
+ 'BAT',
+ 'Refurbish',
+ '692-2G520-0225-0R2',
+ '1653241502001',
+ 'mnt/nv/server_logs/NCT017-01-RA',
+ 'admin',
+ NOW()),
+
+-- 3
+(gen_random_uuid(),
+ (SELECT id FROM fixture_parts 
+    WHERE parent_fixture_id = (SELECT id FROM fixtures WHERE fixture_name='NCT020-02')
+      AND tester_type='LA Slot'),
+ 'LA',
+ 'BIT',
+ 'Sort',
+ '692-2G520-0280-5R1',
+ '1653241503112',
+ 'mnt/nv/server_logs/NCT020-02-LA',
+ 'admin',
+ NOW()),
+
+-- 4
+(gen_random_uuid(),
+ (SELECT id FROM fixture_parts 
+    WHERE parent_fixture_id = (SELECT id FROM fixtures WHERE fixture_name='NCT020-03')
+      AND tester_type='RA Slot'),
+ 'RA',
+ 'FCT',
+ 'Sort',
+ '692-2G520-0225-0R2',
+ '1653241504129',
+ 'mnt/nv/server_logs/NCT020-03-RA',
+ 'admin',
+ NOW()),
+
+-- 5
+(gen_random_uuid(),
+ (SELECT id FROM fixture_parts 
+    WHERE parent_fixture_id = (SELECT id FROM fixtures WHERE fixture_name='NCT025-01')
+      AND tester_type='LA Slot'),
+ 'LA',
+ 'FPF',
+ 'Debug',
+ '692-2G520-0280-5R1',
+ '1653241505012',
+ 'mnt/nv/server_logs/NCT025-01-LA',
+ 'admin',
+ NOW()),
+
+-- 6
+(gen_random_uuid(),
+ (SELECT id FROM fixture_parts 
+    WHERE parent_fixture_id = (SELECT id FROM fixtures WHERE fixture_name='NCT025-04')
+      AND tester_type='RA Slot'),
+ 'RA',
+ 'OQC',
+ 'Debug',
+ '692-2G520-0225-0R2',
+ '1653241506200',
+ 'mnt/nv/server_logs/NCT025-04-RA',
+ 'admin',
+ NOW()),
+
+-- 7
+(gen_random_uuid(),
+ (SELECT id FROM fixture_parts 
+    WHERE parent_fixture_id = (SELECT id FROM fixtures WHERE fixture_name='NCT030-03')
+      AND tester_type='LA Slot'),
+ 'ASSY2',
+ 'Station-D3',
+ 'Refurbish',
+ '692-2G520-0280-5R1',
+ '1653241507555',
+ 'mnt/nv/server_logs/NCT030-03-LA',
+ 'admin',
+ NOW());
+
+
+INSERT INTO fixture_maintenance (
+    id, fixture_id, event_type, start_date_time, end_date_time,
+    occurance, comments, is_completed, creator, create_date
+)
 VALUES
-('e3d9f4a4-7f5d-4d62-a944-bb5e034b287a','Left','BAT','Refurbish','692-2G520-0200-500','1234567890123','/TESLA/G520/692-2G520-0200-500/FXNC_PB_DEBUG_692-2G520-0200-500_1234567890123_P_BAT_','Nicholas','2002-10-03 16:30:40-07'),
-('e3d9f4a4-7f5d-4d62-a944-bb5e034b287a','Right','BAT','Refurbish','692-2G520-0200-500','9876543210987','/TESLA/G520/692-2G520-0200-500/FXNC_PB_DEBUG_692-2G520-0200-500_9876543210987_P_BAT_','Nicholas','2024-09-23 14:30:40-03'),
-('e3d9f4a4-7f5d-4d62-a944-bb5e034b287a','Left','BIT','Refurbish','692-2G520-0200-500','1234567890123','/TESLA/G520/692-2G520-0200-500/FXNC_PB_DEBUG_692-2G520-0200-500_1234567890123_P_BIT_','Nicholas','2025-09-24 16:30:40-07'),
-('e3d9f4a4-7f5d-4d62-a944-bb5e034b287a','Right','BIT','Refurbish','692-2G520-0200-500','9876543210987','/TESLA/G520/692-2G520-0200-500/FXNC_PB_DEBUG_692-2G520-0200-500_9876543210987_P_BIT_','Nicholas','2020-01-13 06:30:40-07'),
-('f81d4fae-7dec-11d0-a765-00a0c91e6bf6','Left','FLB','Refurbish','692-2G520-0200-500','0000000000000','/TESLA/G520/692-2G520-0200-500/FXNC_PB_DEBUG_692-2G520-0200-500_0000000000000_P_FLB_','Nicholas','2025-09-23 16:30:40-07'),
-('f81d4fae-7dec-11d0-a765-00a0c91e6bf6','Left','FLA','Refurbish','692-2G520-0200-500','0000000000000','/TESLA/G520/692-2G520-0200-500/FXNC_PB_DEBUG_692-2G520-0200-500_0000000000000_P_FLA_','Nicholas','2025-09-23 16:30:40-07'),
-('f81d4fae-7dec-11d0-a765-00a0c91e6bf6','Left','FLC','Refurbish','692-2G520-0200-500','0000000000000','/TESLA/G520/692-2G520-0200-500/FXNC_PB_DEBUG_692-2G520-0200-500_0000000000000_P_FLC_','Nicholas','2025-09-23 16:30:40-07')
-;
+-- 1: Scheduled weekly maintenance
+(gen_random_uuid(),
+ (SELECT id FROM fixtures WHERE fixture_name='NCT017-01'),
+ 'Scheduled Maintenance',
+ NOW() - INTERVAL '7 days',
+ NOW() - INTERVAL '7 days' + INTERVAL '30 minutes',
+ 'Weekly',
+ 'Routine system check and fan cleaning.',
+ TRUE,
+ 'admin',
+ NOW()),
+
+-- 2: Emergency maintenance
+(gen_random_uuid(),
+ (SELECT id FROM fixtures WHERE fixture_name='NCT020-02'),
+ 'Emergency Maintenance',
+ NOW() - INTERVAL '2 days',
+ NOW() - INTERVAL '2 days' + INTERVAL '1 hour',
+ 'Once',
+ 'Unexpected power failure; required immediate inspection.',
+ TRUE,
+ 'admin',
+ NOW()),
+
+-- 3: Unknown outage (still ongoing)
+(gen_random_uuid(),
+ (SELECT id FROM fixtures WHERE fixture_name='NCT025-01'),
+ 'Unknown Outage',
+ NOW() - INTERVAL '12 hours',
+ NULL,
+ 'Once',
+ 'Fixture stopped responding; investigation pending.',
+ FALSE,
+ 'admin',
+ NOW()),
+
+-- 4: Scheduled monthly maintenance
+(gen_random_uuid(),
+ (SELECT id FROM fixtures WHERE fixture_name='NCT017-03'),
+ 'Scheduled Maintenance',
+ NOW() - INTERVAL '30 days',
+ NOW() - INTERVAL '30 days' + INTERVAL '45 minutes',
+ 'Monthly',
+ 'Thermal paste check and calibration.',
+ TRUE,
+ 'admin',
+ NOW()),
+
+-- 5: Emergency maintenance (completed)
+(gen_random_uuid(),
+ (SELECT id FROM fixtures WHERE fixture_name='NCT020-04'),
+ 'Emergency Maintenance',
+ NOW() - INTERVAL '5 days',
+ NOW() - INTERVAL '5 days' + INTERVAL '2 hours',
+ 'Once',
+ 'Smoke detection alert; cleared and verified safe.',
+ TRUE,
+ 'admin',
+ NOW()),
+
+-- 6: Quarterly scheduled maintenance
+(gen_random_uuid(),
+ (SELECT id FROM fixtures WHERE fixture_name='NCT030-02'),
+ 'Scheduled Maintenance',
+ NOW() - INTERVAL '3 months',
+ NOW() - INTERVAL '3 months' + INTERVAL '1 hour',
+ 'Quarterly',
+ 'Full diagnostic and connector cleaning.',
+ TRUE,
+ 'admin',
+ NOW()),
+
+-- 7: Unknown outage (completed)
+(gen_random_uuid(),
+ (SELECT id FROM fixtures WHERE fixture_name='NCT035-04'),
+ 'Unknown Outage',
+ NOW() - INTERVAL '14 days',
+ NOW() - INTERVAL '14 days' + INTERVAL '20 minutes',
+ 'Once',
+ 'Brief disconnection; cause undetermined.',
+ TRUE,
+ 'admin',
+ NOW());
+
+
+
