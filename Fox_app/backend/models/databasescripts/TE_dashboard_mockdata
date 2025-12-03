@@ -32,6 +32,7 @@ VALUES
 
 INSERT INTO fixture_parts (id, tester_type, parent_fixture_id, create_date, creator)
 VALUES
+
 -- NCT017: both LA and RA slots
 (gen_random_uuid(), 'LA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT017-01'), NOW(), 'admin'),
 (gen_random_uuid(), 'RA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT017-01'), NOW(), 'admin'),
@@ -52,7 +53,7 @@ VALUES
 (gen_random_uuid(), 'LA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT020-04'), NOW(), 'admin'),
 (gen_random_uuid(), 'RA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT020-04'), NOW(), 'admin'),
 
--- NCT025: both LA and RA slots (since in fixtures table earlier)
+-- NCT025: both LA and RA slots
 (gen_random_uuid(), 'LA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT025-01'), NOW(), 'admin'),
 (gen_random_uuid(), 'RA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT025-01'), NOW(), 'admin'),
 (gen_random_uuid(), 'LA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT025-02'), NOW(), 'admin'),
@@ -73,6 +74,7 @@ VALUES
 (gen_random_uuid(), 'RA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT035-02'), NOW(), 'admin'),
 (gen_random_uuid(), 'RA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT035-03'), NOW(), 'admin'),
 (gen_random_uuid(), 'RA Slot', (SELECT id FROM fixtures WHERE fixture_name='NCT035-04'), NOW(), 'admin');
+
 
 INSERT INTO health (id, fixture_id, status, comments, creator, create_date)
 VALUES
