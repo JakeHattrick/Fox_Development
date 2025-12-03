@@ -94,7 +94,8 @@ app.use('/api/health', healthRoutes);
 const usageRoutes    = require('./routes/usageRoutes');    
 app.use('/api/usage', usageRoutes);      
 
-
+const fixturePartsRoutes = require('./routes/fixturePartsRoutes');
+app.use('/api/fixture-parts', fixturePartsRoutes);
 
 /*#################################################
 #    Optional Route Registration                #

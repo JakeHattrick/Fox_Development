@@ -30,6 +30,8 @@ VALUES
 ('NCT035-03', 'Rack-5', 'SN-B019', 'Sort',      '192.168.0.19', 'AA:BB:CC:DD:EE:19', NOW(), 'admin'),
 ('NCT035-04', 'Rack-5', 'SN-B020', 'Sort',      '192.168.0.20', 'AA:BB:CC:DD:EE:20', NOW(), 'admin');
 
+--- ***** VERY IMPORTANT: Before you run "insert into fixture_parts" , be sure to run Autogenerate_Trigger script to auto populate the fields for fixture_parts table ***** ---
+
 INSERT INTO fixture_parts (id, tester_type, parent_fixture_id, create_date, creator)
 VALUES
 
@@ -228,8 +230,8 @@ VALUES
  (SELECT id FROM fixture_parts 
     WHERE parent_fixture_id = (SELECT id FROM fixtures WHERE fixture_name='NCT030-03')
       AND tester_type='LA Slot'),
+ 'LA',
  'ASSY2',
- 'Station-D3',
  'Refurbish',
  '692-2G520-0280-5R1',
  '1653241507555',
@@ -326,6 +328,4 @@ VALUES
  TRUE,
  'admin',
  NOW());
-
-
 
