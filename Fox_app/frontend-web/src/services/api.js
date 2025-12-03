@@ -26,6 +26,15 @@ export const createMaintenance = (data) => API.post("/fixture-maintenance", data
 export const updateMaintenance = (id, data) => API.patch(`/fixture-maintenance/${id}`, data);
 export const deleteMaintenance = (id) => API.delete(`/fixture-maintenance/${id}`);
 
+// ========================
+// Fixture Parts CRUD
+// ========================
+export const getFixtureParts = () => API.get("/fixture-parts");
+export const getFixturePartById = (id) => API.get(`/fixture-parts/${id}`);
+export const createFixtureParts = (data) => API.post("/fixture-parts", data);
+export const updateFixtureParts = (id, data) => API.patch(`/fixture-parts/${id}`, data);
+export const deleteFixtureParts = (id) => API.delete(`/fixture-parts/${id}`);
+
 
 // ========================
 // Export Axios instance
