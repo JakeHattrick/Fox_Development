@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS fixture_parts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     parent_fixture_id UUID NOT NULL REFERENCES fixtures(id),
     tester_type VARCHAR(32) NOT NULL
-        CHECK (tester_type IN ('LA Slot', 'RA Slot', 'L Riser', 'R Riser')),
+        CHECK (tester_type IN ('Gen3 B Tester', 'Gen5 B Tester', 'LA Slot', 'RA Slot')),
     -- inherited fields (auto-filled by trigger)
     fixture_name VARCHAR(32),
     rack VARCHAR(32),
