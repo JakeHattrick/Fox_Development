@@ -9,7 +9,7 @@
 //   - Parameterized queries are used to prevent SQL injection.
 // ============================================================================
 
-const { pool } = require('../db.js'); // PostgreSQL connection pool
+const { pool } = require('../db.js');
 const { uuidRegex, dynamicQuery, dynamicPostQuery } = require('./controllerUtilities.js');
 
 class usageController {
@@ -21,7 +21,7 @@ class usageController {
         try {
             const query = 'SELECT * FROM usage ORDER BY id ASC;';
             const result = await pool.query(query);
-            res.status(200).json(result.rows); // Return all usage records
+            res.status(200).json(result.rows);
         } catch (error) {
             console.error('Database error (getAllUsage):', error);
             res.status(500).json({ error: 'Database query failed' });
@@ -34,14 +34,16 @@ class usageController {
     static async getUsageById(req, res) {
         try {
             const id = req.params.id;
-            if (!uuidRegex.test(id)) return res.status(400).json({ error: 'Invalid id format' });
+            if (!uuidRegex.test(id))
+                return res.status(400).json({ error: 'Invalid id format' });
 
             const query = 'SELECT * FROM usage WHERE id = $1';
             const result = await pool.query(query, [id]);
 
-            if (result.rows.length === 0) return res.status(404).json({ error: `No usage record found with id: ${id}` });
+            if (result.rows.length === 0)
+                return res.status(404).json({ error: `No usage record found with id: ${id}` });
 
-            res.status(200).json(result.rows[0]); // Return single usage record
+            res.status(200).json(result.rows[0]);
         } catch (error) {
             console.error('Database error (getUsageById):', error);
             res.status(500).json({ error: 'Database query failed' });
@@ -53,15 +55,37 @@ class usageController {
     // =====================================================
     static async postUsage(req, res) {
         try {
-            const allowed = ['machine_id', 'operator', 'shift', 'output', 'comments', 'creator'];
-            const required = ['machine_id', 'operator', 'shift', 'output'];
+            const allowed = [
+                'fixture_part_id',
+                'test_slot',
+                'test_station',
+                'test_type',
+                'gpu_pn',
+                'gpu_sn',
+                'log_path',
+                'creator'
+            ];
+
+            const required = ['fixture_part_id', 'test_slot', 'test_type'];
 
             // Validate required fields
             const missing = required.filter(f => !Object.prototype.hasOwnProperty.call(req.body, f));
-            if (missing.length > 0) return res.status(400).json({ error: `Missing required fields: ${missing.join(', ')}` });
+            if (missing.length > 0)
+                return res.status(400).json({ error: `Missing required fields: ${missing.join(', ')}` });
+
+            // Validate ENUM fields
+            const validSlots = ['LA', 'RA'];
+            const validTypes = ['Refurbish', 'Sort', 'Debug'];
+
+            if (!validSlots.includes(req.body.test_slot))
+                return res.status(400).json({ error: 'Invalid test_slot value (LA or RA only)' });
+
+            if (!validTypes.includes(req.body.test_type))
+                return res.status(400).json({ error: 'Invalid test_type value' });
 
             const { columns, placeholders, values } = dynamicPostQuery(allowed, req);
-            if (placeholders.length === 0) return res.status(400).json({ error: 'No valid fields provided' });
+            if (placeholders.length === 0)
+                return res.status(400).json({ error: 'No valid fields provided' });
 
             const query = `
                 INSERT INTO usage (${columns.join(', ')}, create_date)
@@ -70,7 +94,7 @@ class usageController {
             `;
 
             const result = await pool.query(query, values);
-            res.status(201).json(result.rows[0]); // Return created usage record
+            res.status(201).json(result.rows[0]);
         } catch (error) {
             console.error('Database error (postUsage):', error);
             res.status(500).json({ error: 'Database create failed' });
@@ -83,20 +107,48 @@ class usageController {
     static async updateUsage(req, res) {
         try {
             const id = req.params.id;
-            if (!uuidRegex.test(id)) return res.status(400).json({ error: 'Invalid id format' });
+            if (!uuidRegex.test(id))
+                return res.status(400).json({ error: 'Invalid id format' });
 
-            const allowed = ['machine_id', 'operator', 'shift', 'output', 'comments', 'creator'];
+            const allowed = [
+                'fixture_part_id',
+                'test_slot',
+                'test_station',
+                'test_type',
+                'gpu_pn',
+                'gpu_sn',
+                'log_path',
+                'creator'
+            ];
+
+            // ENUM validation if provided
+            if (req.body.test_slot) {
+                const validSlots = ['LA', 'RA'];
+                if (!validSlots.includes(req.body.test_slot))
+                    return res.status(400).json({ error: 'Invalid test_slot value (LA or RA only)' });
+            }
+
+            if (req.body.test_type) {
+                const validTypes = ['Refurbish', 'Sort', 'Debug'];
+                if (!validTypes.includes(req.body.test_type))
+                    return res.status(400).json({ error: 'Invalid test_type value' });
+            }
+
             const { setClauses, values, paramIndex } = dynamicQuery(allowed, req);
+            if (setClauses.length === 0)
+                return res.status(400).json({ error: 'No valid fields provided for update' });
 
-            if (setClauses.length === 0) return res.status(400).json({ error: 'No valid fields provided for update' });
-
-            values.push(id); // Append id for WHERE clause
+            values.push(id);
             const query = `UPDATE usage SET ${setClauses.join(', ')} WHERE id = $${paramIndex} RETURNING *;`;
 
             const result = await pool.query(query, values);
-            if (result.rows.length === 0) return res.status(404).json({ error: `No usage record found with id: ${id}` });
+            if (result.rows.length === 0)
+                return res.status(404).json({ error: `No usage record found with id: ${id}` });
 
-            res.status(200).json({ message: 'Usage record updated', updatedRow: result.rows[0] });
+            res.status(200).json({
+                message: 'Usage record updated',
+                updatedRow: result.rows[0]
+            });
         } catch (error) {
             console.error('Database error (updateUsage):', error);
             res.status(500).json({ error: 'Database update failed' });
@@ -109,14 +161,19 @@ class usageController {
     static async deleteUsage(req, res) {
         try {
             const id = req.params.id;
-            if (!uuidRegex.test(id)) return res.status(400).json({ error: 'Invalid id format' });
+            if (!uuidRegex.test(id))
+                return res.status(400).json({ error: 'Invalid id format' });
 
             const query = 'DELETE FROM usage WHERE id = $1 RETURNING *;';
             const result = await pool.query(query, [id]);
 
-            if (result.rows.length === 0) return res.status(404).json({ error: `No usage record found with id: ${id}` });
+            if (result.rows.length === 0)
+                return res.status(404).json({ error: `No usage record found with id: ${id}` });
 
-            res.status(200).json({ message: 'Usage record deleted', deletedRow: result.rows[0] });
+            res.status(200).json({
+                message: 'Usage record deleted',
+                deletedRow: result.rows[0]
+            });
         } catch (error) {
             console.error('Database error (deleteUsage):', error);
             res.status(500).json({ error: 'Database delete failed' });
