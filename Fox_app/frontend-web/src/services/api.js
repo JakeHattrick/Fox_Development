@@ -11,7 +11,7 @@ const API = axios.create({
 export const getFixtures = () => API.get("/fixtures");
 export const getFixtureById = (id) => API.get(`/fixtures/${id}`);
 export const createFixture = (data) => API.post("/fixtures", data);
-export const updateFixture = (id, data) => API.put(`/fixtures/${id}`, data);
+export const updateFixture = (id, data) => API.patch(`/fixtures/${id}`, data);
 export const deleteFixture = (id) => API.delete(`/fixtures/${id}`);
 export const getBTesters = () => API.get("/fixtures/btesters");
 export const getEligibleBTesters = (slotType) =>

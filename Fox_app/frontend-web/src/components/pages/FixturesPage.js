@@ -1,7 +1,7 @@
 // FixturesPage.js
 // ======================================================================
 // Parent (fixtures) + Child (fixture_parts) MRT tables
-// Fixed: Save button unclickable (z-index + overlay capture bug)
+// Fixed: Save button unclickable (z-index + overlay capture bug) + edit cloning
 // ======================================================================
 
 import React, { useState, useEffect, useMemo } from "react";
@@ -88,28 +88,66 @@ const FixturesPage = () => {
   }, []);
 
   // ======================================================================
+// FILTER LOGIC FOR PARENT FIXTURE SELECTION BASED ON TESTER TYPE
+// ======================================================================
+const filteredParentFixtures = useMemo(() => {
+  const testerType = newFixturePart.tester_type;
+
+  if (!testerType) return fixtures; // nothing selected yet → show all
+
+  return fixtures.filter((fx) => {
+    const children = fixtureParts.filter((p) => p.parent_fixture_id === fx.id);
+
+    const hasLA = children.some((p) => p.tester_type === "LA Slot");
+    const hasRA = children.some((p) => p.tester_type === "RA Slot");
+
+    // CASE: selecting LA Slot child
+    if (testerType === "LA Slot") {
+      return (
+        children.length === 0 || // no children → OK
+        (hasRA && !hasLA)        // has RA but no LA → OK
+      );
+    }
+
+    // CASE: selecting RA Slot child
+    if (testerType === "RA Slot") {
+      return (
+        children.length === 0 || // no children → OK
+        (hasLA && !hasRA)        // has LA but no RA → OK
+      );
+    }
+
+    return true;
+  });
+}, [fixtures, fixtureParts, newFixturePart.tester_type]);
+
+
+  // ======================================================================
   // EDIT LOGIC
   // ======================================================================
+  // IMPORTANT: clone the object when editing so React detects changes
   const handleEditFixture = (fixture) => {
     setEditMode("fixture");
-    setSelectedItem(fixture);
+    setSelectedItem({ ...fixture }); // clone to avoid mutating MRT internal object
     setOpenDialog(true);
   };
 
   const handleEditFixturePart = (part) => {
     setEditMode("fixturePart");
-    setSelectedItem(part);
+    setSelectedItem({ ...part }); // clone to avoid mutating MRT internal object
     setOpenDialog(true);
   };
 
   const handleSave = async () => {
     try {
+      if (!selectedItem) return; // safety
       if (editMode === "fixture") {
         await updateFixture(selectedItem.id, selectedItem);
       } else {
         await updateFixtureParts(selectedItem.id, selectedItem);
       }
       setOpenDialog(false);
+      setSelectedItem(null);
       loadData();
     } catch (err) {
       console.error("Save error:", err);
@@ -198,6 +236,7 @@ const FixturesPage = () => {
   // ======================================================================
   const handleSelectParent = (parentId) => {
     const parent = fixtures.find((f) => f.id === parentId);
+    if (!parent) return;
 
     setNewFixturePart((prev) => ({
       ...prev,
@@ -233,6 +272,7 @@ const FixturesPage = () => {
           <div style={{ display: "flex", gap: "8px" }}>
             <Button
               variant="contained"
+              type="button" 
               size="small"
               onClick={() => handleEditFixture(row.original)}
             >
@@ -324,14 +364,30 @@ const FixturesPage = () => {
   // RENDER
   // ======================================================================
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Fixtures (Parent + Child)</h2>
+  <div style={{ padding: "20px" }}>
+    {/* FIX: Force dialog above MRT overlays */}
+    <style>
+      {`
+        .MuiDialog-root {
+          z-index: 999999 !important;
+        }
 
-      {/* CREATE BUTTONS */}
-      <div style={{ marginBottom: "15px", display: "flex", gap: "10px" }}>
-        <Button variant="contained" onClick={() => setOpenCreateFixture(true)}>
-          + Create Fixture
-        </Button>
+        /* FIX: force MUI Select menus above dialogs and MRT overlays */
+        .MuiPopover-root,
+        .MuiMenu-root {
+           z-index: 1000000 !important;
+        }
+      `}
+    </style>
+
+    <h2>Fixtures </h2>
+
+    {/* CREATE BUTTONS */}
+    <div style={{ marginBottom: "15px", display: "flex", gap: "10px" }}>
+      <Button variant="contained" onClick={() => setOpenCreateFixture(true)}>
+        + Create Fixture
+      </Button>
+
 
         <Button
           variant="contained"
@@ -342,8 +398,8 @@ const FixturesPage = () => {
         </Button>
       </div>
 
-      {/* IMPORTANT FIX: z-index wrapper */}
-      <div style={{ position: "relative", zIndex: 1 }}>
+      {/* IMPORTANT FIX: z-index wrapper so dialogs are clickable above MRT overlays */}
+      <div style={{ position: "relative", zIndex: 0 }}>
         <MaterialReactTable table={table} />
       </div>
 
@@ -352,7 +408,7 @@ const FixturesPage = () => {
         open={openCreateFixture}
         onClose={() => setOpenCreateFixture(false)}
         fullWidth
-        slotProps={{ paper: { sx: { zIndex: 99999 } } }}
+        slotProps={{ paper: { sx: { zIndex: 999999 } } }}
       >
         <DialogTitle>Create Fixture</DialogTitle>
 
@@ -448,21 +504,6 @@ const FixturesPage = () => {
 
         <DialogContent>
           <FormControl fullWidth margin="dense">
-            <InputLabel>Select Parent Fixture</InputLabel>
-            <Select
-              value={newFixturePart.parent_fixture_id}
-              label="Select Parent Fixture"
-              onChange={(e) => handleSelectParent(e.target.value)}
-            >
-              {fixtures.map((f) => (
-                <MenuItem key={f.id} value={f.id}>
-                  {f.fixture_name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl fullWidth margin="dense">
             <InputLabel id="tester-type-label">Tester Type</InputLabel>
             <Select
               labelId="tester-type-label"
@@ -473,6 +514,22 @@ const FixturesPage = () => {
             >
               <MenuItem value="LA Slot">LA Slot</MenuItem>
               <MenuItem value="RA Slot">RA Slot</MenuItem>
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth margin="dense">
+            <InputLabel>Select Parent Fixture</InputLabel>
+            <Select
+              value={newFixturePart.parent_fixture_id}
+              label="Select Parent Fixture"
+              onChange={(e) => handleSelectParent(e.target.value)}
+            >
+              {filteredParentFixtures.map((f) => (
+                <MenuItem key={f.id} value={f.id}>
+                  {f.fixture_name}
+                </MenuItem>
+              ))}
+
             </Select>
           </FormControl>
 
@@ -557,16 +614,20 @@ const FixturesPage = () => {
       {/* EDIT DIALOG */}
       <Dialog
         open={openDialog}
-        onClose={() => setOpenDialog(false)}
+        onClose={() => {
+          setOpenDialog(false);
+          setSelectedItem(null);
+        }}
         fullWidth
         slotProps={{ paper: { sx: { zIndex: 99999 } } }}
       >
+
         <DialogTitle>
           {editMode === "fixture" ? "Edit Fixture" : "Edit Fixture Part"}
         </DialogTitle>
 
         <DialogContent>
-          {selectedItem && (
+          {selectedItem && editMode === "fixture" && (
             <>
               <TextField
                 margin="dense"
@@ -574,10 +635,7 @@ const FixturesPage = () => {
                 fullWidth
                 value={selectedItem.fixture_name || ""}
                 onChange={(e) =>
-                  setSelectedItem({
-                    ...selectedItem,
-                    fixture_name: e.target.value,
-                  })
+                  setSelectedItem((prev) => ({ ...prev, fixture_name: e.target.value }))
                 }
               />
 
@@ -587,7 +645,7 @@ const FixturesPage = () => {
                 fullWidth
                 value={selectedItem.rack || ""}
                 onChange={(e) =>
-                  setSelectedItem({ ...selectedItem, rack: e.target.value })
+                  setSelectedItem((prev) => ({ ...prev, rack: e.target.value }))
                 }
               />
 
@@ -597,24 +655,9 @@ const FixturesPage = () => {
                 fullWidth
                 value={selectedItem.gen_type || ""}
                 onChange={(e) =>
-                  setSelectedItem({ ...selectedItem, gen_type: e.target.value })
+                  setSelectedItem((prev) => ({ ...prev, gen_type: e.target.value }))
                 }
               />
-
-              {editMode === "fixturePart" && (
-                <TextField
-                  margin="dense"
-                  label="Tester Type"
-                  fullWidth
-                  value={selectedItem.tester_type || ""}
-                  onChange={(e) =>
-                    setSelectedItem({
-                      ...selectedItem,
-                      tester_type: e.target.value,
-                    })
-                  }
-                />
-              )}
 
               <TextField
                 margin="dense"
@@ -622,10 +665,7 @@ const FixturesPage = () => {
                 fullWidth
                 value={selectedItem.fixture_sn || ""}
                 onChange={(e) =>
-                  setSelectedItem({
-                    ...selectedItem,
-                    fixture_sn: e.target.value,
-                  })
+                  setSelectedItem((prev) => ({ ...prev, fixture_sn: e.target.value }))
                 }
               />
 
@@ -635,10 +675,7 @@ const FixturesPage = () => {
                 fullWidth
                 value={selectedItem.test_type || ""}
                 onChange={(e) =>
-                  setSelectedItem({
-                    ...selectedItem,
-                    test_type: e.target.value,
-                  })
+                  setSelectedItem((prev) => ({ ...prev, test_type: e.target.value }))
                 }
               />
 
@@ -648,10 +685,7 @@ const FixturesPage = () => {
                 fullWidth
                 value={selectedItem.ip_address || ""}
                 onChange={(e) =>
-                  setSelectedItem({
-                    ...selectedItem,
-                    ip_address: e.target.value,
-                  })
+                  setSelectedItem((prev) => ({ ...prev, ip_address: e.target.value }))
                 }
               />
 
@@ -661,10 +695,7 @@ const FixturesPage = () => {
                 fullWidth
                 value={selectedItem.mac_address || ""}
                 onChange={(e) =>
-                  setSelectedItem({
-                    ...selectedItem,
-                    mac_address: e.target.value,
-                  })
+                  setSelectedItem((prev) => ({ ...prev, mac_address: e.target.value }))
                 }
               />
 
@@ -674,10 +705,97 @@ const FixturesPage = () => {
                 fullWidth
                 value={selectedItem.creator || ""}
                 onChange={(e) =>
-                  setSelectedItem({
-                    ...selectedItem,
-                    creator: e.target.value,
-                  })
+                  setSelectedItem((prev) => ({ ...prev, creator: e.target.value }))
+                }
+              />
+            </>
+          )}
+
+          {selectedItem && editMode === "fixturePart" && (
+            <>
+              <FormControl fullWidth margin="dense">
+                <InputLabel id="edit-tester-type-label">Tester Type</InputLabel>
+                <Select
+                  labelId="edit-tester-type-label"
+                  name="tester_type"
+                  label="Tester Type"
+                  value={selectedItem.tester_type || ""}
+                  onChange={(e) =>
+                    setSelectedItem((prev) => ({ ...prev, tester_type: e.target.value }))
+                  }
+                >
+                  <MenuItem value="LA Slot">LA Slot</MenuItem>
+                  <MenuItem value="RA Slot">RA Slot</MenuItem>
+                </Select>
+              </FormControl>
+
+              <TextField
+                margin="dense"
+                label="Fixture Part Name"
+                fullWidth
+                value={selectedItem.fixture_name || ""}
+                onChange={(e) =>
+                  setSelectedItem((prev) => ({ ...prev, fixture_name: e.target.value }))
+                }
+              />
+
+              <TextField
+                margin="dense"
+                label="Gen Type"
+                fullWidth
+                value={selectedItem.gen_type || ""}
+                onChange={(e) =>
+                  setSelectedItem((prev) => ({ ...prev, gen_type: e.target.value }))
+                }
+              />
+
+              <TextField
+                margin="dense"
+                label="Serial Number"
+                fullWidth
+                value={selectedItem.fixture_sn || ""}
+                onChange={(e) =>
+                  setSelectedItem((prev) => ({ ...prev, fixture_sn: e.target.value }))
+                }
+              />
+
+              <TextField
+                margin="dense"
+                label="Test Type"
+                fullWidth
+                value={selectedItem.test_type || ""}
+                onChange={(e) =>
+                  setSelectedItem((prev) => ({ ...prev, test_type: e.target.value }))
+                }
+              />
+
+              <TextField
+                margin="dense"
+                label="IP Address"
+                fullWidth
+                value={selectedItem.ip_address || ""}
+                onChange={(e) =>
+                  setSelectedItem((prev) => ({ ...prev, ip_address: e.target.value }))
+                }
+              />
+
+              <TextField
+                margin="dense"
+                label="MAC Address"
+                fullWidth
+                value={selectedItem.mac_address || ""}
+                onChange={(e) =>
+                  setSelectedItem((prev) => ({ ...prev, mac_address: e.target.value }))
+                }
+              />
+
+              <TextField
+                margin="dense"
+                label="Creator"
+                fullWidth
+                value={selectedItem.creator || ""}
+                onChange={(e) =>
+                  setSelectedItem((prev) => ({ ...prev, creator: e.target.value }))
                 }
               />
             </>
@@ -685,8 +803,20 @@ const FixturesPage = () => {
         </DialogContent>
 
         <DialogActions>
-          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleSave}>
+          <Button
+          type="button" 
+            onClick={() => {
+              setOpenDialog(false);
+              setSelectedItem(null);
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleSave}
+            // keep clickable — state updates above ensure selectedItem changes are detected
+          >
             Save
           </Button>
         </DialogActions>
