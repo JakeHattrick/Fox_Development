@@ -1,34 +1,35 @@
-INSERT INTO fixtures (fixture_name, rack, fixture_sn, test_type, ip_address, mac_address, create_date, creator)
+INSERT INTO fixtures (fixture_name, gen_type, rack, fixture_sn, test_type, ip_address, mac_address, create_date, creator)
 VALUES
--- Rack 1 - Refurbish
-('NCT017-01', 'Rack-1', 'SN-B001', 'Refurbish', '192.168.0.1',  'AA:BB:CC:DD:EE:01', NOW(), 'admin'),
-('NCT017-02', 'Rack-1', 'SN-B002', 'Refurbish', '192.168.0.2',  'AA:BB:CC:DD:EE:02', NOW(), 'admin'),
-('NCT017-03', 'Rack-1', 'SN-B003', 'Refurbish', '192.168.0.3',  'AA:BB:CC:DD:EE:03', NOW(), 'admin'),
-('NCT017-04', 'Rack-1', 'SN-B004', 'Refurbish', '192.168.0.4',  'AA:BB:CC:DD:EE:04', NOW(), 'admin'),
+-- Rack 1 - Refurbish (Gen3)
+('NCT017-01', 'Gen3 B Tester', 'Rack-1', 'SN-B001', 'Refurbish', '192.168.0.1',  'AA:BB:CC:DD:EE:01', NOW(), 'admin'),
+('NCT017-02', 'Gen3 B Tester', 'Rack-1', 'SN-B002', 'Refurbish', '192.168.0.2',  'AA:BB:CC:DD:EE:02', NOW(), 'admin'),
+('NCT017-03', 'Gen3 B Tester', 'Rack-1', 'SN-B003', 'Refurbish', '192.168.0.3',  'AA:BB:CC:DD:EE:03', NOW(), 'admin'),
+('NCT017-04', 'Gen3 B Tester', 'Rack-1', 'SN-B004', 'Refurbish', '192.168.0.4',  'AA:BB:CC:DD:EE:04', NOW(), 'admin'),
 
--- Rack 2 - Sort
-('NCT020-01', 'Rack-2', 'SN-B005', 'Sort',      '192.168.0.5',  'AA:BB:CC:DD:EE:05', NOW(), 'admin'),
-('NCT020-02', 'Rack-2', 'SN-B006', 'Sort',      '192.168.0.6',  'AA:BB:CC:DD:EE:06', NOW(), 'admin'),
-('NCT020-03', 'Rack-2', 'SN-B007', 'Sort',      '192.168.0.7',  'AA:BB:CC:DD:EE:07', NOW(), 'admin'),
-('NCT020-04', 'Rack-2', 'SN-B008', 'Sort',      '192.168.0.8',  'AA:BB:CC:DD:EE:08', NOW(), 'admin'),
+-- Rack 2 - Sort (Gen3)
+('NCT020-01', 'Gen3 B Tester', 'Rack-2', 'SN-B005', 'Sort', '192.168.0.5',  'AA:BB:CC:DD:EE:05', NOW(), 'admin'),
+('NCT020-02', 'Gen3 B Tester', 'Rack-2', 'SN-B006', 'Sort', '192.168.0.6',  'AA:BB:CC:DD:EE:06', NOW(), 'admin'),
+('NCT020-03', 'Gen3 B Tester', 'Rack-2', 'SN-B007', 'Sort', '192.168.0.7',  'AA:BB:CC:DD:EE:07', NOW(), 'admin'),
+('NCT020-04', 'Gen3 B Tester', 'Rack-2', 'SN-B008', 'Sort', '192.168.0.8',  'AA:BB:CC:DD:EE:08', NOW(), 'admin'),
 
--- Rack 3 - Debug
-('NCT025-01', 'Rack-3', 'SN-B009', 'Debug',     '192.168.0.9',  'AA:BB:CC:DD:EE:09', NOW(), 'admin'),
-('NCT025-02', 'Rack-3', 'SN-B010', 'Debug',     '192.168.0.10', 'AA:BB:CC:DD:EE:10', NOW(), 'admin'),
-('NCT025-03', 'Rack-3', 'SN-B011', 'Debug',     '192.168.0.11', 'AA:BB:CC:DD:EE:11', NOW(), 'admin'),
-('NCT025-04', 'Rack-3', 'SN-B012', 'Debug',     '192.168.0.12', 'AA:BB:CC:DD:EE:12', NOW(), 'admin'),
+-- Rack 3 - Debug (Gen5)
+('NCT025-01', 'Gen5 B Tester', 'Rack-3', 'SN-B009', 'Debug', '192.168.0.9',   'AA:BB:CC:DD:EE:09', NOW(), 'admin'),
+('NCT025-02', 'Gen5 B Tester', 'Rack-3', 'SN-B010', 'Debug', '192.168.0.10',  'AA:BB:CC:DD:EE:10', NOW(), 'admin'),
+('NCT025-03', 'Gen5 B Tester', 'Rack-3', 'SN-B011', 'Debug', '192.168.0.11',  'AA:BB:CC:DD:EE:11', NOW(), 'admin'),
+('NCT025-04', 'Gen5 B Tester', 'Rack-3', 'SN-B012', 'Debug', '192.168.0.12',  'AA:BB:CC:DD:EE:12', NOW(), 'admin'),
 
--- Rack 4 - Refurbish
-('NCT030-01', 'Rack-4', 'SN-B013', 'Refurbish', '192.168.0.13', 'AA:BB:CC:DD:EE:13', NOW(), 'admin'),
-('NCT030-02', 'Rack-4', 'SN-B014', 'Refurbish', '192.168.0.14', 'AA:BB:CC:DD:EE:14', NOW(), 'admin'),
-('NCT030-03', 'Rack-4', 'SN-B015', 'Refurbish', '192.168.0.15', 'AA:BB:CC:DD:EE:15', NOW(), 'admin'),
-('NCT030-04', 'Rack-4', 'SN-B016', 'Refurbish', '192.168.0.16', 'AA:BB:CC:DD:EE:16', NOW(), 'admin'),
+-- Rack 4 - Refurbish (Gen5)
+('NCT030-01', 'Gen5 B Tester', 'Rack-4', 'SN-B013', 'Refurbish', '192.168.0.13', 'AA:BB:CC:DD:EE:13', NOW(), 'admin'),
+('NCT030-02', 'Gen5 B Tester', 'Rack-4', 'SN-B014', 'Refurbish', '192.168.0.14', 'AA:BB:CC:DD:EE:14', NOW(), 'admin'),
+('NCT030-03', 'Gen5 B Tester', 'Rack-4', 'SN-B015', 'Refurbish', '192.168.0.15', 'AA:BB:CC:DD:EE:15', NOW(), 'admin'),
+('NCT030-04', 'Gen5 B Tester', 'Rack-4', 'SN-B016', 'Refurbish', '192.168.0.16', 'AA:BB:CC:DD:EE:16', NOW(), 'admin'),
 
--- Rack 5 - Sort
-('NCT035-01', 'Rack-5', 'SN-B017', 'Sort',      '192.168.0.17', 'AA:BB:CC:DD:EE:17', NOW(), 'admin'),
-('NCT035-02', 'Rack-5', 'SN-B018', 'Sort',      '192.168.0.18', 'AA:BB:CC:DD:EE:18', NOW(), 'admin'),
-('NCT035-03', 'Rack-5', 'SN-B019', 'Sort',      '192.168.0.19', 'AA:BB:CC:DD:EE:19', NOW(), 'admin'),
-('NCT035-04', 'Rack-5', 'SN-B020', 'Sort',      '192.168.0.20', 'AA:BB:CC:DD:EE:20', NOW(), 'admin');
+-- Rack 5 - Sort (Gen5)
+('NCT035-01', 'Gen5 B Tester', 'Rack-5', 'SN-B017', 'Sort', '192.168.0.17', 'AA:BB:CC:DD:EE:17', NOW(), 'admin'),
+('NCT035-02', 'Gen5 B Tester', 'Rack-5', 'SN-B018', 'Sort', '192.168.0.18', 'AA:BB:CC:DD:EE:18', NOW(), 'admin'),
+('NCT035-03', 'Gen5 B Tester', 'Rack-5', 'SN-B019', 'Sort', '192.168.0.19', 'AA:BB:CC:DD:EE:19', NOW(), 'admin'),
+('NCT035-04', 'Gen5 B Tester', 'Rack-5', 'SN-B020', 'Sort', '192.168.0.20', 'AA:BB:CC:DD:EE:20', NOW(), 'admin');
+
 
 --- ***** VERY IMPORTANT: Before you run "insert into fixture_parts" , be sure to run Autogenerate_Trigger script to auto populate the fields for fixture_parts table ***** ---
 

@@ -6,6 +6,7 @@ BEGIN
     -- Pull data from fixtures table based on parent_fixture_id
     SELECT 
         f.fixture_name,
+        f.gen_type,
         f.rack,
         f.fixture_sn,
         f.test_type,
@@ -13,6 +14,7 @@ BEGIN
         f.mac_address
     INTO 
         NEW.fixture_name,
+        NEW.gen_type,
         NEW.rack,
         NEW.fixture_sn,
         NEW.test_type,

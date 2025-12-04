@@ -7,6 +7,7 @@
 // NOTES:
 //   - RBAC handled by middlewares (allowReadUpdate, isSuperuser).
 //   - All database interactions use parameterized queries to prevent SQL injection.
+//   - Updated to include new column: gen_type
 // ============================================================================
 
 const { pool } = require('../db.js'); // PostgreSQL connection pool
@@ -56,6 +57,7 @@ class fixturesController {
         try {
             const allowed = [
                 'fixture_name',
+                'gen_type',        // NEW FIELD
                 'rack',
                 'fixture_sn',
                 'test_type',
@@ -64,12 +66,18 @@ class fixturesController {
                 'creator'
             ];
 
-            const required = ['fixture_name'];
+            const required = ['fixture_name', 'gen_type']; // gen_type is NOT NULL
 
             // Validate required fields
             const missing = required.filter(f => !Object.prototype.hasOwnProperty.call(req.body, f));
             if (missing.length > 0)
                 return res.status(400).json({ error: `Missing required fields: ${missing.join(', ')}` });
+
+            // Validate gen_type
+            const validGenTypes = ['Gen3 B Tester', 'Gen5 B Tester'];
+            if (req.body.gen_type && !validGenTypes.includes(req.body.gen_type)) {
+                return res.status(400).json({ error: 'Invalid gen_type value' });
+            }
 
             // Validate test_type
             const validTestTypes = ['Refurbish', 'Sort', 'Debug'];
@@ -105,6 +113,7 @@ class fixturesController {
 
             const allowed = [
                 'fixture_name',
+                'gen_type',        // NEW FIELD
                 'rack',
                 'fixture_sn',
                 'test_type',
@@ -112,6 +121,12 @@ class fixturesController {
                 'mac_address',
                 'creator'
             ];
+
+            // Validate gen_type
+            const validGenTypes = ['Gen3 B Tester', 'Gen5 B Tester'];
+            if (req.body.gen_type && !validGenTypes.includes(req.body.gen_type)) {
+                return res.status(400).json({ error: 'Invalid gen_type value' });
+            }
 
             // Validate test_type
             const validTestTypes = ['Refurbish', 'Sort', 'Debug'];
