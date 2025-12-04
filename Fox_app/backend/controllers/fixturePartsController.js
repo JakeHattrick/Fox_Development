@@ -7,7 +7,8 @@
 // NOTES:
 //   - RBAC handled by middlewares (allowReadUpdate, isSuperuser).
 //   - All database interactions use parameterized queries to prevent SQL injection.
-//   - Trigger auto-populates inherited fields from parent fixtures.
+//   - Fixture-related fields (fixture_name, rack, gen_type, etc.) are auto-populated
+//     by TRIGGER populate_fixture_parts_fields() at the DB level.
 // ============================================================================
 
 const { pool } = require('../db.js'); // PostgreSQL connection pool
@@ -56,6 +57,8 @@ class fixturePartsController {
     // =====================================================
     static async postFixturePart(req, res) {
         try {
+            // Only these fields can be supplied by FE.
+            // Everything else is auto-populated by DB trigger.
             const allowed = [
                 'parent_fixture_id',
                 'tester_type',
@@ -65,11 +68,16 @@ class fixturePartsController {
             const required = ['parent_fixture_id', 'tester_type'];
 
             // Validate required fields
-            const missing = required.filter(f => !Object.prototype.hasOwnProperty.call(req.body, f));
-            if (missing.length > 0)
-                return res.status(400).json({ error: `Missing required fields: ${missing.join(', ')}` });
+            const missing = required.filter(f =>
+                !Object.prototype.hasOwnProperty.call(req.body, f)
+            );
 
-            // Validate UUID format for parent_fixture_id
+            if (missing.length > 0)
+                return res.status(400).json({
+                    error: `Missing required fields: ${missing.join(', ')}`
+                });
+
+            // Validate UUID for parent_fixture_id
             if (!uuidRegex.test(req.body.parent_fixture_id)) {
                 return res.status(400).json({ error: 'Invalid parent_fixture_id format' });
             }
@@ -80,7 +88,9 @@ class fixturePartsController {
                 return res.status(400).json({ error: 'Invalid tester_type value' });
             }
 
+            // Create dynamic INSERT
             const { columns, placeholders, values } = dynamicPostQuery(allowed, req);
+
             if (placeholders.length === 0)
                 return res.status(400).json({ error: 'No valid fields provided' });
 
@@ -90,7 +100,9 @@ class fixturePartsController {
                 RETURNING *;
             `;
 
+            // TRIGGER fills in inherited fixture fields
             const result = await pool.query(query, values);
+
             res.status(201).json(result.rows[0]);
         } catch (error) {
             console.error('Database error (postFixturePart):', error);
@@ -107,6 +119,9 @@ class fixturePartsController {
             if (!uuidRegex.test(id))
                 return res.status(400).json({ error: 'Invalid id format' });
 
+            // IMPORTANT:
+            // All inherited fields must NOT be updated here.
+            // Only tester_type + creator can be changed.
             const allowed = [
                 'tester_type',
                 'creator'
@@ -121,7 +136,9 @@ class fixturePartsController {
             const { setClauses, values, paramIndex } = dynamicQuery(allowed, req);
 
             if (setClauses.length === 0)
-                return res.status(400).json({ error: 'No valid fields provided for update' });
+                return res.status(400).json({
+                    error: 'No valid fields provided for update'
+                });
 
             values.push(id);
 
@@ -135,7 +152,9 @@ class fixturePartsController {
             const result = await pool.query(query, values);
 
             if (result.rows.length === 0)
-                return res.status(404).json({ error: `No fixture part found with id: ${id}` });
+                return res.status(404).json({
+                    error: `No fixture part found with id: ${id}`
+                });
 
             res.status(200).json({
                 message: 'Fixture part updated',
@@ -160,7 +179,9 @@ class fixturePartsController {
             const result = await pool.query(query, [id]);
 
             if (result.rows.length === 0)
-                return res.status(404).json({ error: `No fixture part found with id: ${id}` });
+                return res.status(404).json({
+                    error: `No fixture part found with id: ${id}`
+                });
 
             res.status(200).json({
                 message: 'Fixture part deleted',

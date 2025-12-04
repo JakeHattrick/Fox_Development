@@ -1,128 +1,696 @@
-// ============================================================================
-// FixturesPage.js — Minimal Version (READ ONLY)
-// Shows parent fixtures + child fixture parts using MRT detail panel
-// ============================================================================
+// FixturesPage.js
+// ======================================================================
+// Parent (fixtures) + Child (fixture_parts) MRT tables
+// Fixed: Save button unclickable (z-index + overlay capture bug)
+// ======================================================================
 
 import React, { useState, useEffect, useMemo } from "react";
 import { MaterialReactTable, useMaterialReactTable } from "material-react-table";
 
 import {
-  getFixtures
+  getFixtures,
+  getFixtureParts,
+  createFixture,
+  createFixtureParts,
+  updateFixture,
+  updateFixtureParts,
+  deleteFixture,
+  deleteFixtureParts,
 } from "../../services/api";
 
-import { getFixtureParts } from "../../services/api";
+import {
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+} from "@mui/material";
 
-import { Button } from "@mui/material";
-
-// ============================================================================
-// COMPONENT
-// ============================================================================
 const FixturesPage = () => {
+  // ======================================================================
+  // STATE
+  // ======================================================================
   const [fixtures, setFixtures] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [fixtureParts, setFixtureParts] = useState([]);
 
-  // ========================================================================
-  // LOAD PARENT + CHILD DATA
-  // ========================================================================
+  const [openDialog, setOpenDialog] = useState(false);
+  const [editMode, setEditMode] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  const [openCreateFixture, setOpenCreateFixture] = useState(false);
+  const [openCreateFixturePart, setOpenCreateFixturePart] = useState(false);
+
+  const [newFixture, setNewFixture] = useState({
+    fixture_name: "",
+    rack: "",
+    fixture_sn: "",
+    test_type: "",
+    gen_type: "",
+    ip_address: "",
+    mac_address: "",
+    creator: "",
+  });
+
+  const [newFixturePart, setNewFixturePart] = useState({
+    parent_fixture_id: "",
+    tester_type: "",
+    fixture_name: "",
+    fixture_sn: "",
+    gen_type: "",
+    test_type: "",
+    ip_address: "",
+    mac_address: "",
+    rack: "",
+    creator: "",
+  });
+
+  // ======================================================================
+  // LOAD DATA
+  // ======================================================================
+  const loadData = async () => {
+    try {
+      const f = await getFixtures();
+      const fp = await getFixtureParts();
+      setFixtures(f.data);
+      setFixtureParts(fp.data);
+    } catch (err) {
+      console.error("Error loading fixtures:", err);
+    }
+  };
+
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const parentRes = await getFixtures();
-        const childRes = await getFixtureParts();
-
-        console.log("PARENT FIXTURES:", parentRes.data);
-        console.log("CHILD FIXTURE PARTS:", childRes.data);
-
-        const parents = parentRes.data || [];
-        const children = childRes.data || [];
-
-        // ---------------------------------------------------------------
-        // MERGE CHILDREN WITH PARENTS
-        // ---------------------------------------------------------------
-        const merged = parents.map((p) => ({
-          ...p,
-          children: children.filter((c) => c.parent_fixture_id === p.id),
-        }));
-
-        console.log("MERGED RESULT:", merged);
-        setFixtures(merged);
-      } catch (err) {
-        console.error("Error loading fixtures:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadData();
   }, []);
 
-  // ========================================================================
-  // PARENT COLUMNS (fixtures)
-  // ========================================================================
-  const parentColumns = useMemo(
+  // ======================================================================
+  // EDIT LOGIC
+  // ======================================================================
+  const handleEditFixture = (fixture) => {
+    setEditMode("fixture");
+    setSelectedItem(fixture);
+    setOpenDialog(true);
+  };
+
+  const handleEditFixturePart = (part) => {
+    setEditMode("fixturePart");
+    setSelectedItem(part);
+    setOpenDialog(true);
+  };
+
+  const handleSave = async () => {
+    try {
+      if (editMode === "fixture") {
+        await updateFixture(selectedItem.id, selectedItem);
+      } else {
+        await updateFixtureParts(selectedItem.id, selectedItem);
+      }
+      setOpenDialog(false);
+      loadData();
+    } catch (err) {
+      console.error("Save error:", err);
+    }
+  };
+
+  // ======================================================================
+  // DELETE LOGIC
+  // ======================================================================
+  const handleDeleteFixture = async (id) => {
+    if (!window.confirm("Delete this fixture?")) return;
+    await deleteFixture(id);
+    loadData();
+  };
+
+  const handleDeleteFixturePart = async (id) => {
+    if (!window.confirm("Delete this fixture part?")) return;
+    await deleteFixtureParts(id);
+    loadData();
+  };
+
+  // ======================================================================
+  // CREATE FIXTURE
+  // ======================================================================
+  const handleCreateFixture = async () => {
+    try {
+      await createFixture(newFixture);
+      setOpenCreateFixture(false);
+
+      setNewFixture({
+        fixture_name: "",
+        rack: "",
+        fixture_sn: "",
+        test_type: "",
+        gen_type: "",
+        ip_address: "",
+        mac_address: "",
+        creator: "",
+      });
+
+      loadData();
+    } catch (err) {
+      console.error("Create fixture error:", err);
+    }
+  };
+
+  // ======================================================================
+  // CREATE FIXTURE PART
+  // ======================================================================
+  const handleFixturePartChange = (e) => {
+    const { name, value } = e.target;
+    setNewFixturePart((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCreateFixturePart = async () => {
+    if (!newFixturePart.parent_fixture_id) {
+      alert("Select a parent fixture first.");
+      return;
+    }
+
+    try {
+      await createFixtureParts(newFixturePart);
+      setOpenCreateFixturePart(false);
+
+      setNewFixturePart({
+        parent_fixture_id: "",
+        tester_type: "",
+        fixture_name: "",
+        fixture_sn: "",
+        gen_type: "",
+        test_type: "",
+        ip_address: "",
+        mac_address: "",
+        rack: "",
+        creator: "",
+      });
+
+      loadData();
+    } catch (err) {
+      console.error("Create fixture part error:", err);
+    }
+  };
+
+  // ======================================================================
+  // AUTO-FILL CHILD WHEN PARENT SELECTED
+  // ======================================================================
+  const handleSelectParent = (parentId) => {
+    const parent = fixtures.find((f) => f.id === parentId);
+
+    setNewFixturePart((prev) => ({
+      ...prev,
+      parent_fixture_id: parentId,
+      fixture_name: parent.fixture_name,
+      fixture_sn: parent.fixture_sn,
+      gen_type: parent.gen_type,
+      test_type: parent.test_type,
+      ip_address: parent.ip_address,
+      mac_address: parent.mac_address,
+      rack: parent.rack,
+    }));
+  };
+
+  // ======================================================================
+  // COLUMNS: FIXTURES
+  // ======================================================================
+  const fixtureColumns = useMemo(
     () => [
-      { accessorKey: "fixture_name", header: "Fixture Name" },
-      { accessorKey: "tester_type", header: "Tester Type" },
-      { accessorKey: "rack", header: "Rack" },
-      { accessorKey: "test_type", header: "Test Type" },
-      { accessorKey: "ip_address", header: "IP" },
+      { header: "Fixture Name", accessorKey: "fixture_name" },
+      { header: "Rack", accessorKey: "rack" },
+      { header: "Gen Type", accessorKey: "gen_type" },
+      { header: "Serial Number", accessorKey: "fixture_sn" },
+      { header: "Test Type", accessorKey: "test_type" },
+      { header: "IP Address", accessorKey: "ip_address" },
+      { header: "MAC Address", accessorKey: "mac_address" },
+      { header: "Creator", accessorKey: "creator" },
+
+      {
+        header: "Actions",
+        accessorKey: "id",
+        Cell: ({ row }) => (
+          <div style={{ display: "flex", gap: "8px" }}>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => handleEditFixture(row.original)}
+            >
+              Edit
+            </Button>
+            <Button
+              variant="contained"
+              color="error"
+              size="small"
+              onClick={() => handleDeleteFixture(row.original.id)}
+            >
+              Delete
+            </Button>
+          </div>
+        ),
+      },
     ],
     []
   );
 
-  // ========================================================================
-  // CHILD COLUMNS (fixture_parts)
-  // ========================================================================
-  const childColumns = useMemo(
-    () => [
-      { accessorKey: "fixture_name", header: "Child Name" },
-      { accessorKey: "tester_type", header: "Type" },
-      { accessorKey: "fixture_sn", header: "Serial" },
-      { accessorKey: "rack", header: "Rack" },
-      { accessorKey: "ip_address", header: "IP" },
-      { accessorKey: "mac_address", header: "MAC" },
-    ],
-    []
-  );
+  // ======================================================================
+  // COLUMNS: FIXTURE PARTS
+  // ======================================================================
+  const partsColumns = [
+    { header: "Fixture Part Name", accessorKey: "fixture_name" },
+    { header: "Tester Type", accessorKey: "tester_type" },
+    { header: "Gen Type", accessorKey: "gen_type" },
+    { header: "Serial Number", accessorKey: "fixture_sn" },
+    { header: "Test Type", accessorKey: "test_type" },
+    { header: "IP Address", accessorKey: "ip_address" },
+    { header: "MAC Address", accessorKey: "mac_address" },
+    { header: "Creator", accessorKey: "creator" },
 
-  // ========================================================================
-  // MRT INSTANCE
-  // ========================================================================
+    {
+      header: "Actions",
+      accessorKey: "id",
+      Cell: ({ row }) => (
+        <div style={{ display: "flex", gap: "8px" }}>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => handleEditFixturePart(row.original)}
+          >
+            Edit
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            size="small"
+            onClick={() => handleDeleteFixturePart(row.original.id)}
+          >
+            Delete
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
+  // ======================================================================
+  // MRT TABLE CONFIG
+  // ======================================================================
   const table = useMaterialReactTable({
-    columns: parentColumns,
+    columns: fixtureColumns,
     data: fixtures,
     enableExpanding: true,
-    getSubRows: (row) => row.children, // <--- THIS MAKES CHILDREN SHOW
+
+    getSubRows: (parent) =>
+      fixtureParts.filter((child) => child.parent_fixture_id === parent.id),
+
     renderDetailPanel: ({ row }) => {
-      const children = row.original.children;
-      if (!children?.length) return <div style={{ padding: 10 }}>No child parts</div>;
+      const children = fixtureParts.filter(
+        (p) => p.parent_fixture_id === row.original.id
+      );
 
       return (
-        <div style={{ padding: 10 }}>
-          <MaterialReactTable
-            columns={childColumns}
-            data={children}
-            enableTopToolbar={false}
-            enableSorting={false}
-            enablePagination={false}
-            enableBottomToolbar={false}
-          />
-        </div>
+        <MaterialReactTable
+          columns={partsColumns}
+          data={children}
+          enablePagination={false}
+          enableColumnActions={false}
+          enableSorting={false}
+          enableTopToolbar={false}
+        />
       );
     },
-    initialState: { expanded: true }, // show children by default
   });
 
-  // ========================================================================
+  // ======================================================================
   // RENDER
-  // ========================================================================
+  // ======================================================================
   return (
     <div style={{ padding: "20px" }}>
-      <h2>Fixtures (Parent → Child)</h2>
+      <h2>Fixtures (Parent + Child)</h2>
 
-      {loading && <p>Loading...</p>}
+      {/* CREATE BUTTONS */}
+      <div style={{ marginBottom: "15px", display: "flex", gap: "10px" }}>
+        <Button variant="contained" onClick={() => setOpenCreateFixture(true)}>
+          + Create Fixture
+        </Button>
 
-      <MaterialReactTable table={table} />
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => setOpenCreateFixturePart(true)}
+        >
+          + Create Fixture Part
+        </Button>
+      </div>
+
+      {/* IMPORTANT FIX: z-index wrapper */}
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <MaterialReactTable table={table} />
+      </div>
+
+      {/* CREATE FIXTURE */}
+      <Dialog
+        open={openCreateFixture}
+        onClose={() => setOpenCreateFixture(false)}
+        fullWidth
+        slotProps={{ paper: { sx: { zIndex: 99999 } } }}
+      >
+        <DialogTitle>Create Fixture</DialogTitle>
+
+        <DialogContent>
+          <TextField
+            margin="dense"
+            label="Fixture Name"
+            fullWidth
+            value={newFixture.fixture_name}
+            onChange={(e) =>
+              setNewFixture({ ...newFixture, fixture_name: e.target.value })
+            }
+          />
+          <TextField
+            margin="dense"
+            label="Rack"
+            fullWidth
+            value={newFixture.rack}
+            onChange={(e) => setNewFixture({ ...newFixture, rack: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Serial Number"
+            fullWidth
+            value={newFixture.fixture_sn}
+            onChange={(e) =>
+              setNewFixture({ ...newFixture, fixture_sn: e.target.value })
+            }
+          />
+          <TextField
+            margin="dense"
+            label="Test Type"
+            fullWidth
+            value={newFixture.test_type}
+            onChange={(e) =>
+              setNewFixture({ ...newFixture, test_type: e.target.value })
+            }
+          />
+          <TextField
+            margin="dense"
+            label="Gen Type"
+            fullWidth
+            value={newFixture.gen_type}
+            onChange={(e) =>
+              setNewFixture({ ...newFixture, gen_type: e.target.value })
+            }
+          />
+          <TextField
+            margin="dense"
+            label="IP Address"
+            fullWidth
+            value={newFixture.ip_address}
+            onChange={(e) =>
+              setNewFixture({ ...newFixture, ip_address: e.target.value })
+            }
+          />
+          <TextField
+            margin="dense"
+            label="MAC Address"
+            fullWidth
+            value={newFixture.mac_address}
+            onChange={(e) =>
+              setNewFixture({ ...newFixture, mac_address: e.target.value })
+            }
+          />
+          <TextField
+            margin="dense"
+            label="Creator"
+            fullWidth
+            value={newFixture.creator}
+            onChange={(e) =>
+              setNewFixture({ ...newFixture, creator: e.target.value })
+            }
+          />
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={() => setOpenCreateFixture(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleCreateFixture}>
+            Create
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* CREATE FIXTURE PART */}
+      <Dialog
+        open={openCreateFixturePart}
+        onClose={() => setOpenCreateFixturePart(false)}
+        fullWidth
+        slotProps={{ paper: { sx: { zIndex: 99999 } } }}
+      >
+        <DialogTitle>Create Fixture Part</DialogTitle>
+
+        <DialogContent>
+          <FormControl fullWidth margin="dense">
+            <InputLabel>Select Parent Fixture</InputLabel>
+            <Select
+              value={newFixturePart.parent_fixture_id}
+              label="Select Parent Fixture"
+              onChange={(e) => handleSelectParent(e.target.value)}
+            >
+              {fixtures.map((f) => (
+                <MenuItem key={f.id} value={f.id}>
+                  {f.fixture_name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth margin="dense">
+            <InputLabel id="tester-type-label">Tester Type</InputLabel>
+            <Select
+              labelId="tester-type-label"
+              name="tester_type"
+              label="Tester Type"
+              value={newFixturePart.tester_type}
+              onChange={handleFixturePartChange}
+            >
+              <MenuItem value="LA Slot">LA Slot</MenuItem>
+              <MenuItem value="RA Slot">RA Slot</MenuItem>
+            </Select>
+          </FormControl>
+
+          <TextField
+            margin="dense"
+            label="Fixture Part Name"
+            fullWidth
+            value={newFixturePart.fixture_name}
+            onChange={(e) =>
+              setNewFixturePart({
+                ...newFixturePart,
+                fixture_name: e.target.value,
+              })
+            }
+          />
+
+          <TextField
+            margin="dense"
+            label="Gen Type"
+            fullWidth
+            value={newFixturePart.gen_type}
+            InputProps={{ readOnly: true }}
+          />
+          <TextField
+            margin="dense"
+            label="Serial Number"
+            fullWidth
+            value={newFixturePart.fixture_sn}
+            InputProps={{ readOnly: true }}
+          />
+          <TextField
+            margin="dense"
+            label="Test Type"
+            fullWidth
+            value={newFixturePart.test_type}
+            InputProps={{ readOnly: true }}
+          />
+          <TextField
+            margin="dense"
+            label="IP Address"
+            fullWidth
+            value={newFixturePart.ip_address}
+            InputProps={{ readOnly: true }}
+          />
+          <TextField
+            margin="dense"
+            label="MAC Address"
+            fullWidth
+            value={newFixturePart.mac_address}
+            InputProps={{ readOnly: true }}
+          />
+          <TextField
+            margin="dense"
+            label="Rack"
+            fullWidth
+            value={newFixturePart.rack}
+            InputProps={{ readOnly: true }}
+          />
+
+          <TextField
+            margin="dense"
+            label="Creator"
+            fullWidth
+            value={newFixturePart.creator}
+            onChange={(e) =>
+              setNewFixturePart({
+                ...newFixturePart,
+                creator: e.target.value,
+              })
+            }
+          />
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={() => setOpenCreateFixturePart(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleCreateFixturePart}>
+            Create
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* EDIT DIALOG */}
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        fullWidth
+        slotProps={{ paper: { sx: { zIndex: 99999 } } }}
+      >
+        <DialogTitle>
+          {editMode === "fixture" ? "Edit Fixture" : "Edit Fixture Part"}
+        </DialogTitle>
+
+        <DialogContent>
+          {selectedItem && (
+            <>
+              <TextField
+                margin="dense"
+                label="Fixture Name"
+                fullWidth
+                value={selectedItem.fixture_name || ""}
+                onChange={(e) =>
+                  setSelectedItem({
+                    ...selectedItem,
+                    fixture_name: e.target.value,
+                  })
+                }
+              />
+
+              <TextField
+                margin="dense"
+                label="Rack"
+                fullWidth
+                value={selectedItem.rack || ""}
+                onChange={(e) =>
+                  setSelectedItem({ ...selectedItem, rack: e.target.value })
+                }
+              />
+
+              <TextField
+                margin="dense"
+                label="Gen Type"
+                fullWidth
+                value={selectedItem.gen_type || ""}
+                onChange={(e) =>
+                  setSelectedItem({ ...selectedItem, gen_type: e.target.value })
+                }
+              />
+
+              {editMode === "fixturePart" && (
+                <TextField
+                  margin="dense"
+                  label="Tester Type"
+                  fullWidth
+                  value={selectedItem.tester_type || ""}
+                  onChange={(e) =>
+                    setSelectedItem({
+                      ...selectedItem,
+                      tester_type: e.target.value,
+                    })
+                  }
+                />
+              )}
+
+              <TextField
+                margin="dense"
+                label="Serial Number"
+                fullWidth
+                value={selectedItem.fixture_sn || ""}
+                onChange={(e) =>
+                  setSelectedItem({
+                    ...selectedItem,
+                    fixture_sn: e.target.value,
+                  })
+                }
+              />
+
+              <TextField
+                margin="dense"
+                label="Test Type"
+                fullWidth
+                value={selectedItem.test_type || ""}
+                onChange={(e) =>
+                  setSelectedItem({
+                    ...selectedItem,
+                    test_type: e.target.value,
+                  })
+                }
+              />
+
+              <TextField
+                margin="dense"
+                label="IP Address"
+                fullWidth
+                value={selectedItem.ip_address || ""}
+                onChange={(e) =>
+                  setSelectedItem({
+                    ...selectedItem,
+                    ip_address: e.target.value,
+                  })
+                }
+              />
+
+              <TextField
+                margin="dense"
+                label="MAC Address"
+                fullWidth
+                value={selectedItem.mac_address || ""}
+                onChange={(e) =>
+                  setSelectedItem({
+                    ...selectedItem,
+                    mac_address: e.target.value,
+                  })
+                }
+              />
+
+              <TextField
+                margin="dense"
+                label="Creator"
+                fullWidth
+                value={selectedItem.creator || ""}
+                onChange={(e) =>
+                  setSelectedItem({
+                    ...selectedItem,
+                    creator: e.target.value,
+                  })
+                }
+              />
+            </>
+          )}
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleSave}>
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
