@@ -9,6 +9,10 @@ const router = express.Router();
 const healthController = require('../controllers/healthController');
 const { allowReadUpdate, isSuperuser } = require('../middlewares/roleCheck');
 
+//  NEW HEALTH SUMMARY ENDPOINT — place it BEFORE the '/:id' route
+router.get('/summary', allowReadUpdate, healthController.getHealthSummary);
+router.get('/summary/:fixtureId', allowReadUpdate, healthController.getHealthSummaryByFixture);
+
 // READ all health records — allowed for all users
 router.get('/', allowReadUpdate, healthController.getAllHealth);
 

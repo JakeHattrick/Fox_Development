@@ -37,6 +37,7 @@ import './components/theme/theme.css';
 import { GlobalSettingsProvider } from './data/GlobalSettingsContext';
 import FixturesPage from "./components/pages/FixturesPage";
 import FixtureMaintenance from './components/pages/FixtureMaintenance';
+import HealthPage from './components/pages/healthPage';
 
 //Main content component
 const MainContent = React.memo(({ children }) => {
@@ -78,6 +79,7 @@ const AppRoutes = React.memo(() => (
       <Route path="/fixture-inventory" element={<FixtureInventory/>}/>
       <Route path="/fixtures" element={<FixturesPage />} />
       <Route path="/fixture-maintenance" element={<FixtureMaintenance />} />
+      <Route path="/health" element={<HealthPage />} />
       {process.env.NODE_ENV === 'development' && (
         <Route path="/dev/upload" element={<UploadPage />} />
       )}
