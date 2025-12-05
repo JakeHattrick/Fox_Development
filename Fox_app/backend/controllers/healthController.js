@@ -137,6 +137,41 @@ class healthController {
             res.status(500).json({ error: 'Database delete failed' });
         }
     }
+
+    // ======================================================================
+    // NEW: Get computed health summary (all fixtures)
+    // ======================================================================
+    static async getHealthSummary(req, res) {
+        try {
+            const service = require("../services/healthService");
+            const summary = await service.getHealthSummary();
+            res.status(200).json(summary);
+        } catch (err) {
+            console.error("Health summary failed:", err);
+            res.status(500).json({ error: "Health summary failed" });
+        }
+    }
+
+    // ======================================================================
+    // NEW: Get computed health summary for one fixture
+    // ======================================================================
+    static async getHealthSummaryByFixture(req, res) {
+        try {
+            const { fixtureId } = req.params;
+            const service = require("../services/healthService");
+
+            const summary = await service.getHealthSummaryById(fixtureId);
+            if (!summary)
+                return res.status(404).json({ error: "Fixture summary not found" });
+
+            res.status(200).json(summary);
+        } catch (err) {
+            console.error("Health detail failed:", err);
+            res.status(500).json({ error: "Health detail failed" });
+        }
+    }
+
+
 }
 
 module.exports = healthController;

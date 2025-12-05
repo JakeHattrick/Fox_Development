@@ -35,6 +35,19 @@ export const createFixtureParts = (data) => API.post("/fixture-parts", data);
 export const updateFixtureParts = (id, data) => API.patch(`/fixture-parts/${id}`, data);
 export const deleteFixtureParts = (id) => API.delete(`/fixture-parts/${id}`);
 
+// ========================
+// Health CRUD
+// ========================
+export const getAllHealth = () => API.get("/health");
+export const getHealthById = (id) => API.get(`/health/${id}`);
+export const createHealth = (data) => API.post("/health", data);
+export const updateHealth = (id, data) => API.patch(`/health/${id}`, data);
+export const deleteHealth = (id) => API.delete(`/health/${id}`);
+// Health Summary (computed)
+export const getHealthSummaryAll = () => API.get("/health/summary");
+export const getHealthSummaryByFixture = (fixtureId) =>
+  API.get(`/health/summary/${fixtureId}`);
+
 
 // ========================
 // Export Axios instance
