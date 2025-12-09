@@ -9,46 +9,79 @@ CREATE DATABASE postgres
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 CREATE TABLE fixtures (
-id UUID PRIMARY KEY DEFAULT gen_random_uuid() ,
-tester_type VARCHAR(32),
-CHECK (tester_type = 'B Tester' OR tester_type = 'LA Slot' OR tester_type = 'RA Slot'),
-fixture_name VARCHAR(32) UNIQUE,
-rack VARCHAR(32),
-fixture_sn VARCHAR(32),
-test_type VARCHAR(32),
-CHECK (test_type = 'Refurbish' OR test_type = 'Sort' OR test_type = 'NA'),
-ip_address VARCHAR(16),
-mac_address VARCHAR(17),
-parent UUID,
-CHECK (parent IS null OR parent <> id),
-FOREIGN KEY (parent) REFERENCES fixtures(id),
-creator VARCHAR(32),
-create_date TIMESTAMPTZ
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    fixture_name VARCHAR(32) UNIQUE NOT NULL,
+    rack VARCHAR(32),
+    fixture_sn VARCHAR(32),
+    test_type VARCHAR(32) CHECK (test_type IN ('Refurbish', 'Sort', 'Debug')),
+    ip_address VARCHAR(16),
+    mac_address VARCHAR(17),
+    create_date TIMESTAMPTZ DEFAULT NOW(),
+    creator VARCHAR(32)
 );
 
-CREATE TABLE health(
-id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-fixture_id UUID,
-FOREIGN KEY (fixture_id) REFERENCES fixtures(id),
-status VARCHAR(32),
-CHECK (status = 'active' OR status = 'no_response' OR status = 'under_maintenance' OR status = 'RMA'),
-comments VARCHAR(256),
-creator VARCHAR(32),
-create_date TIMESTAMPTZ
+CREATE TABLE IF NOT EXISTS fixture_parts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    parent_fixture_id UUID NOT NULL REFERENCES fixtures(id),
+    tester_type VARCHAR(32) NOT NULL
+        CHECK (tester_type IN ('Gen3 B Tester', 'Gen5 B Tester', 'LA Slot', 'RA Slot')),
+    -- inherited fields (auto-filled by trigger)
+    fixture_name VARCHAR(32),
+    rack VARCHAR(32),
+    fixture_sn VARCHAR(32),
+    test_type VARCHAR(32),   -- will match parent's test_type
+    ip_address VARCHAR(16),
+    mac_address VARCHAR(17),
+    create_date TIMESTAMPTZ DEFAULT NOW(), 
+    creator VARCHAR(32)
 );
 
-CREATE TABLE usage(
-id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-fixture_id UUID,
-FOREIGN KEY (fixture_id) REFERENCES fixtures(id),
-test_slot VARCHAR(32),
-CHECK (test_slot = 'Left' OR test_slot = 'Right'),
-test_station VARCHAR(32),
-test_type VARCHAR(32),
-CHECK (test_type = 'Refurbish' OR test_type = 'Sort' OR test_type = 'NA'),
-gpu_pn VARCHAR(32),
-gpu_sn VARCHAR(32),
-log_path VARCHAR(256),
-creator VARCHAR(32),
-create_date TIMESTAMPTZ
+CREATE TABLE health (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    fixture_id UUID NOT NULL,
+    FOREIGN KEY (fixture_id) REFERENCES fixtures(id),
+    status VARCHAR(32)
+        CHECK (status IN ('active', 'no_response', 'under_maintenance', 'RMA')),
+    comments VARCHAR(256),
+    creator VARCHAR(32),
+    create_date TIMESTAMPTZ DEFAULT NOW()
 );
+
+CREATE TABLE usage (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    fixture_part_id UUID NOT NULL,
+    FOREIGN KEY (fixture_part_id) REFERENCES fixture_parts(id),
+
+    test_slot VARCHAR(16) NOT NULL,
+    CHECK (test_slot IN ('LA', 'RA')),   -- only these two
+
+    test_station VARCHAR(32),
+    test_type VARCHAR(32),
+    CHECK (test_type IN ('Refurbish', 'Sort', 'Debug')),
+
+    gpu_pn VARCHAR(32),
+    gpu_sn VARCHAR(32),
+    log_path VARCHAR(256),
+    creator VARCHAR(32),
+    create_date TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE fixture_maintenance (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    fixture_id UUID NOT NULL,
+    FOREIGN KEY (fixture_id) REFERENCES fixtures(id),
+
+    event_type VARCHAR(32)
+        CHECK (event_type IN ('Scheduled Maintenance', 'Emergency Maintenance', 'Unknown Outage')),
+    start_date_time TIMESTAMPTZ,
+    end_date_time TIMESTAMPTZ,
+
+    occurance VARCHAR(32)
+        CHECK (occurance IN ('Daily', 'Weekly', 'Monthly', 'Quarterly', 'Once')),
+
+    comments VARCHAR(256),
+    is_completed BOOLEAN DEFAULT FALSE,
+    creator VARCHAR(32),
+    create_date TIMESTAMPTZ DEFAULT NOW()
+);
+

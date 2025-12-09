@@ -47,12 +47,14 @@
     "@mui/x-charts": "^8.9.0",
     "@mui/x-date-pickers": "^8.9.0",
     "@tanstack/react-table": "^8.21.3",
+    "axios": "^1.13.2",
     "chart.js": "^4.5.0",
     "d3": "^7.9.0",
     "date-fns": "^4.1.0",
     "electron-log": "^5.4.1",
     "electron-squirrel-startup": "^1.0.1",
     "electron-updater": "^6.6.2",
+    "idb-keyval": "^6.2.1",
     "papaparse": "^5.5.3",
     "react": "^19.1.0",
     "react-chartjs-2": "^5.3.0",
@@ -62,8 +64,7 @@
     "react-window": "^1.8.11",
     "recharts": "^2.15.3",
     "update-electron-app": "^3.1.1",
-    "xlsx": "^0.18.5",
-    "idb-keyval": "^6.2.1"
+    "xlsx": "^0.18.5"
   },
   "repository": "github:CloudCante/Fox_app"
 }

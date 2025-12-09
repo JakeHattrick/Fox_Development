@@ -4,11 +4,9 @@
 
 # Database files
 *.dump
-*.sql
 fox_backup.*
 *.db
-*.sqlite
-*.sqlite3
+
 
 # Python
 __pycache__/

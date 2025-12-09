@@ -88,6 +88,19 @@ const MENU_ITEMS_TE = [
 >>>>>>> origin/main
 ];
 
+//For Testing dashboard
+const MENU_ITEMS_TESTING = [
+  { text: 'Testing Dashboard', icon: <GridViewIcon />, children: [
+    { text: 'Fixtures', icon: <TableChartIcon />, route: '/fixtures' },
+    { text: 'Users', icon: <TableChartIcon />, route: '/users' },
+    { text: 'Health', icon: <TableChartIcon />, route: '/health' },
+    { text: 'Usage', icon: <TableChartIcon />, route: '/usage' },
+    { text: 'Maintenance', icon: <TableChartIcon />, route: '/maintenance' },
+    { text: 'Summary', icon: <TableChartIcon />, route: '/summary' },
+  ]}
+];
+
+
 const DEV_MENU_ITEMS = [
   { text: 'File Upload', icon: <CloudUploadIcon />, route: '/dev/upload' },
   { text: 'Auxiliary Reports', icon: <SpeedIcon />, children:[
@@ -173,6 +186,7 @@ export const SideDrawer = React.memo(({ open, onClose }) => {
     "Performance": false,
     "Auxiliary Reports": false,
     "Fixture Management": false,
+    "Testing Dashboard": false, 
   });
 >>>>>>> origin/main
   const [isLowEndDevice, setIsLowEndDevice] = useState(false);
@@ -347,6 +361,54 @@ export const SideDrawer = React.memo(({ open, onClose }) => {
             />
           );
         })}
+
+        
+        {MENU_ITEMS_TESTING.map(item => {
+        // If it has children, render collapse
+        if (item.children) {
+          const isOpen = openState[item.text];
+          const toggle  = () => {
+          setOpenState(prev => ({
+             ...prev,
+            [item.text]: !prev[item.text]
+          }));
+        }
+        return (
+          <React.Fragment key={item.text}>
+            <ListItem disablePadding>
+            <ListItemButton onClick={() => toggle(open => !open)}>
+            <ListItemIcon sx={{ color: 'white' }}>{item.icon}</ListItemIcon>
+            <ListItemText primary={item.text} />
+            {isOpen ? <ExpandLessIcon/> : <ExpandMoreIcon/>}
+            </ListItemButton>
+            </ListItem>
+            <Collapse in={isOpen} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+            {item.children.map(child => (
+              <MenuItem
+                key={child.text}
+                item={child}
+                onClose={onClose}
+                nested
+              />
+            ))}
+          </List>
+        </Collapse>
+      </React.Fragment>
+    );
+  }
+
+  // Otherwise a normal menu item
+  return (
+    <MenuItem
+      key={item.text}
+      item={item}
+      onClose={onClose}
+    />
+  );
+})}
+
+        
 
         {process.env.NODE_ENV === 'development' && (
           <>
