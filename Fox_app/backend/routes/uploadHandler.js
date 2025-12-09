@@ -27,7 +27,7 @@ router.post('/catch-file', (req, res) => {
         
         
         
-        const targetDir = '/home/darvin/Fox_ETL/input/';
+        const targetDir = '/home/jake.hatcher/Fox_ETL/input/';
         const targetPath = path.join(targetDir, req.file.originalname);
 
         fs.writeFile(targetPath, req.file.buffer, (err) => {

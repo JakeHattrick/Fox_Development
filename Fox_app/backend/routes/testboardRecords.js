@@ -41,16 +41,37 @@ router.post('/most-recent-fail', async (req, res) => {
     const query = `
       SELECT DISTINCT ON (sn)
         sn,
-        failure_reasons AS error_code,
-        history_station_start_time AS fail_time
-      FROM testboard_master_log
-      WHERE sn = ANY($1)
-        AND history_station_start_time >= $2
-        AND history_station_end_time <= $3
-        AND history_station_passing_status = 'Fail'
+        error_code,
+        fail_time
+      FROM (
+        SELECT
+          sn,
+          failure_reasons AS error_code,
+          history_station_start_time AS fail_time,
+          1 as priority
+        FROM testboard_master_log
+        WHERE sn = ANY($1)
+          AND history_station_start_time >= $2
+          AND history_station_end_time   <= $3
+          AND history_station_passing_status = 'Fail'
+
+        UNION ALL
+
+        SELECT
+          sn,
+          'EC-WS' AS error_code,
+          history_station_start_time AS fail_time,
+          2 as priority
+        FROM workstation_master_log
+        WHERE sn = ANY($1)
+          AND history_station_start_time >= $2
+          AND history_station_end_time   <= $3
+          AND history_station_passing_status = 'Fail'
+      ) AS combined
       ORDER BY
         sn,
-        history_station_start_time DESC;
+        fail_time DESC,
+        priority;
     `;
 
     const params = [sns, startDate, endDate];
@@ -83,16 +104,33 @@ router.post('/pass-check', async (req, res) => {
     const query = `
       SELECT DISTINCT ON (sn)
         sn,
-        history_station_start_time AS pass_time
-      FROM testboard_master_log
-      WHERE sn = ANY($1)
-        AND history_station_start_time >= $2
-        AND history_station_end_time <= $3
-        AND history_station_passing_status = 'Pass'
-        AND workstation_name = ANY($4)
+        pass_time
+      FROM (
+        SELECT
+          sn,
+          history_station_start_time AS pass_time
+        FROM testboard_master_log
+        WHERE sn = ANY($1)
+          AND history_station_start_time >= $2
+          AND history_station_end_time <= $3
+          AND history_station_passing_status = 'Pass'
+          AND workstation_name = ANY($4)
+        
+        UNION ALL
+
+        SELECT
+          sn,
+          history_station_start_time AS pass_time
+        FROM workstation_master_log
+        WHERE sn = ANY($1)
+          AND history_station_start_time >= $2
+          AND history_station_end_time <= $3
+          AND history_station_passing_status = 'Pass'
+          AND workstation_name = ANY($4)
+      ) as combined
       ORDER BY
         sn,
-        history_station_start_time DESC;
+        pass_time DESC;
     `;
 
     const params = [sns, startDate, endDate, passCheck];
@@ -122,14 +160,32 @@ router.post('/sn-check', async (req, res) => {
     const query = `
       SELECT DISTINCT ON (sn)
         sn,
-        history_station_start_time AS pass_time
-      FROM testboard_master_log
-      WHERE sn = ANY($1)
-        AND history_station_start_time >= $2
-        AND history_station_end_time <= $3
+        pn,
+        pass_time
+      FROM (
+        SELECT
+          sn,
+          pn,
+          history_station_start_time AS pass_time
+        FROM testboard_master_log
+        WHERE sn = ANY($1)
+          AND history_station_start_time >= $2
+          AND history_station_end_time <= $3
+        
+        UNION ALL
+
+        SELECT
+          sn,
+          pn,
+          history_station_start_time AS pass_time
+        FROM workstation_master_log
+        WHERE sn = ANY($1)
+          AND history_station_start_time >= $2
+          AND history_station_end_time <= $3
+      ) as combined
       ORDER BY
         sn,
-        history_station_start_time DESC;
+        pass_time DESC;
     `;
 
     const params = [sns, startDate, endDate];
@@ -176,6 +232,94 @@ router.post('/by-error', async (req, res) => {
     return res.json(result.rows);
   } catch (error) {
     console.error('by-error:', error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/fail-check', async (req, res) => {
+  try {
+    const { sns, startDate, endDate, passCheck } = req.body;
+
+    if (!startDate || !endDate) {
+      return res
+        .status(400)
+        .json({ error: 'Missing required query parameters: startDate, endDate' });
+    }
+    if (!Array.isArray(sns) || sns.length === 0) {
+      return res
+        .status(400)
+        .json({ error: 'Missing or invalid sns array in request body' });
+    }
+    if(!passCheck){
+      return res.status(400).json({error: ' Missing require query parameters: passCheck'});
+    }
+
+    const query = `
+      SELECT DISTINCT ON (sn)
+        sn,
+        pn,
+        workstation_name,
+        failure_reasons AS error_code,
+        history_station_start_time AS fail_time
+      FROM testboard_master_log
+      WHERE sn = ANY($1)
+        AND history_station_start_time >= $2
+        AND history_station_end_time <= $3
+        AND history_station_passing_status = 'Fail'
+        AND workstation_name = ANY($4)
+      ORDER BY
+        sn,
+        history_station_start_time DESC;
+    `;
+
+    const params = [sns, startDate, endDate, passCheck];
+    const result = await pool.query(query, params);
+    return res.json(result.rows);
+  } catch (error) {
+    console.error('fail-check:', error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/x-bar-r', async (req, res) => {
+  try {
+    const { ec, startDate, endDate, station } = req.body;
+
+    if (!startDate || !endDate) {
+      return res
+        .status(400)
+        .json({ error: 'Missing required query parameters: startDate, endDate' });
+    }
+    if(!ec){
+      return res.status(400).json({error: ' Missing require query parameters: Error Code'});
+    }
+    if(!station){
+      return res.status(400).json({error: ' Missing require query parameters: Station'});
+    }
+
+    const query = `
+      SELECT
+          history_station_start_time::date AS date,
+          COUNT(*) FILTER (
+              WHERE RIGHT(failure_reasons, 3) = $1
+          ) AS error_code_count,
+          COUNT(*) AS test_count
+      FROM testboard_master_log
+      WHERE
+          history_station_start_time >= $2
+          AND history_station_start_time <  $3
+          and workstation_name = $4
+      GROUP BY
+          1
+      ORDER BY
+          date;
+    `;
+
+    const params = [ec, startDate, endDate, station];
+    const result = await pool.query(query, params);
+    return res.json(result.rows);
+  } catch (error) {
+    console.error('x-bar-r:', error);
     return res.status(500).json({ error: error.message });
   }
 });

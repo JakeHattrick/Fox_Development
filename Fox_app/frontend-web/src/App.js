@@ -40,13 +40,7 @@ import FixturesPage from "./components/pages/FixturesPage";
 import FixtureMaintenance from './components/pages/FixtureMaintenance';
 import HealthPage from './components/pages/healthPage';
 
-<<<<<<< HEAD
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-
-=======
 //Main content component
->>>>>>> c64a975df81fe715c36d4cc9fad4a05963808ce3
 const MainContent = React.memo(({ children }) => {
   const mainContentStyle = useMemo(() => ({
     flexGrow: 1,
@@ -84,13 +78,9 @@ const AppRoutes = React.memo(() => (
       <Route path="/fixture-dash" element={<FixtureDash/>}/>
       <Route path="/fixture-details" element={<FixtureDetails/>}/>
       <Route path="/fixture-inventory" element={<FixtureInventory/>}/>
-<<<<<<< HEAD
-      <Route path="/fixture-maintenance" element={<FixtureMaintenance/>}/>
-=======
       <Route path="/fixtures" element={<FixturesPage />} />
       <Route path="/fixture-maintenance" element={<FixtureMaintenance />} />
       <Route path="/health" element={<HealthPage />} />
->>>>>>> c64a975df81fe715c36d4cc9fad4a05963808ce3
       {process.env.NODE_ENV === 'development' && (
         <Route path="/dev/upload" element={<UploadPage />} />
       )}
