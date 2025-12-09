@@ -3,6 +3,8 @@ import React, { useMemo, useState, useCallback } from 'react';
 // Material UI Components
 import { Box, Modal, FormControl, Select, MenuItem, InputLabel, Typography, Button, Tabs, Tab, List, ListItem, ListItemText, Checkbox, IconButton } from '@mui/material';
 import { DragIndicator, Delete } from '@mui/icons-material';
+import ViewModuleIcon from '@mui/icons-material/ViewModule';
+import ViewQuiltIcon from '@mui/icons-material/ViewQuilt';
 // Third Party Libraries
 import 'react-datepicker/dist/react-datepicker.css';
 
@@ -33,7 +35,7 @@ const refreshInterval = 300000; // 5 minutes
 
 export const Dashboard = () => {
   const { state, dispatch } = useGlobalSettings();
-  const { widgets, startDate, endDate, barLimit } = state;
+  const { widgets, startDate, endDate, barLimit, layoutMode } = state;
 
   // Fixed date change handlers - use dispatch instead of setStartDate/setEndDate
   const handleStartDateChange = useCallback((date) => {
@@ -60,7 +62,12 @@ export const Dashboard = () => {
     });
   }, [dispatch]);
 
-  const [singleDate, setSingleDate] = useState([]);
+  const handleLayoutModeChange = (mode) => {
+    console.log('Current layout mode:', layoutMode);
+    console.log('Changing layout mode to:', mode);
+    dispatch({ type: 'SET_LAYOUT_MODE', mode: mode});
+  };
+
   const { currentISOWeekStart, handlePrevWeek, handleNextWeek, weekRange } = useWeekNavigation();
   
   // Context value for the old-style context (for Toolbar and DateRange components)
@@ -197,6 +204,11 @@ export const Dashboard = () => {
       dispatch({ type: 'SET_DATE_RANGE', startDate: getInitialStartDate(7), endDate: normalizeDate.end(new Date()) });
     }
 
+    const toggleLayout = () => {
+      const newMode = layoutMode === 'grid' ? 'masonry' : 'grid'; 
+      handleLayoutModeChange(newMode);
+    }
+
     // Styles for scrollable containers
     const scrollableListStyle = {
       maxHeight: '200px', // Limit height to show about 4-5 items
@@ -234,16 +246,26 @@ export const Dashboard = () => {
               alignItems: 'center',
               mb: 1}}>
             <Typography variant="h6" component="h2" mb={2}>
-              Dashboard Settings
+              Dashboard Settings {layoutMode}
             </Typography>
-            <IconButton
-              aria-label="settings"
-              size="small"
-              onClick={resetGlobals}
-              title="Reset date range to default"
-            >
-              <AccessTimeIcon />
-            </IconButton>
+            <Box>
+              <IconButton
+                aria-label="settings"
+                size="small"
+                onClick={resetGlobals}
+                title="Reset date range to default"
+              >
+                <AccessTimeIcon />
+              </IconButton>
+              <IconButton
+                aria-label="layout"
+                size="small"
+                onClick={toggleLayout}
+                title="Toggle Layout Mode"
+              >
+                {layoutMode === 'grid' ? <ViewQuiltIcon /> : <ViewModuleIcon />}
+              </IconButton>
+            </Box>
           </Box>
           
           <Tabs value={tabValue} onChange={handleTabChange} sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>

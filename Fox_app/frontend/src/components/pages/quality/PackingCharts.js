@@ -12,7 +12,7 @@ import PackingOutputBarChart from '../../charts/PackingOutputBarChart';
 import { ALL_MODELS } from '../../../data/dataTables';
 // Custom Hooks
 import { useWeekNavigation } from '../../hooks/packingCharts/useWeekNavigation';
-import { usePackingData } from '../../hooks/packingCharts/usePackingData';
+import { usePackingChartData as usePackingData } from '../../hooks/packingCharts/usePackingChartData';
 import { buttonStyle } from '../../theme/themes';
 
 // Configuration Constants

@@ -25,7 +25,7 @@ function reducer(state, action) {
  * @param {number} daysBack   – how many days back to fetch
  * @param {number} pollInterval – ms between automatic refreshes
  */
-export function usePackingData(
+export function usePackingTableData(
   apiBase,
   startDate = null,
   endDate = null,

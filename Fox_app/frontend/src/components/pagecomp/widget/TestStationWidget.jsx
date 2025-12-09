@@ -13,6 +13,7 @@ import { TestStationChart } from '../../charts/TestStationChart.js';
 import { fetchWorkstationQuery } from '../../../utils/queryUtils.js';
 // Global Settings
 import { useGlobalSettings } from '../../../data/GlobalSettingsContext.js';
+import { ALL_MODELS } from '../../../data/dataTables.js';
 
 // ------------------------------------------------------------
 // Environment / constants
@@ -63,7 +64,6 @@ export function TestStationWidget({ widgetId }) {
   const [loading, setLoading] = useState(true);
 
   const latestReqId = useRef(0);
-  const [lastGoodData, setLastGoodData] = useState([]);
 
   // ----------------------------------------------------------
   // Derived values from widget settings (persisted selections)
@@ -103,9 +103,6 @@ export function TestStationWidget({ widgetId }) {
             // accept only the latest inflight request
             if (isMounted && latestReqId.current === reqId) {
               setTestStationData(data);
-              if (Array.isArray(data) && data.length > 0) {
-                setLastGoodData(data);
-              }
             }
           },
           API_BASE,
@@ -190,11 +187,13 @@ export function TestStationWidget({ widgetId }) {
 
   // ----------------------------------------------------------
   // Render: chart view
+  const filters = ALL_MODELS.find(mk => mk.label === model)?.filter || [];
   return (
     <TestStationChart
       label={`${model} Test Station Performance`}
       data={testStationData}
       loading={loading}
+      filter={filters}
     />
   );
 }

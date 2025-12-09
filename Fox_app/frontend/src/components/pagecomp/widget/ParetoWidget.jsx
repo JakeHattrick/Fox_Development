@@ -1,7 +1,7 @@
 // Widget for TestStation Pareto Charts
 // ------------------------------------------------------------
 // Imports
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box, Button, FormControl, InputLabel, Select, MenuItem, Paper } from '@mui/material';
 // Page Comps
 import { Header } from '../Header.jsx';
@@ -67,6 +67,7 @@ export function ParetoWidget({ widgetId }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const latestReqId = useRef(0);
   // ----------------------------------------------------------
   // Derived values from widget settings (persisted selections)
   const model  = widgetSettings.model  || '';
@@ -88,7 +89,8 @@ export function ParetoWidget({ widgetId }) {
   useEffect(() => {
     if (!loaded) return;
 
-    let isActive = true;
+    let isMounted = true;
+    const reqId = ++latestReqId.current;
 
     const fetchData = async () => {
       setLoading(true);
@@ -99,16 +101,16 @@ export function ParetoWidget({ widgetId }) {
           endDate,
           key,
           setDataCache: data => {
-            if (isActive) setData(data);
+            if (isMounted && latestReqId.current === reqId) setData(data);
           },
           API_BASE,
           API_Route: '/api/v1/snfn/model-errors?'
         });
       } catch (err) {
         console.error('Error fetching data', err);
-        if (isActive) setData([]);
+        if (isMounted&& latestReqId.current === reqId) setData([]);
       } finally {
-        if (isActive) setLoading(false);
+        if (isMounted&& latestReqId.current === reqId) setLoading(false);
       }
     };
 
@@ -116,7 +118,7 @@ export function ParetoWidget({ widgetId }) {
     const intervalId = setInterval(fetchData, 300000);
 
     return () => {
-      isActive = false;
+      isMounted = false;
       clearInterval(intervalId);
     };
   }, [model, key, startDate, endDate, loaded, widgetId]);

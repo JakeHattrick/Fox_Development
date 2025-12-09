@@ -44,7 +44,11 @@ const MENU_ITEMS_QUALITY = [
   ]},
   { text: 'Performance', icon: <SpeedIcon />, children:[
     { text: 'Quality Control Charts', icon: <SpeedIcon />, route: '/performance' },
-    { text: 'Throughput', icon: <TrendingUpIcon />, route: '/throughput' }
+    { text: 'Throughput', icon: <TrendingUpIcon />, route: '/throughput' },
+    { text: 'Xbar-R Chart', icon: <SpeedIcon />, route: '/xbar-r-chart' },
+  ]},
+  { text: 'Utility Reports', icon: <SpeedIcon />, children:[
+    { text: 'Most Recent Fail', icon: <AccessTimeIcon />, route: '/most-recent-fail'}
   ]},
   //{ text: 'Station Hourly Summary', icon: <TableChartIcon />, route: '/station-hourly-summary' }
 ];
@@ -55,11 +59,6 @@ const MENU_ITEMS_TE = [
     { text: 'Fixture Details', icon: <TableChartIcon />, route: '/fixture-details' },
     { text: 'Fixture Inventory', icon: <TableChartIcon />, route: '/fixture-inventory' },
   ]},
-
-];
-
-//For Testing dashboard
-const MENU_ITEMS_TESTING = [
   { text: 'Testing Dashboard', icon: <GridViewIcon />, children: [
     { text: 'Fixtures', icon: <TableChartIcon />, route: '/fixtures' },
     { text: 'Users', icon: <TableChartIcon />, route: '/users' },
@@ -68,14 +67,27 @@ const MENU_ITEMS_TESTING = [
     { text: 'Maintenance', icon: <TableChartIcon />, route: '/maintenance' },
     { text: 'Summary', icon: <TableChartIcon />, route: '/summary' },
   ]}
+
 ];
+
+// //For Testing dashboard
+// const MENU_ITEMS_TESTING = [
+//   { text: 'Testing Dashboard', icon: <GridViewIcon />, children: [
+//     { text: 'Fixtures', icon: <TableChartIcon />, route: '/fixtures' },
+//     { text: 'Users', icon: <TableChartIcon />, route: '/users' },
+//     { text: 'Health', icon: <TableChartIcon />, route: '/health' },
+//     { text: 'Usage', icon: <TableChartIcon />, route: '/usage' },
+//     { text: 'Maintenance', icon: <TableChartIcon />, route: '/maintenance' },
+//     { text: 'Summary', icon: <TableChartIcon />, route: '/summary' },
+//   ]}
+// ];
 
 
 const DEV_MENU_ITEMS = [
   { text: 'File Upload', icon: <CloudUploadIcon />, route: '/dev/upload' },
   { text: 'Auxiliary Reports', icon: <SpeedIcon />, children:[
     { text: 'Station Cycle Time', icon: <AccessTimeIcon />, route: '/cycle-time' },
-    { text: 'Most Recent Fail', icon: <AccessTimeIcon />, route: '/most-recent-fail' },
+    //{ text: 'Most Recent Fail', icon: <AccessTimeIcon />, route: '/most-recent-fail' },
     { text: 'Get by Error', icon: <TableChartIcon />, route: '/by-error' },
     { text: 'Json to CSV', icon: <TableChartIcon />, route: '/json-to-csv' },
     { text: 'Did They Fail', icon: <TableChartIcon />, route: '/did-they-fail' },
@@ -305,55 +317,7 @@ export const SideDrawer = React.memo(({ open, onClose }) => {
             />
           );
         })}
-
-        
-        {MENU_ITEMS_TESTING.map(item => {
-        // If it has children, render collapse
-        if (item.children) {
-          const isOpen = openState[item.text];
-          const toggle  = () => {
-          setOpenState(prev => ({
-             ...prev,
-            [item.text]: !prev[item.text]
-          }));
-        }
-        return (
-          <React.Fragment key={item.text}>
-            <ListItem disablePadding>
-            <ListItemButton onClick={() => toggle(open => !open)}>
-            <ListItemIcon sx={{ color: 'white' }}>{item.icon}</ListItemIcon>
-            <ListItemText primary={item.text} />
-            {isOpen ? <ExpandLessIcon/> : <ExpandMoreIcon/>}
-            </ListItemButton>
-            </ListItem>
-            <Collapse in={isOpen} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-            {item.children.map(child => (
-              <MenuItem
-                key={child.text}
-                item={child}
-                onClose={onClose}
-                nested
-              />
-            ))}
-          </List>
-        </Collapse>
-      </React.Fragment>
-    );
-  }
-
-  // Otherwise a normal menu item
-  return (
-    <MenuItem
-      key={item.text}
-      item={item}
-      onClose={onClose}
-    />
-  );
-})}
-
-        
-
+   
         {process.env.NODE_ENV === 'development' && (
           <>
             <ListItem sx={{ borderTop: '1px solid rgba(255,255,255,0.12)', mt: 2, pt: 2 }}>

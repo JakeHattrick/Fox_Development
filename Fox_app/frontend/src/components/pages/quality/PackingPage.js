@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { PackingPageTable } from '../../pagecomp/packingPage/PackingPageTable';
 import { DateRange } from '../../pagecomp/DateRange';
 import { tableStyle, divStyle, buttonStyle, subTextStyle } from '../../theme/themes';
-import { usePackingData } from '../../hooks/packingPage/usePackingData';
+import { usePackingTableData as usePackingData } from '../../hooks/packingPage/usePackingTableData';
 
 const API_BASE = process.env.REACT_APP_API_BASE;
 if (!API_BASE) {
