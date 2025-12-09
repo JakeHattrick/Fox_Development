@@ -1,24 +1,14 @@
-<<<<<<< HEAD
-// Enhanced WidgetManager with reset functionality
-import React, { useState, Component, useEffect, useMemo } from 'react';
-import { Box, Button, Typography, IconButton } from '@mui/material';
-import RefreshIcon from '@mui/icons-material/Refresh'; // or your preferred icon
-=======
 // Enhanced WidgetManager with true masonry layout and fixed reset button positioning
 import React, { useState, Component, useEffect, useMemo, useRef, useLayoutEffect } from 'react';
 import { Box, Button, Typography, IconButton } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
->>>>>>> origin/main
 import { Header } from '../pagecomp/Header.jsx'
 import { gridStyle } from '../theme/themes.js';
 import { GlobalSettingsContext, useGlobalSettings } from '../../data/GlobalSettingsContext.js';
 import { useTheme } from '@emotion/react';
 
 const API_BASE = process.env.REACT_APP_API_BASE;
-<<<<<<< HEAD
-=======
 const debug = false; // Set to true to enable debug logs
->>>>>>> origin/main
 
 // Error Boundary to catch widget rendering errors
 class ErrorBoundary extends Component {
@@ -48,8 +38,6 @@ class ErrorBoundary extends Component {
     }
 }
 
-<<<<<<< HEAD
-=======
 // Custom hook for masonry layout
 const useMasonryLayout = (widgets, layoutMode, containerRef) => {
     const [isLayoutReady, setIsLayoutReady] = useState(false);
@@ -344,16 +332,10 @@ function resetMasonryStyles(rootEl) {
 }
 
 
->>>>>>> origin/main
 export function WidgetManager({
     widgets = []
 }) {
     const { state, dispatch } = useGlobalSettings();
-<<<<<<< HEAD
-    const { startDate, endDate } = state;
-
-    const theme = useTheme();
-=======
     const theme = useTheme();
     const containerRef = useRef(null);
     const { layoutMode } = state;
@@ -361,7 +343,6 @@ export function WidgetManager({
     
     // Use custom masonry hook
     const { isLayoutReady } = useMasonryLayout(widgets, layoutMode, containerRef);
->>>>>>> origin/main
 
     const handleResetWidget = (widgetId) => {
         dispatch({
@@ -371,8 +352,6 @@ export function WidgetManager({
         });
     };
 
-<<<<<<< HEAD
-=======
     // CSS Grid masonry fallback (for browsers that support it)
     const cssGridMasonryStyle = {
         display: 'grid',
@@ -490,7 +469,6 @@ export function WidgetManager({
         </Box>
     );
 
->>>>>>> origin/main
     if (!Array.isArray(widgets) || widgets.length === 0) {
         return (
             <Box sx={{ textAlign: 'center', py: 8 }}>
@@ -505,58 +483,6 @@ export function WidgetManager({
         )
     }
         
-<<<<<<< HEAD
-    return (
-        <Box sx={gridStyle}>
-            {widgets.map(({ id, Widget }, index) => {             
-                return (
-                    <Box 
-                        key={id} 
-                        sx={{ 
-                            position: 'relative',
-                            '& > *': { // Target the direct child (the widget)
-                                position: 'relative'
-                            }
-                        }}
-                    >
-                        {/* Widget content */}
-                        {Widget ? (
-                            <ErrorBoundary widgetId={id}>
-                                <Widget widgetId={id}/>
-                            </ErrorBoundary>
-                        ) : (
-                            <Typography>Widget component missing for id: {id}</Typography>
-                        )}
-
-                        {/* Reset button overlay - positioned over the widget */}
-                        <IconButton
-                            onClick={() => handleResetWidget(id)}
-                            sx={{
-                                position: 'absolute',
-                                top: 8,
-                                right: 8,
-                                zIndex: 1001,
-                                backgroundColor: theme.palette.background.default,
-                                color: theme.palette.background.paper,
-                                width: 32,
-                                height: 32,
-                                opacity: 0.7,
-                                transition: 'opacity 0.2s ease-in-out',
-                                '&:hover': {
-                                    opacity: 1,
-                                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                    color: 'white'
-                                }
-                            }}
-                            size="small"
-                            title="Reset Widget"
-                        >
-                            <RefreshIcon fontSize="small" />
-                        </IconButton>
-                    </Box>
-                )
-            })}
-=======
     // Choose masonry approach based on browser support or preference
     const useCSSGridMasonry = CSS.supports && CSS.supports('grid-template-rows', 'masonry');
     const useJSMasonry = true; // Set to true to use JavaScript masonry
@@ -604,7 +530,6 @@ export function WidgetManager({
     return (
         <Box sx={gridStyle}>
             {widgets.map(renderItem)}
->>>>>>> origin/main
         </Box>
     );
 }

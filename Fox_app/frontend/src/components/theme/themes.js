@@ -212,8 +212,6 @@ export const dataTotalStyle = {
     color: '#2e7d32',
 }
 
-<<<<<<< HEAD
-=======
 export const cardStyle = {
     height: 300,
     width: 300,
@@ -232,4 +230,3 @@ export const cardActionStyle = {
     justifyContent: 'center',
     textAlign: 'center'
 }
->>>>>>> origin/main

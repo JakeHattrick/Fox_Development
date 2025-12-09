@@ -109,11 +109,7 @@ export function TestStationWidget({ widgetId }) {
             }
           },
           API_BASE,
-<<<<<<< HEAD
-          API_Route: '/api/functional-testing/station-performance?'
-=======
           API_Route: '/api/v1/functional-testing/station-performance?'
->>>>>>> origin/main
         });
       } catch (err) {
         console.error('Error fetching data', err);

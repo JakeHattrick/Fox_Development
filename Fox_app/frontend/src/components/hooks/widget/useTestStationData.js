@@ -28,11 +28,7 @@ export function useTestStationData(
             key,
             setDataCache: setter,
             API_BASE:apiBase,
-<<<<<<< HEAD
-            API_Route: '/api/functional-testing/station-performance?'
-=======
             API_Route: '/api/v1/functional-testing/station-performance?'
->>>>>>> origin/main
             }).then(data=>{if (!canceled)setter(data);});
 
         const fetchSXM5 = () => fetchModelData({value:'Tesla SXM5',key:'sxm5',setter: setTestStationDataSXM5});

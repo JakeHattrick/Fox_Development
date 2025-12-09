@@ -17,11 +17,7 @@ const AppTitle = React.memo(() => {
   <Typography variant="h6" noWrap component="div" onClick={handleTitleClick}
     sx={{cursor:'pointer', WebkitAppRegion:'no-drag', '&:hover':{opacity:0.8}}}
   >
-<<<<<<< HEAD
-    Quality Dashboard
-=======
     Fox App
->>>>>>> origin/main
     <Typography component="sub" variant="caption" sx={{ marginLeft: 0.5 }}>
       v{version}
     </Typography>

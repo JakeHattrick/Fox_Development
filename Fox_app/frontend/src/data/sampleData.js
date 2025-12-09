@@ -263,8 +263,6 @@ export const sampleViolinData = [
 
   // Outliers
   0.00, 25.00
-<<<<<<< HEAD
-=======
 ];
 
 export const testFixtureData = [
@@ -329,5 +327,4 @@ export const testFixtureFailureData = [
   { date: '2025-08-02', id: 'NV-NCT01-2', testType: 'None', topError:'281', count:2, rate:25 },
   { date: '2025-08-02', id: 'NV-NCT01-3', testType: 'None', topError:'773', count:3, rate:60 },
   { date: '2025-08-02', id: 'NV-NCT01-4', testType: 'IST', topError:'288', count:1, rate:0 },
->>>>>>> origin/main
 ];

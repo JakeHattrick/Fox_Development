@@ -74,13 +74,8 @@ export function usePackingData(
         setError(null);
         // fire both calls in parallel
         const [pRes, sRes] = await Promise.all([
-<<<<<<< HEAD
-          fetch(`${apiBase}/api/packing/packing-records${query}`, { signal }),
-          fetch(`${apiBase}/api/sort-record/sort-data${query}`, { signal })
-=======
           fetch(`${apiBase}/api/v1/packing/packing-records${query}`, { signal }),
           fetch(`${apiBase}/api/v1/sort-record/sort-data${query}`, { signal })
->>>>>>> origin/main
         ]);
         if (!pRes.ok || !sRes.ok) throw new Error('Network response was not ok.');
 

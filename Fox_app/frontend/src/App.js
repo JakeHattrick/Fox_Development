@@ -4,22 +4,6 @@ import { CssBaseline, Box } from '@mui/material';
 import { DashboardThemeProvider } from './components/theme/ThemeContext';
 import { SideDrawer } from './components/navigation/SideDrawer';
 import { AppHeader } from './components/navigation/AppHeader';
-<<<<<<< HEAD
-import { Dashboard } from './components/dashboard/Dashboard';
-import PackingPage from './components/pages/PackingPage';
-import PerformancePage from './components/pages/PerformancePage';
-import TestStationPerformancePage from './components/pages/TestStationPerformancePage'
-import ThroughputPage from './components/pages/ThroughputPage';
-import SNFNPage from './components/pages/SNFNPage';
-import PackingCharts from './components/pages/PackingCharts';
-import UploadPage from './components/pages/uploadPage';
-import StationHourlySummaryPage from './components/pages/StationHourlySummaryPage';
-import StationCycleTime from './components/pages/CycleTime';
-import MostRecentFail from './components/pages/MostRecentFail';
-import ParetoPage from './components/pages/ParetoPage';
-import ByErrorCode from './components/pages/ByErrorCode';
-import JsonToCsv from './components/pages/JsonToCSV';
-=======
 // Page Components
 import { Dashboard } from './components/pages/Dashboard';
 import Home from './components/pages/Home';
@@ -54,7 +38,6 @@ import ByErrorCode from './components/pages/dev/ByErrorCode';
 import JsonToCsv from './components/pages/dev/JsonToCSV';
 import DidTheyFail from './components/pages/dev/DidTheyFail';
 
->>>>>>> c64a975df81fe715c36d4cc9fad4a05963808ce3
 import { SimplePerformanceMonitor } from './components/debug/SimplePerformanceMonitor';
 import { isLowEndDevice, LightweightBackdrop } from './utils/muiOptimizations';
 import './components/theme/theme.css';
