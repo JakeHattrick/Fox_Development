@@ -12,6 +12,18 @@ const { allowReadUpdate, isSuperuser } = require('../middlewares/roleCheck');
 // READ all usage records — allowed for all users
 router.get('/', allowReadUpdate, usageController.getAllUsage);
 
+// Get station usage summary (7d, 30d, 24h, etc.)
+router.get("/summary/stations", allowReadUpdate, usageController.getStationSummary);
+
+//Get Summary for UsageServices
+router.get("/summary", allowReadUpdate, usageController.getUsageSummary);
+
+//Get status for UsageServices
+router.get("/status", usageController.getUsageStatus);
+
+//Get history for UsageServices
+router.get("/history", usageController.getUsageHistory);
+
 // READ single usage record by ID — allowed for all users
 router.get('/:id', allowReadUpdate, usageController.getUsageById);
 

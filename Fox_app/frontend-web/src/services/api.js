@@ -56,7 +56,13 @@ export const getUsageById = (id) => API.get(`/usage/${id}`);
 export const createUsage = (data) => API.post("/usage", data);
 export const updateUsage = (id, data) => API.patch(`/usage/${id}`, data);
 export const deleteUsage = (id) => API.delete(`/usage/${id}`);
-
+//Usage summary (computed)
+export const getUsageSummaryAll = () => API.get("/usage/summary");
+export const getUsageSummaryByFixture = (fixtureId) =>
+  API.get(`/usage/summary/${fixtureId}`);
+export const getStationSummary = async (range = "7d") => {
+  return axios.get(`/api/usage/summary/stations?range=${range}`);
+};
 
 // ========================
 // Export Axios instance

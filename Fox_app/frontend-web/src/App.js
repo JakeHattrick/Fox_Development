@@ -37,9 +37,8 @@ import './components/theme/theme.css';
 import { GlobalSettingsProvider } from './data/GlobalSettingsContext';
 import FixturesPage from "./components/pages/FixturesPage";
 import FixtureMaintenance from './components/pages/FixtureMaintenance';
-import HealthPage from './components/pages/healthPage';
-import UsagePage from './components/pages/UsagePage';
-
+import HealthPage from './components/pages/HealthPage';
+import UsagePage from './components/pages/usagePage'; 
 
 //Main content component
 const MainContent = React.memo(({ children }) => {
