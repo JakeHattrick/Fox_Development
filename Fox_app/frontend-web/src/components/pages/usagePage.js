@@ -1,11 +1,12 @@
 // ============================================================================
-// File: UsageSummaryPage.js
+// File: usagePage.js
 //
 // PURPOSE:
 //   Usage dashboard styled to match HealthPage:
 //    - KPI area (small)
 //    - Big bordered Station-based stacked bar chart (LA + RA)
 //    - Big bordered Pie chart (status distribution)
+//    - New: Gen5 vs Gen3 daily usage line chart (last 7 days by default)
 //    - Table area (same framed Paper container)
 // ============================================================================
 
@@ -28,7 +29,7 @@ import {
 } from "@mui/material";
 
 import RefreshIcon from "@mui/icons-material/Refresh";
-import { getUsageSummaryAll } from "../../services/api";
+import { getUsageSummaryAll, getDailyUsage } from "../../services/api";
 
 import {
   ResponsiveContainer,
@@ -37,11 +38,11 @@ import {
   Cell,
   Tooltip as ReTooltip,
   Legend,
-  BarChart,
-  Bar,
   CartesianGrid,
   XAxis,
   YAxis,
+  LineChart,
+  Line,
 } from "recharts";
 
 // Pie color mapping
@@ -59,11 +60,28 @@ const PIE_COLORS = {
 const field = (slot, key) => (slot && slot[key] ? slot[key] : null);
 
 export default function UsageSummaryPage() {
+  // Summary / table state
   const [usageData, setUsageData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Fetch data
+  // Daily usage (Gen3 / Gen5) state
+  const [dailyUsage, setDailyUsage] = useState([]);
+  const [dailyLoading, setDailyLoading] = useState(false);
+  const [dailyError, setDailyError] = useState("");
+
+  //Date range for daily usage chart
+  const[startDate, setStartDate] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate()-7);
+    return d.toISOString().slice(0, 10);
+  });
+
+  const[endDate, setEndDate] = useState(() => {
+    return new Date().toISOString().slice(0, 10);
+  });
+
+  // Fetch usage summary (existing)
   const fetchSummary = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -79,9 +97,38 @@ export default function UsageSummaryPage() {
     }
   }, []);
 
+  // Fetch daily usage (Gen5 vs Gen3) — default last 7 days
+  const fetchDailyUsage = useCallback(async () => {
+    setDailyLoading(true);
+    setDailyError("");
+    try {
+      
+      const res = await getDailyUsage({ startDate, endDate });
+
+      // Be defensive about response shape (some backends return rows, some return array directly)
+      const payload = res?.data;
+      if (Array.isArray(payload)) {
+        setDailyUsage(payload);
+      } else if (Array.isArray(payload?.rows)) {
+        setDailyUsage(payload.rows);
+      } else if (Array.isArray(payload?.result)) {
+        setDailyUsage(payload.result);
+      } else {
+        setDailyUsage([]); // fallback
+      }
+    } catch (err) {
+      console.error("daily-usage error:", err);
+      setDailyError(err?.message || "Failed to fetch daily usage");
+      setDailyUsage([]);
+    } finally {
+      setDailyLoading(false);
+    }
+  }, [startDate, endDate]);
+
   useEffect(() => {
     fetchSummary();
-  }, [fetchSummary]);
+    fetchDailyUsage();
+  }, [fetchSummary, fetchDailyUsage]);
 
   // KPI top-left
   const widgets = useMemo(() => {
@@ -114,7 +161,7 @@ export default function UsageSummaryPage() {
   }, [usageData]);
 
   // ============================================================
-  // ⭐ Station-based stacked bar chart (LA vs RA)
+  // ⭐ Station-based stacked bar chart (LA vs RA) — unchanged
   // ============================================================
   const stationLineData = useMemo(() => {
     if (!usageData || usageData.length === 0) return [];
@@ -137,6 +184,35 @@ export default function UsageSummaryPage() {
 
     return Object.values(map);
   }, [usageData]);
+
+  // ============================================================
+  // GEN5 vs GEN3 Usage (line chart) — derive from dailyUsage
+  // dailyUsage expected shape: [{ date: 'YYYY-MM-DD', tester_type: 'Gen5 Tester', avg_usage_percent: 72.8 }, ...]
+  // ============================================================
+  const testerUsageLineData = useMemo(() => {
+    if (!dailyUsage || dailyUsage.length === 0) return [];
+
+    const map = {};
+    dailyUsage.forEach((row) => {
+      // normalize date to YYYY-MM-DD if needed
+      const rawDate = row.date || row.day || row.Date || "";
+      const day = typeof rawDate === "string" ? rawDate.slice(0, 10) : rawDate;
+
+      if (!map[day]) {
+        map[day] = { date: day, Gen3: 0, Gen5: 0 };
+      }
+
+      if (row.tester_type === "Gen5 Tester") {
+        map[day].Gen5 = Number(row.avg_usage_percent ?? row.avg_usage ?? 0);
+      } else if (row.tester_type === "Gen3 Tester") {
+        map[day].Gen3 = Number(row.avg_usage_percent ?? row.avg_usage ?? 0);
+      }
+    });
+
+    // Ensure sorted by date
+    const arr = Object.values(map).sort((a, b) => (a.date > b.date ? 1 : -1));
+    return arr;
+  }, [dailyUsage]);
 
   return (
     <Container maxWidth={false} sx={{ px: 3 }}>
@@ -176,7 +252,7 @@ export default function UsageSummaryPage() {
           </Stack>
         </Grid>
 
-        {/* ⭐ Stacked Bar Chart (station usage) */}
+        {/* Station Usage (stacked bar) */}
         <Grid item xs={12} md={6} lg={6}>
           <Paper sx={{ p: 2 }}>
             <Typography variant="subtitle1">Station Usage (LA + RA)</Typography>
@@ -199,27 +275,42 @@ export default function UsageSummaryPage() {
                 <CircularProgress />
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
+                  <LineChart
                     data={stationLineData}
-                    layout="vertical"
-                    margin={{ top: 20, right: 30, left: 50, bottom: 20 }}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 20}}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" />
-                    <YAxis dataKey="station" type="category" width={100} />
+                    <XAxis dataKey="station" />
+                    <YAxis />
                     <ReTooltip />
                     <Legend />
 
-                    <Bar dataKey="LA" stackId="usage" name="LA Runs" fill="#1976d2" />
-                    <Bar dataKey="RA" stackId="usage" name="RA Runs" fill="#2e7d32" />
-                  </BarChart>
+                    <Line
+                      type="monotone"
+                      dataKey="LA"
+                      name="LA Runs"
+                      strokeWidth={3}
+                      stroke="#1976d2"
+                      dot={{ r:4 }}
+                    />
+
+                    <Line
+                      type="monotype"
+                      dataKey="RA"
+                      name="RA Runs"
+                      stroke="#2e7d32"
+                      strokeWidth={3}
+                      dot={{ r:4 }}
+                    />
+                  
+                  </LineChart>
                 </ResponsiveContainer>
               )}
             </Box>
           </Paper>
         </Grid>
 
-        {/* Pie Chart */}
+        {/* Slot / Fixture Status (pie) */}
         <Grid item xs={12} md={3} lg={3}>
           <Paper sx={{ p: 2 }}>
             <Typography variant="subtitle1">Slot / Fixture Status</Typography>
@@ -265,6 +356,76 @@ export default function UsageSummaryPage() {
           </Paper>
         </Grid>
 
+        {/* NEW: Line Chart — Gen5 vs Gen3 Daily Usage */}
+        <Grid item xs={12}>
+          <Paper sx={{ p: 2 }}>
+            <Typography variant="subtitle1">Gen5 vs Gen3 Daily Usage (Last 7 days)</Typography>
+
+            <Stack direction = "row" spacing={2} alignItems="center" sx={{  mt: 1}}>
+              <Box>
+                <Typography variant="caption">Start Date</Typography>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={((e) => setStartDate(e.target.value))}
+                  />
+              </Box>
+
+              <Box>
+                <Typography variant="caption">End Date</Typography>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  />
+              </Box>
+
+              <IconButton
+                color="primary"
+                onClick={fetchDailyUsage}
+                sx={{mt:2}}
+              >
+
+                <RefreshIcon />
+              </IconButton>
+            </Stack>
+
+            <Box
+              sx={{
+                width: "100%",
+                height: 400,
+                mt: 2,
+                border: "2px solid #ddd",
+                borderRadius: 2,
+                background: "white",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              {dailyLoading ? (
+                <CircularProgress />
+              ) : dailyError ? (
+                <Typography color="error">{dailyError}</Typography>
+              ) : testerUsageLineData.length === 0 ? (
+                <Typography>No data</Typography>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={testerUsageLineData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis />
+                    <ReTooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="Gen5" name="Gen5 Tester" stroke="#1976d2" strokeWidth={3} />
+                    <Line type="monotone" dataKey="Gen3" name="Gen3 Tester" stroke="#2e7d32" strokeWidth={3} />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
+            </Box>
+          </Paper>
+        </Grid>
+
         {/* TABLE */}
         <Grid item xs={12}>
           <Paper
@@ -286,7 +447,13 @@ export default function UsageSummaryPage() {
 
               <Grid item>
                 <Tooltip title="Refresh now">
-                  <IconButton onClick={fetchSummary} size="small">
+                  <IconButton
+                    onClick={() => {
+                      fetchSummary();
+                      fetchDailyUsage(); // refresh both
+                    }}
+                    size="small"
+                  >
                     <RefreshIcon />
                   </IconButton>
                 </Tooltip>

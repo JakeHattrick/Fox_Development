@@ -49,7 +49,7 @@ const MainContent = React.memo(({ children }) => {
     paddingTop: '64px',
     backgroundColor: 'background.default'
   }), []);
-
+ 
   return (
     <Box component="main" sx={mainContentStyle}>
       {children}

@@ -63,6 +63,9 @@ export const getUsageSummaryByFixture = (fixtureId) =>
 export const getStationSummary = async (range = "7d") => {
   return axios.get(`/api/usage/summary/stations?range=${range}`);
 };
+export const getDailyUsage = (body) =>
+  API.post("/v1/testboard-records/daily-usage", body);
+
 
 // ========================
 // Export Axios instance
