@@ -207,6 +207,9 @@ docs/_build/
 
 # PyBuilder
 target/
+<<<<<<< HEAD
+=======
 
 # Configuration files (user-specific)
 config.py
+>>>>>>> origin/main

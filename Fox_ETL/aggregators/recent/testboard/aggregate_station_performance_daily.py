@@ -1,5 +1,29 @@
 import psycopg2
 from psycopg2.extras import execute_values
+<<<<<<< HEAD
+
+DB_CONFIG = {
+    'host': 'localhost',
+    'database': 'fox_db',
+    'user': 'gpu_user',
+    'password': '',
+    'port': '5432'
+}
+
+CREATE_TABLE_SQL = '''
+CREATE TABLE IF NOT EXISTS fixture_performance_daily (
+    day DATE NOT NULL,
+    fixture_no TEXT NOT NULL,
+    model TEXT,
+    pn TEXT,
+    workstation_name TEXT,
+    pass INTEGER NOT NULL,
+    fail INTEGER NOT NULL,
+    total INTEGER NOT NULL,
+    PRIMARY KEY (day, fixture_no, model, pn, workstation_name)
+);
+'''
+=======
 import sys
 import os
 # Add Fox_ETL directory to path to find config.py
@@ -11,6 +35,7 @@ while current_dir != '/':
         break
     current_dir = os.path.dirname(current_dir)
 from config import DATABASE
+>>>>>>> origin/main
 
 AGGREGATE_SQL = '''
 SELECT
@@ -41,7 +66,11 @@ ON CONFLICT (day, fixture_no, model, pn, workstation_name) DO UPDATE SET
 '''
 
 def main():
+<<<<<<< HEAD
+    conn = psycopg2.connect(**DB_CONFIG)
+=======
     conn = psycopg2.connect(**DATABASE)
+>>>>>>> origin/main
     try:
         with conn.cursor() as cur:
             print("Creating fixture_performance_daily table if not exists...")

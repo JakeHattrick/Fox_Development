@@ -1,6 +1,26 @@
 #!/usr/bin/env python3
 import psycopg2
 from psycopg2.extras import execute_values
+<<<<<<< HEAD
+
+DB_CONFIG = {
+    'host': 'localhost',
+    'database': 'fox_db',
+    'user': 'gpu_user',
+    'password': '',
+    'port': '5432'
+}
+
+CREATE_TABLE_SQL = '''
+CREATE TABLE IF NOT EXISTS packing_daily_summary (
+    pack_date DATE NOT NULL,
+    model TEXT NOT NULL,
+    part_number TEXT NOT NULL,
+    packed_count INTEGER NOT NULL,
+    PRIMARY KEY (pack_date, model, part_number)
+);
+'''
+=======
 import sys
 import os
 # Add Fox_ETL directory to path to find config.py
@@ -13,6 +33,7 @@ while current_dir != '/':
     current_dir = os.path.dirname(current_dir)
 
 from config import DATABASE
+>>>>>>> origin/main
 
 TRUNCATE_TABLE_SQL = 'TRUNCATE TABLE packing_daily_summary;'
 
@@ -46,7 +67,11 @@ ON CONFLICT (pack_date, model, part_number) DO UPDATE SET
 '''
 
 def main():
+<<<<<<< HEAD
+    conn = psycopg2.connect(**DB_CONFIG)
+=======
     conn = psycopg2.connect(**DATABASE)
+>>>>>>> origin/main
     try:
         with conn.cursor() as cur:
             print("Creating packing_daily_summary table with primary key if not exists...")

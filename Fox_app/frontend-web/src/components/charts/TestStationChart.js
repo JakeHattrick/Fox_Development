@@ -4,7 +4,7 @@ import { useTheme, Paper, Box, Typography, CircularProgress } from '@mui/materia
 // Styles
 import { paperStyle, flexStyle, typeStyle, boxStyle } from '../theme/themes.js';
 
-export const TestStationChart = memo(({ label, data ,loading}) => {
+export const TestStationChart = memo(({ label, data ,loading, filter = ['TPC']}) => {
     const theme = useTheme();
     const textColor = theme.palette.mode === 'dark' ? '#fff' : '#000';
     
@@ -25,6 +25,14 @@ export const TestStationChart = memo(({ label, data ,loading}) => {
       )
     }
 
+    const filteredData = Array.isArray(data)?
+      data.filter(item => {
+        const station = item?.station ?? '';
+        if (!station) return false;
+        if(station.includes('_')) return false;
+        return !filter.includes(station);
+      }):[];
+
     return (
       <Paper sx={paperStyle}>
           <Box sx={flexStyle}>
@@ -38,7 +46,7 @@ export const TestStationChart = memo(({ label, data ,loading}) => {
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
-                  data={data}
+                  data={filteredData}
                   margin={{
                     top: 8,
                     right: 8,

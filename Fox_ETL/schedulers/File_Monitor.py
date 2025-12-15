@@ -5,6 +5,12 @@ import subprocess
 from datetime import datetime
 import logging
 
+<<<<<<< HEAD
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+INPUT_DIR = "/home/darvin/Fox_ETL/input"
+=======
 # Add the parent directory to the path to import config
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import PATHS
@@ -13,6 +19,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 INPUT_DIR = PATHS['input_dir']
+>>>>>>> origin/main
 
 WORKSTATION_XLS_FILENAME = "workstationOutputReport.xls"
 TESTBOARD_XLS_FILENAME = "Test board record report.xls"
@@ -66,6 +73,27 @@ def convert_xls_to_xlsx(xls_file_path):
 
 def process_file(file_path, script_path, file_type):
     try:
+<<<<<<< HEAD
+        xlsx_file_path = convert_xls_to_xlsx(file_path)
+        
+        if not xlsx_file_path:
+            logger.error(f"Failed to convert {os.path.basename(file_path)} to XLSX")
+            return False
+        
+        if not os.path.exists(xlsx_file_path):
+            logger.error(f"XLSX file not found after conversion: {os.path.basename(xlsx_file_path)}")
+            return False
+
+        try:
+            os.remove(file_path)
+            logger.info(f"Deleted original XLS file: {os.path.basename(file_path)}")
+        except Exception as e:
+            logger.warning(f"Could not delete original XLS file: {e}")
+        
+        logger.info(f"Importing {file_type} data using {os.path.basename(script_path)}...")
+        
+        cmd = ['python3', script_path, xlsx_file_path]
+=======
         # Check if file is already XLSX
         if file_path.lower().endswith('.xlsx'):
             xlsx_file_path = file_path
@@ -93,14 +121,19 @@ def process_file(file_path, script_path, file_type):
         # Use relative path so the script runs correctly from the Fox_ETL directory
         script_name = os.path.basename(script_path)
         cmd = ['python3', f'loaders/{script_name}', xlsx_file_path]
+>>>>>>> origin/main
         logger.info(f"Running command: {' '.join(cmd)}")
         
         result = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
+<<<<<<< HEAD
+            timeout=300
+=======
             timeout=300,
             cwd=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+>>>>>>> origin/main
         )
         
         if result.returncode == 0:
@@ -126,15 +159,22 @@ def monitor_for_files():
     
     while True:
         try:
+<<<<<<< HEAD
+            if os.path.exists(WORKSTATION_FILEPATH):
+=======
             # Check for workstation file (XLS or XLSX)
             workstation_xls = os.path.join(INPUT_DIR, WORKSTATION_XLS_FILENAME)
             workstation_xlsx = os.path.join(INPUT_DIR, WORKSTATION_XLS_FILENAME.replace('.xls', '.xlsx'))
             
             if os.path.exists(workstation_xls):
+>>>>>>> origin/main
                 logger.info(f"Workstation file detected: {WORKSTATION_XLS_FILENAME} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
                 logger.info(f"Starting workstation file processing pipeline...")
                 
                 success = process_file(
+<<<<<<< HEAD
+                    WORKSTATION_FILEPATH, 
+=======
                     workstation_xls, 
                     IMPORT_WORKSTATION_SCRIPT, 
                     "workstation"
@@ -150,6 +190,7 @@ def monitor_for_files():
                 
                 success = process_file(
                     workstation_xlsx, 
+>>>>>>> origin/main
                     IMPORT_WORKSTATION_SCRIPT, 
                     "workstation"
                 )
@@ -159,15 +200,22 @@ def monitor_for_files():
                 else:
                     logger.error(f"Workstation file processing failed")
             
+<<<<<<< HEAD
+            if os.path.exists(TESTBOARD_FILEPATH):
+=======
             # Check for testboard file (XLS or XLSX)
             testboard_xls = os.path.join(INPUT_DIR, TESTBOARD_XLS_FILENAME)
             testboard_xlsx = os.path.join(INPUT_DIR, TESTBOARD_XLS_FILENAME.replace('.xls', '.xlsx'))
             
             if os.path.exists(testboard_xls):
+>>>>>>> origin/main
                 logger.info(f"Test board file detected: {TESTBOARD_XLS_FILENAME} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
                 logger.info(f"Starting test board file processing pipeline...")
                 
                 success = process_file(
+<<<<<<< HEAD
+                    TESTBOARD_FILEPATH, 
+=======
                     testboard_xls, 
                     IMPORT_TESTBOARD_SCRIPT, 
                     "testboard"
@@ -183,6 +231,7 @@ def monitor_for_files():
                 
                 success = process_file(
                     testboard_xlsx, 
+>>>>>>> origin/main
                     IMPORT_TESTBOARD_SCRIPT, 
                     "testboard"
                 )
@@ -192,15 +241,23 @@ def monitor_for_files():
                 else:
                     logger.error(f"❌ STEP 3: Test board file processing failed")
 
+<<<<<<< HEAD
+            # Check for snfn report
+            if os.path.exists(SNFN_FILEPATH):
+=======
             # Check for snfn report (XLS or XLSX)
             snfn_xls = os.path.join(INPUT_DIR, SNFN_XLS_FILENAME)
             snfn_xlsx = os.path.join(INPUT_DIR, SNFN_XLS_FILENAME.replace('.xls', '.xlsx'))
             
             if os.path.exists(snfn_xls):
+>>>>>>> origin/main
                 logger.info(f"📋 STEP 1: SnfN file detected: {SNFN_XLS_FILENAME} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
                 logger.info(f"🔄 STEP 2: Starting SnFn file processing pipeline...")
                 
                 success = process_file(
+<<<<<<< HEAD
+                    SNFN_FILEPATH, 
+=======
                     snfn_xls, 
                     IMPORT_SNFN_SCRIPT, 
                     "snfn"
@@ -216,6 +273,7 @@ def monitor_for_files():
                 
                 success = process_file(
                     snfn_xlsx, 
+>>>>>>> origin/main
                     IMPORT_SNFN_SCRIPT, 
                     "snfn"
                 )

@@ -1,7 +1,8 @@
 import React, { useMemo, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {  Drawer, List, ListItem, ListItemIcon, ListItemText, styled, ListItemButton, Box, 
-  Typography, useTheme, useMediaQuery, Collapse, } from '@mui/material';
+  Typography, useTheme, useMediaQuery, Collapse, 
+} from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
@@ -32,8 +33,6 @@ const DASHBOARD_MENU_ITEMS = [
 ];
 
 const MENU_ITEMS_QUALITY = [
-  //{ text: 'Test Reports', icon: <AssessmentIcon />, route: '/test-reports' },
-  //{ text: 'SnFn Reports', icon: <GridViewIcon />, route: '/snfn' },
   { text: 'Station Performance Charts', icon: <TableChartIcon/>, route: '/station-performance'},
   { text: 'Packing', icon: <Inventory2Icon />, route: '/packing' },
   { text: 'Pareto', icon: <TrendingUpIcon />, route: '/pareto' },
@@ -44,9 +43,12 @@ const MENU_ITEMS_QUALITY = [
   ]},
   { text: 'Performance', icon: <SpeedIcon />, children:[
     { text: 'Quality Control Charts', icon: <SpeedIcon />, route: '/performance' },
-    { text: 'Throughput', icon: <TrendingUpIcon />, route: '/throughput' }
+    { text: 'Throughput', icon: <TrendingUpIcon />, route: '/throughput' },
+    { text: 'Xbar-R Chart', icon: <SpeedIcon />, route: '/xbar-r-chart' },
   ]},
-  //{ text: 'Station Hourly Summary', icon: <TableChartIcon />, route: '/station-hourly-summary' }
+  { text: 'Utility Reports', icon: <SpeedIcon />, children:[
+    { text: 'Most Recent Fail', icon: <AccessTimeIcon />, route: '/most-recent-fail'}
+  ]},
 ];
 
 const MENU_ITEMS_TE = [
@@ -55,11 +57,6 @@ const MENU_ITEMS_TE = [
     { text: 'Fixture Details', icon: <TableChartIcon />, route: '/fixture-details' },
     { text: 'Fixture Inventory', icon: <TableChartIcon />, route: '/fixture-inventory' },
   ]},
-
-];
-
-//For Testing dashboard
-const MENU_ITEMS_TESTING = [
   { text: 'Testing Dashboard', icon: <GridViewIcon />, children: [
     { text: 'Fixtures', icon: <TableChartIcon />, route: '/fixtures' },
     { text: 'Users', icon: <TableChartIcon />, route: '/users' },
@@ -68,28 +65,20 @@ const MENU_ITEMS_TESTING = [
     { text: 'Maintenance', icon: <TableChartIcon />, route: '/maintenance' },
     { text: 'Summary', icon: <TableChartIcon />, route: '/summary' },
   ]}
-];
 
+];
 
 const DEV_MENU_ITEMS = [
   { text: 'File Upload', icon: <CloudUploadIcon />, route: '/dev/upload' },
   { text: 'Auxiliary Reports', icon: <SpeedIcon />, children:[
     { text: 'Station Cycle Time', icon: <AccessTimeIcon />, route: '/cycle-time' },
-    { text: 'Most Recent Fail', icon: <AccessTimeIcon />, route: '/most-recent-fail' },
+    //{ text: 'Most Recent Fail', icon: <AccessTimeIcon />, route: '/most-recent-fail' },
     { text: 'Get by Error', icon: <TableChartIcon />, route: '/by-error' },
     { text: 'Json to CSV', icon: <TableChartIcon />, route: '/json-to-csv' },
     { text: 'Did They Fail', icon: <TableChartIcon />, route: '/did-they-fail' },
   ]
   }
 ];
-
-const menuIcons = {
-  dashboard: <DashboardIcon />,
-  reports: <AssessmentIcon />,
-  snfn: <AssessmentIcon />,
-  packing: <Inventory2Icon />,
-  performance: <SpeedIcon />
-};
 
 const MenuItem = React.memo(function MenuItem({ item, onClose, nested = false }) {
   return (
@@ -108,30 +97,6 @@ const MenuItem = React.memo(function MenuItem({ item, onClose, nested = false })
     </ListItem>
   );
 });
-
-const MenuList = React.memo(({ onClose }) => (
-  <List>
-    {MENU_ITEMS_QUALITY.map((item) => (
-      <MenuItem key={item.text} item={item} onClose={onClose} />
-    ))}
-    {process.env.NODE_ENV === 'development' && (
-      <>
-        <ListItem sx={{ borderTop: '1px solid rgba(255, 255, 255, 0.12)', mt: 2, pt: 2 }}>
-          <ListItemText 
-            primary="Development"
-            primaryTypographyProps={{ 
-              variant: 'overline',
-              sx: { opacity: 0.7 }
-            }}
-          />
-        </ListItem>
-        {DEV_MENU_ITEMS.map((item) => (
-          <MenuItem key={item.text} item={item} onClose={onClose} />
-        ))}
-      </>
-    )}
-  </List>
-));
 
 export const SideDrawer = React.memo(({ open, onClose }) => {
   
@@ -305,55 +270,7 @@ export const SideDrawer = React.memo(({ open, onClose }) => {
             />
           );
         })}
-
-        
-        {MENU_ITEMS_TESTING.map(item => {
-        // If it has children, render collapse
-        if (item.children) {
-          const isOpen = openState[item.text];
-          const toggle  = () => {
-          setOpenState(prev => ({
-             ...prev,
-            [item.text]: !prev[item.text]
-          }));
-        }
-        return (
-          <React.Fragment key={item.text}>
-            <ListItem disablePadding>
-            <ListItemButton onClick={() => toggle(open => !open)}>
-            <ListItemIcon sx={{ color: 'white' }}>{item.icon}</ListItemIcon>
-            <ListItemText primary={item.text} />
-            {isOpen ? <ExpandLessIcon/> : <ExpandMoreIcon/>}
-            </ListItemButton>
-            </ListItem>
-            <Collapse in={isOpen} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-            {item.children.map(child => (
-              <MenuItem
-                key={child.text}
-                item={child}
-                onClose={onClose}
-                nested
-              />
-            ))}
-          </List>
-        </Collapse>
-      </React.Fragment>
-    );
-  }
-
-  // Otherwise a normal menu item
-  return (
-    <MenuItem
-      key={item.text}
-      item={item}
-      onClose={onClose}
-    />
-  );
-})}
-
-        
-
+   
         {process.env.NODE_ENV === 'development' && (
           <>
             <ListItem sx={{ borderTop: '1px solid rgba(255,255,255,0.12)', mt: 2, pt: 2 }}>

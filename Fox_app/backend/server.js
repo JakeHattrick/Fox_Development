@@ -32,11 +32,6 @@ process.on('unhandledRejection', (reason, promise) => {
 app.use(cors()); 
 app.use(express.json()); 
 
-// Temporary role mock for testing
-app.use((req, res, next) => {
-  req.user = { username: 'superadmin', role: 'superuser' };
-  next();
-});
 
 /*#################################################
 #    API Route Registration (v1)               #
@@ -128,3 +123,5 @@ pool.query('SELECT NOW()', (err, res) => {
   if (err) console.error('Database connection error:', err);
   else console.log('Database connected at:', res.rows[0].now);
 });
+
+module.exports = {pool};

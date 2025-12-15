@@ -14,10 +14,10 @@ import TestStationPerformancePage from './components/pages/quality/TestStationPe
 import ThroughputPage from './components/pages/quality/performance/ThroughputPage';
 import SNFNPage from './components/pages/quality/stationReports/SNFNPage';
 import PackingCharts from './components/pages/quality/PackingCharts';
-import UploadPage from './components/pages/dev/uploadPage';
 import StationHourlySummaryPage from './components/pages/quality/stationReports/StationHourlySummaryPage';
 import ParetoPage from './components/pages/quality/ParetoPage';
 import QueryPage from './components/pages/quality/QueryPage';
+import XbarRPage from './components/pages/quality/performance/XbarRPage';
 // Test Engineer Pages
 import FixtureDash from './components/pages/te/FixtureDash';
 import FixtureDetails from './components/pages/te/FixtureDetails';
@@ -32,6 +32,7 @@ import MaintenancePage from "./components/pages/te/MaintenancePage";
 import SummaryPage from "./components/pages/te/SummaryPage";
 
 // Dev Pages
+import UploadPage from './components/pages/dev/uploadPage';
 import StationCycleTime from './components/pages/dev/CycleTime';
 import MostRecentFail from './components/pages/dev/MostRecentFail';
 import ByErrorCode from './components/pages/dev/ByErrorCode';
@@ -64,38 +65,39 @@ const MainContent = React.memo(({ children }) => {
 });
 
 const AppRoutes = React.memo(() => (
-    <Routes>
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/" element={<Home />} />
-      <Route path="/packing" element={<PackingPage />} />
-      <Route path="/performance" element={<PerformancePage />} />
-      <Route path="/throughput" element={<ThroughputPage />} />
-      <Route path="/snfn" element={<SNFNPage />} />
-      <Route path="/packing-charts" element={<PackingCharts />} />
-      <Route path="/station-hourly-summary" element={<StationHourlySummaryPage />} />
-      <Route path="/cycle-time" element={<StationCycleTime />} />
-      <Route path="/most-recent-fail" element={<MostRecentFail />} />
-      <Route path="/pareto" element={<ParetoPage />} />
-      <Route path="/station-performance" element={<TestStationPerformancePage/>}/>
-      <Route path="/by-error" element={<ByErrorCode/>}/>
-      <Route path="/json-to-csv" element={<JsonToCsv/>}/>
-      <Route path="/did-they-fail" element={<DidTheyFail/>}/>
-      <Route path="/fixture-dash" element={<FixtureDash/>}/>
-      <Route path="/fixture-details" element={<FixtureDetails/>}/>
-      <Route path="/fixture-inventory" element={<FixtureInventory/>}/>
-      <Route path="/query-page" element={<QueryPage/>}/>
+  <Routes>
+    <Route path="/dashboard" element={<Dashboard />} />
+    <Route path="/" element={<Home />} />
+    <Route path="/packing" element={<PackingPage />} />
+    <Route path="/performance" element={<PerformancePage />} />
+    <Route path="/throughput" element={<ThroughputPage />} />
+    <Route path="/snfn" element={<SNFNPage />} />
+    <Route path="/packing-charts" element={<PackingCharts />} />
+    <Route path="/station-hourly-summary" element={<StationHourlySummaryPage />} />
+    <Route path="/cycle-time" element={<StationCycleTime />} />
+    <Route path="/most-recent-fail" element={<MostRecentFail />} />
+    <Route path="/pareto" element={<ParetoPage />} />
+    <Route path="/station-performance" element={<TestStationPerformancePage/>}/>
+    <Route path="/by-error" element={<ByErrorCode/>}/>
+    <Route path="/json-to-csv" element={<JsonToCsv/>}/>
+    <Route path="/did-they-fail" element={<DidTheyFail/>}/>
+    <Route path="/fixture-dash" element={<FixtureDash/>}/>
+    <Route path="/fixture-details" element={<FixtureDetails/>}/>
+    <Route path="/fixture-inventory" element={<FixtureInventory/>}/>
+    <Route path="/query-page" element={<QueryPage/>}/>
+    <Route path="/xbar-r-chart" element={<XbarRPage/>}/>
+      
+    <Route path="/fixtures" element={<FixturesPage />} />
+    <Route path="/users" element={<UsersPage />} />
+    <Route path="/health" element={<HealthPage />} />
+    <Route path="/usage" element={<UsagePage />} />
+    <Route path="/maintenance" element={<MaintenancePage />} />
+    <Route path="/summary" element={<SummaryPage />} />
 
-      <Route path="/fixtures" element={<FixturesPage />} />
-      <Route path="/users" element={<UsersPage />} />
-      <Route path="/health" element={<HealthPage />} />
-      <Route path="/usage" element={<UsagePage />} />
-      <Route path="/maintenance" element={<MaintenancePage />} />
-      <Route path="/summary" element={<SummaryPage />} />
-
-      {process.env.NODE_ENV === 'development' && (
-        <Route path="/dev/upload" element={<UploadPage />} />
-      )}
-    </Routes>
+    {process.env.NODE_ENV === 'development' && (
+      <Route path="/dev/upload" element={<UploadPage />} />
+    )}
+  </Routes>
 ));
 
 function App() {

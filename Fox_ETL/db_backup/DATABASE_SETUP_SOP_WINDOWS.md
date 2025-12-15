@@ -104,6 +104,10 @@ GRANT ALL PRIVILEGES ON SCHEMA public TO gpu_user;
 # Navigate to the directory containing fox_backup.dump
 cd C:\path\to\fox_backup.dump
 
+<<<<<<< HEAD
+# Restore the database
+pg_restore --host=localhost --port=5432 --username=gpu_user --dbname=fox_db --clean --if-exists --verbose --no-owner --no-privileges fox_backup.dump
+=======
 # First, ensure the database exists and user has proper permissions
 psql -h localhost -U postgres -c "DROP DATABASE IF EXISTS fox_db;"
 psql -h localhost -U postgres -c "CREATE DATABASE fox_db OWNER gpu_user;"
@@ -121,6 +125,7 @@ psql -h localhost -U gpu_user -d fox_db -c "CREATE SCHEMA IF NOT EXISTS public;"
 
 # Then restore
 pg_restore --host=localhost --port=5432 --username=gpu_user --dbname=fox_db --verbose --no-owner --no-privileges --schema=public fox_backup.dump
+>>>>>>> origin/main
 ```
 
 ## Step 6: Verify the Setup

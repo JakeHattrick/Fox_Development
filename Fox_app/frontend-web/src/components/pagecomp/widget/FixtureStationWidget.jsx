@@ -1,7 +1,7 @@
 // Widget for Fixture Reports
 // ------------------------------------------------------------
 // Imports
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Paper, Box } from '@mui/material';
 // Style Guides
 import { paperStyle } from '../../theme/themes.js';
@@ -33,17 +33,47 @@ export function FixtureStationWidget({ widgetId }) {
   if (!widgetId) {
     return <Paper sx={paperStyle}><Box sx={{ p: 2 }}>Widget ID missing</Box></Paper>;
   }
+  // ----- Widget settings pulled from global state
+  const widgetSettings = (state.widgetSettings && state.widgetSettings[widgetId]) || {};
 
+  // ----------------------------------------------------------
+  // Bootstrap: ensure settings object exists for this widget
+  useEffect(() => {
+    if (!state.widgetSettings || !state.widgetSettings[widgetId]) {
+      dispatch({
+        type: 'UPDATE_WIDGET_SETTINGS',
+        widgetId,
+        settings: {}
+      });
+    }
+  }, [widgetId, state.widgetSettings, dispatch]);
   // ----------------------------------------------------------
   // Local state (data + loading flag)
   const [fixtureData, setFixtureData] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const latestReqId = useRef(0);
+
+  // ----------------------------------------------------------
+  // Derived values from widget settings (persisted selections)
+  const loaded = widgetSettings.loaded || false; 
+  // Placeholder for if widget needs to accept variables in the future
+
+  // ----------------------------------------------------------
+  // Helper: update current widget's settings (merge)
+  const updateWidgetSettings = (updates) => {
+    dispatch({
+      type: 'UPDATE_WIDGET_SETTINGS',
+      widgetId,
+      settings: { ...widgetSettings, ...updates }
+    });
+  };
   // ----------------------------------------------------------
   // Data fetching: query fixtures for the current date range
   useEffect(() => {
     // Polling loop with safety guard to avoid state updates after unmount
-    let isActive = true;
+    let isMounted = true;
+    const reqId = ++latestReqId.current;
 
     const fetchData = async () => {
       setLoading(true);
@@ -53,16 +83,16 @@ export function FixtureStationWidget({ widgetId }) {
           endDate,
           key: 'fixtures',
           setDataCache: data => {
-            if (isActive) setFixtureData(data);
+            if (isMounted && latestReqId.current === reqId) setFixtureData(data);
           },
           API_BASE,
           API_Route: '/api/v1/functional-testing/fixture-performance?'
         });
       } catch (err) {
         console.error('Error fetching data', err);
-        if (isActive) setFixtureData([]);
+        if (isMounted&& latestReqId.current === reqId) setFixtureData([]);
       } finally {
-        if (isActive) setLoading(false);
+        if (isMounted&& latestReqId.current === reqId) setLoading(false);
       }
     };
 
@@ -70,7 +100,7 @@ export function FixtureStationWidget({ widgetId }) {
     const intervalId = setInterval(fetchData, 300000); // refresh every 5 min
 
     return () => {
-      isActive = false;
+      isMounted = false;
       clearInterval(intervalId);
     };
   }, [startDate, endDate]);

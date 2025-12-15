@@ -7,6 +7,8 @@ import psycopg2
 import logging
 from datetime import datetime
 import pandas as pd
+<<<<<<< HEAD
+=======
 import sys
 import os
 # Add Fox_ETL directory to path to find config.py
@@ -18,15 +20,53 @@ while current_dir != '/':
         break
     current_dir = os.path.dirname(current_dir)
 from config import DATABASE
+>>>>>>> origin/main
 
 # Setup simple console logging
 logging.basicConfig(
     level=logging.INFO,
+<<<<<<< HEAD
+    format='%(asctime)s - %(levelname)s - %(message)s'
+=======
     format='%(levelname)s - %(message)s'
+>>>>>>> origin/main
 )
 
 def connect_to_db():
     """Establish database connection"""
+<<<<<<< HEAD
+    logging.info('🔌 Connecting to database...')
+    return psycopg2.connect(
+        host="localhost",
+        database="fox_db",
+        user="gpu_user",
+        password="",
+        port="5432"
+    )
+
+def create_pchart_table(conn):
+    """Create the P-Chart aggregation table if it doesn't exist"""
+    cursor = conn.cursor()
+    logging.info('Creating workstation_pchart_daily table if not exists...')
+    
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS workstation_pchart_daily (
+        date DATE NOT NULL,
+        pn VARCHAR(255) NOT NULL,
+        model VARCHAR(255),
+        workstation_name VARCHAR(255) NOT NULL,
+        service_flow VARCHAR(255),
+        total_count INTEGER NOT NULL,
+        pass_count INTEGER NOT NULL,
+        fail_count INTEGER NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (date, pn, workstation_name, service_flow)
+    );
+    """)
+    conn.commit()
+    cursor.close()
+    logging.info('Table check/creation complete.')
+=======
     return psycopg2.connect(**DATABASE)
 
 def create_pchart_table(conn):
@@ -47,6 +87,7 @@ def create_pchart_table(conn):
     """)
     conn.commit()
     cursor.close()
+>>>>>>> origin/main
 
 def aggregate_daily_data(conn):
     """Aggregate workstation data for the last 7 days"""

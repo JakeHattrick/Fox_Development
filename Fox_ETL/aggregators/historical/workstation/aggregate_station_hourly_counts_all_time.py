@@ -1,5 +1,15 @@
 import psycopg2
 from datetime import datetime
+<<<<<<< HEAD
+
+DB_CONFIG = {
+    'host': 'localhost',
+    'database': 'fox_db',
+    'user': 'gpu_user',
+    'password': '',
+    'port': '5432'
+}
+=======
 import sys
 import os
 # Add Fox_ETL directory to path to find config.py
@@ -11,6 +21,7 @@ while current_dir != '/':
         break
     current_dir = os.path.dirname(current_dir)
 from config import DATABASE
+>>>>>>> origin/main
 
 def create_summary_table(conn):
     with conn.cursor() as cur:
@@ -26,7 +37,11 @@ def create_summary_table(conn):
     conn.commit()
 
 def aggregate_station_hourly_counts():
+<<<<<<< HEAD
+    conn = psycopg2.connect(**DB_CONFIG)
+=======
     conn = psycopg2.connect(**DATABASE)
+>>>>>>> origin/main
     try:
         create_summary_table(conn)
         with conn.cursor() as cur:

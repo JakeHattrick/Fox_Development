@@ -138,7 +138,8 @@ export const GlobalSettingsProvider = ({ children }) => {
         position: w.position
       })),
       widgetSettings: state.widgetSettings, // Save widget-specific settings
-      layoutMode: state.layoutMode // Save layout mode
+      layoutMode: state.layoutMode, // Save layout mode
+      currentMode: state.currentMode
       
     };
     
@@ -156,6 +157,7 @@ export const GlobalSettingsProvider = ({ children }) => {
     state.widgets, 
     state.widgetSettings, // Add widgetSettings to dependencies
     state.layoutMode, // Add layoutMode to dependencies
+    state.currentMode,
     isInitialized
   ]);
 

@@ -1,6 +1,7 @@
 export const ALL_MODELS = [
-  { label: 'Tesla SXM4', value: 'SXM4' },
-  { label: 'Tesla SXM5', value: 'SXM5' },
+  { label: 'Tesla SXM4', value: 'SXM4', filter: ['TPC','EFT','IST','PHT','CHIFLASH','FLB','FLC'] },
+  { label: 'Tesla SXM5', value: 'SXM5', filter: ['TPC','IST2','TEST'] },
+  { label: 'Tesla SXM6', value: 'SXM6', filter: []}
 ];
 
 export const sxm4Parts = [
@@ -26,9 +27,10 @@ export const redOctoberParts = [
 
 export const stationBuckets = {
   test:["BAT","BBD","CHIFLASH","FLA","FLB","FLC","PHT","VI1","VI2","BIT","EFT","FCT","FI","FPF","FQC","IST","AVI_1","AVI_2","IQA","TEST","AOI"],
-  repair:["Assembley","Bat_REPAIR","Disassembly","UPGRADE","ASSY2","PHT_REPAIR","RMA_ASSY","FCT_REPAIR","FQC_REPAIR","EFT_REPAIR","FI_REPAIR","CHIFLASH_REPAIR","BIT_REPAIR","VI2_REPAIR","BBD_REPAIR","Assembley_REPAIR","FLA_REPAIR","FPF_REPAIR"],
+  repair:["Assembley","Bat_REPAIR","Disassembly","UPGRADE","ASSY2","PHT_REPAIR","RMA_ASSY","FCT_REPAIR","FQC_REPAIR","EFT_REPAIR","FI_REPAIR","CHIFLASH_REPAIR","BIT_REPAIR","VI2_REPAIR","BBD_REPAIR","Assembley_REPAIR","FLA_REPAIR","FPF_REPAIR","BAT_REPAIR","IST_REPAIR"],
   shipping:["RECEIVE","PACKING","SHIPPING"],
-  sorting:["Warehouse","SORTING"]
+  sorting:["Warehouse","SORTING"],
+  //lifetime:["BAT","BBD","CHIFLASH","FLA","FLB","FLC","PHT","VI1","VI2","BIT","EFT","FCT","FI","FPF","FQC","IST","AVI_1","AVI_2","IQA","TEST","AOI","Assembley","Bat_REPAIR","Disassembly","UPGRADE","ASSY2","PHT_REPAIR","RMA_ASSY","FCT_REPAIR","FQC_REPAIR","EFT_REPAIR","FI_REPAIR","CHIFLASH_REPAIR","BIT_REPAIR","VI2_REPAIR","BBD_REPAIR","Assembley_REPAIR","FLA_REPAIR","FPF_REPAIR","Warehouse","SORTING","BAT_REPAIR","IST_REPAIR"]
 };
 
 export const widgetList = [

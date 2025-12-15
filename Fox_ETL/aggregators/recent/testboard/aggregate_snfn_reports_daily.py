@@ -1,6 +1,30 @@
 
 import psycopg2
 from psycopg2.extras import execute_values
+<<<<<<< HEAD
+
+DB_CONFIG = {
+    'host': 'localhost',
+    'database': 'fox_db',
+    'user': 'gpu_user',
+    'password': '',
+    'port': '5432'
+}
+
+CREATE_TABLE_SQL = '''
+CREATE TABLE IF NOT EXISTS snfn_aggregate_daily (
+    fixture_no TEXT NOT NULL,
+    workstation_name TEXT NOT NULL,
+    sn TEXT NOT NULL,
+    pn TEXT,
+    model TEXT NOT NULL,
+    error_code TEXT NOT NULL,
+    error_disc TEXT,
+    history_station_end_time TIMESTAMP NOT NULL,
+    PRIMARY KEY (sn, fixture_no, model, workstation_name, error_code, history_station_end_time)
+);
+'''
+=======
 import sys
 import os
 # Add Fox_ETL directory to path to find config.py
@@ -13,6 +37,7 @@ while current_dir != '/':
     current_dir = os.path.dirname(current_dir)
 
 from config import DATABASE
+>>>>>>> origin/main
 
 AGGREGATE_SQL = '''
 SELECT DISTINCT
@@ -43,7 +68,11 @@ DO UPDATE SET
 '''
 
 def main():
+<<<<<<< HEAD
+    conn = psycopg2.connect(**DB_CONFIG)
+=======
     conn = psycopg2.connect(**DATABASE)
+>>>>>>> origin/main
     try:
         with conn.cursor() as cur:
             print("Creating snfn_aggregate_daily table if not exists...")
