@@ -11,6 +11,7 @@
 
 const { pool } = require('../db.js');
 const { uuidRegex, dynamicQuery, dynamicPostQuery } = require('./controllerUtilities.js');
+const UsageService = require("../services/usageService.js");
 
 class usageController {
 
@@ -179,6 +180,61 @@ class usageController {
             res.status(500).json({ error: 'Database delete failed' });
         }
     }
+
+    // =====================================================
+    // READ — Fixture testing summary (business logic)
+    // =====================================================
+    static async getUsageSummary(req, res) {
+        try {
+            const summary = await UsageService.getFixtureUsageSummary();
+            res.status(200).json(summary);
+        } catch (err) {
+            console.error("Usage summary error:", err);
+            res.status(500).json({ error: "Failed to calculate usage summary" });
+        }
+    }
+
+    // =====================================================
+    // READ — Fixture Usage Status
+    // =====================================================
+    static async getUsageStatus(req, res) {
+        try{
+            const data = await UsageService.getFixtureUsageStatus();
+            res.json(data);
+        } catch (err) {
+            console.error("Error in getUsageStatus:", err);
+            res.status(500).json({ error: "Failed to fetch status"});
+        }
+    }
+
+    // =====================================================
+    // READ — Fixture Usage History
+    // =====================================================
+    static async getUsageHistory(req, res) {
+    try {
+        const data = await UsageService.getUsageHistory();  // data is an ARRAY
+        res.json(data);                                     // return the data
+    } catch (err){
+        console.error("Error in getUsageHistory:", err);
+        res.status(500).json({error: "Failed to fetch usage history" });
+        }
+    }
+
+    // =====================================================
+    // READ — Station Summary (last 7d, 30d, 24h, etc.)
+    // =====================================================
+    static async getStationSummary(req, res) {
+    try {
+        const range = req.query.range || "7d";
+        const data = await UsageService.getStationSummary(range);
+        return res.status(200).json(data);   // <-- FIXED
+    } catch (err) {
+        console.error("Error in getStationSummary:", err);
+        return res.status(500).json({ error: "Failed to fetch station summary" });
+    }
+}
+
+
 }
 
 module.exports = usageController;

@@ -11,6 +11,8 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE TABLE fixtures (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     fixture_name VARCHAR(32) UNIQUE NOT NULL,
+    gen_type VARCHAR(32) NOT NULL
+        CHECK (gen_type IN ('Gen3 B Tester', 'Gen5 B Tester')),
     rack VARCHAR(32),
     fixture_sn VARCHAR(32),
     test_type VARCHAR(32) CHECK (test_type IN ('Refurbish', 'Sort', 'Debug')),
@@ -24,9 +26,10 @@ CREATE TABLE IF NOT EXISTS fixture_parts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     parent_fixture_id UUID NOT NULL REFERENCES fixtures(id),
     tester_type VARCHAR(32) NOT NULL
-        CHECK (tester_type IN ('Gen3 B Tester', 'Gen5 B Tester', 'LA Slot', 'RA Slot')),
+        CHECK (tester_type IN ('LA Slot', 'RA Slot')),
     -- inherited fields (auto-filled by trigger)
     fixture_name VARCHAR(32),
+    gen_type VARCHAR(32),
     rack VARCHAR(32),
     fixture_sn VARCHAR(32),
     test_type VARCHAR(32),   -- will match parent's test_type

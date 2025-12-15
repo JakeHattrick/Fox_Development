@@ -37,7 +37,8 @@ import './components/theme/theme.css';
 import { GlobalSettingsProvider } from './data/GlobalSettingsContext';
 import FixturesPage from "./components/pages/FixturesPage";
 import FixtureMaintenance from './components/pages/FixtureMaintenance';
-import HealthPage from './components/pages/healthPage';
+import HealthPage from './components/pages/HealthPage';
+import UsagePage from './components/pages/usagePage'; 
 
 //Main content component
 const MainContent = React.memo(({ children }) => {
@@ -48,7 +49,7 @@ const MainContent = React.memo(({ children }) => {
     paddingTop: '64px',
     backgroundColor: 'background.default'
   }), []);
-
+ 
   return (
     <Box component="main" sx={mainContentStyle}>
       {children}
@@ -80,6 +81,8 @@ const AppRoutes = React.memo(() => (
       <Route path="/fixtures" element={<FixturesPage />} />
       <Route path="/fixture-maintenance" element={<FixtureMaintenance />} />
       <Route path="/health" element={<HealthPage />} />
+      <Route path="/usage" element={<UsagePage />} />
+
       {process.env.NODE_ENV === 'development' && (
         <Route path="/dev/upload" element={<UploadPage />} />
       )}
