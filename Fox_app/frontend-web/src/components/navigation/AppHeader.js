@@ -6,7 +6,9 @@ import { useNavigate } from 'react-router-dom';
 const MenuIconElement = <MenuIcon />;
 
 const AppTitle = React.memo(() => {
+
   const navigate = useNavigate();
+  const version = process.env.APP_VERSION || '0.0.0';
 
   const handleTitleClick = () =>{
     navigate('/');
@@ -16,9 +18,9 @@ const AppTitle = React.memo(() => {
   <Typography variant="h6" noWrap component="div" onClick={handleTitleClick}
     sx={{cursor:'pointer', '&:hover':{opacity:0.8}}}
   >
-    Quality Dashboard
+    Fox App
     <Typography component="sub" variant="caption" sx={{ marginLeft: 0.5 }}>
-      Web v1.1.56
+      Web v{version}
     </Typography>
   </Typography>
   );

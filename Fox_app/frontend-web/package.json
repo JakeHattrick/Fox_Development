@@ -1,6 +1,6 @@
 {
   "name": "fox-quality-dashboard-web",
-  "version": "1.1.56",
+  "version": "2.2.10",
   "description": "Quality Dashboard for Fox Manufacturing - Web Version",
   "private": true,
   "scripts": {
@@ -48,6 +48,7 @@
     "material-react-table": "^3.2.1",
     "nstall": "^0.2.0",
     "papaparse": "^5.5.3",
+    "path": "^0.12.7",
     "react": "^19.1.0",
     "react-chartjs-2": "^5.3.0",
     "react-datepicker": "^8.3.0",

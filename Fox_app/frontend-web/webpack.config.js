@@ -4,6 +4,8 @@ const Dotenv = require('dotenv-webpack');
 
 module.exports = (env, argv) => {
   const isProduction = argv.mode === 'production';
+  const webpack = require('webpack');
+  const pkg = require('./package.json')
   
   return {
     entry: './src/index.js',
@@ -46,7 +48,10 @@ module.exports = (env, argv) => {
         template: './public/index.html',
         filename: 'index.html'
       }),
-      new Dotenv()
+      new Dotenv(),
+      new webpack.DefinePlugin({
+        'process.env.APP_VERSION':JSON.stringify(pkg.version),
+      }),
     ],
     devServer: {
       static: {
