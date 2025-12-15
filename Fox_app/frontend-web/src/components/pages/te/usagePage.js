@@ -29,7 +29,7 @@ import {
 } from "@mui/material";
 
 import RefreshIcon from "@mui/icons-material/Refresh";
-import { getUsageSummaryAll, getDailyUsage } from "../../services/api";
+import { getUsageSummaryAll, getDailyUsage } from "../../../services/api";
 
 import {
   ResponsiveContainer,

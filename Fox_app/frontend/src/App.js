@@ -14,7 +14,6 @@ import TestStationPerformancePage from './components/pages/quality/TestStationPe
 import ThroughputPage from './components/pages/quality/performance/ThroughputPage';
 import SNFNPage from './components/pages/quality/stationReports/SNFNPage';
 import PackingCharts from './components/pages/quality/PackingCharts';
-import UploadPage from './components/pages/dev/uploadPage';
 import StationHourlySummaryPage from './components/pages/quality/stationReports/StationHourlySummaryPage';
 import ParetoPage from './components/pages/quality/ParetoPage';
 import QueryPage from './components/pages/quality/QueryPage';
@@ -33,6 +32,7 @@ import MaintenancePage from "./components/pages/te/MaintenancePage";
 import SummaryPage from "./components/pages/te/SummaryPage";
 
 // Dev Pages
+import UploadPage from './components/pages/dev/uploadPage';
 import StationCycleTime from './components/pages/dev/CycleTime';
 import MostRecentFail from './components/pages/dev/MostRecentFail';
 import ByErrorCode from './components/pages/dev/ByErrorCode';
