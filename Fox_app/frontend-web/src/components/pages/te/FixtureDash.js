@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Box, Card, CardContent, CardHeader, CircularProgress, Container, Divider, FormControl, InputLabel, MenuItem, Select, Typography, Alert, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton
 } from '@mui/material';
-import {LineChart} from '../charts/LineChart.js';
-import { PieChart } from '../charts/PieChart.js';
-import { Header } from '../pagecomp/Header';
-import { testFixtureData,testFixtureStatusData } from '../../data/sampleData.js';
-import { headerStyle, dataTextStyle } from '../theme/themes.js';
+import {LineChart} from '../../charts/LineChart.js';
+import { PieChart } from '../../charts/PieChart.js';
+import { Header } from '../../pagecomp/Header.jsx';
+import { testFixtureData,testFixtureStatusData } from '../../../data/sampleData.js';
+import { headerStyle, dataTextStyle } from '../../theme/themes.js';
 import { useTheme } from '@mui/material/styles';
 import SquareIcon from '@mui/icons-material/Square';
 import MarkunreadMailboxIcon from '@mui/icons-material/MarkunreadMailbox';

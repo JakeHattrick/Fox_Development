@@ -6,9 +6,9 @@ import UploadFileIcon from '@mui/icons-material/UploadFile';
 import PanoramaPhotosphereIcon from '@mui/icons-material/PanoramaPhotosphere';
 import SettingsIcon from '@mui/icons-material/Settings';
 import DownloadIcon from '@mui/icons-material/Download';
-import { Header } from '../pagecomp/Header.jsx';
-import { buttonStyle, tableStyle, headerStyle, divStyle, dataTextStyle } from '../theme/themes.js';
-import { exportSecureCSV } from '../../utils/exportUtils.js';
+import { Header } from '../../pagecomp/Header.jsx';
+import { buttonStyle, tableStyle, headerStyle, divStyle, dataTextStyle } from '../../theme/themes.js';
+import { exportSecureCSV } from '../../../utils/exportUtils.js';
 
 export const JsonToCsv = () => {
   const theme = useTheme();

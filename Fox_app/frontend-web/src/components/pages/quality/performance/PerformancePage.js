@@ -3,10 +3,10 @@ import { Box, Card, CardContent, CardHeader, CircularProgress, Container,
   Divider, FormControl, InputLabel, MenuItem,
   Select, Typography, Alert, Stack
 } from '@mui/material';
-import { DateRange } from '../pagecomp/DateRange';
-import PChart from '../charts/PChart';
-import { Header } from '../pagecomp/Header';
-import { normalizeDate, getInitialStartDate } from '../../utils/dateUtils.js';
+import { DateRange } from '../../../pagecomp/DateRange.jsx';
+import PChart from '../../../charts/PChart.js';
+import { Header } from '../../../pagecomp/Header.jsx';
+import { normalizeDate, getInitialStartDate } from '../../../../utils/dateUtils.js';
 
 // ===== CONSTANTS =====
 const CHART_CONFIG = {

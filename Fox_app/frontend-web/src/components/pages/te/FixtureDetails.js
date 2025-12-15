@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Box, Card, CardContent, CardHeader, CircularProgress, Container, Divider, FormControl, InputLabel, MenuItem, Select, Typography, Alert, Stack, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Tabs, Tab, IconButton
 } from '@mui/material';
-import { DateRange } from '../pagecomp/DateRange';
+import { DateRange } from '../../pagecomp/DateRange.jsx';
 import { useNavigate } from 'react-router-dom';
-import PChart from '../charts/PChart';
-import { Header } from '../pagecomp/Header';
-import {LineChart} from '../charts/LineChart.js';
-import { PieChart } from '../charts/PieChart.js';
-import { testFixtureData,testFixtureStatusData, testFixtureAvailabilityData,testFixtureUsageData,testFixtureFailureData } from '../../data/sampleData.js';
-import { headerStyle, dataTextStyle } from '../theme/themes.js';
+import PChart from '../../charts/PChart.js';
+import { Header } from '../../pagecomp/Header.jsx';
+import {LineChart} from '../../charts/LineChart.js';
+import { PieChart } from '../../charts/PieChart.js';
+import { testFixtureData,testFixtureStatusData, testFixtureAvailabilityData,testFixtureUsageData,testFixtureFailureData } from '../../../data/sampleData.js';
+import { headerStyle, dataTextStyle } from '../../theme/themes.js';
 import SquareIcon from '@mui/icons-material/Square';
 import MarkunreadMailboxIcon from '@mui/icons-material/MarkunreadMailbox';
 import FolderIcon from '@mui/icons-material/Folder';

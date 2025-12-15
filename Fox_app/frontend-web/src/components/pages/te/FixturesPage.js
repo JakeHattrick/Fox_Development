@@ -16,7 +16,7 @@ import {
   updateFixtureParts,
   deleteFixture,
   deleteFixtureParts,
-} from "../../services/api";
+} from "../../../services/api";
 
 import {
   Button,

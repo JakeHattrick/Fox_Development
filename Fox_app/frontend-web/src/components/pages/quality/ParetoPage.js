@@ -5,16 +5,16 @@ import { Box, Paper, Typography, CircularProgress } from '@mui/material';
 // Third Party Libraries
 import 'react-datepicker/dist/react-datepicker.css';
 // Custom Charts
-import { ParetoChart } from '../charts/ParetoChart.js';
+import { ParetoChart } from '../../charts/ParetoChart.js';
 // Page Components
-import { Header } from '../pagecomp/Header.jsx';
-import { DateRange } from '../pagecomp/DateRange.jsx';
+import { Header } from '../../pagecomp/Header.jsx';
+import { DateRange } from '../../pagecomp/DateRange.jsx';
 // Utilities and Helpers
-import { dataCache } from '../../utils/cacheUtils.js';
-import { gridStyle } from '../theme/themes.js';
-import { fetchErrorQuery } from '../../utils/queryUtils.js';
-import { getInitialStartDate, normalizeDate } from '../../utils/dateUtils.js';
-import { NumberRange } from '../pagecomp/NumberRange.jsx'
+import { dataCache } from '../../../utils/cacheUtils.js';
+import { gridStyle } from '../../theme/themes.js';
+import { fetchErrorQuery } from '../../../utils/queryUtils.js';
+import { getInitialStartDate, normalizeDate } from '../../../utils/dateUtils.js';
+import { NumberRange } from '../../pagecomp/NumberRange.jsx'
 
 const ReadOnlyInput = React.forwardRef((props, ref) => (
   <input {...props} ref={ref} readOnly />

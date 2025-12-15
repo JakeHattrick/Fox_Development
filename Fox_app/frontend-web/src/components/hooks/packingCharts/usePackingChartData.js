@@ -98,7 +98,7 @@ const processPackingData = (apiData, selectedModelsOrModel) => {
   return dateMap;
 };
 
-export function usePackingData(
+export function usePackingChartData(
   apiBase,
   selectedModelsOrModel,   // Can be either array of models or single model string
   currentISOWeekStart,     // ISO week start as an ISO string or Date

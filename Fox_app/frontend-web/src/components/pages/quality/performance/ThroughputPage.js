@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef, startTransition } from 'react';
-import { debounceHeavy, batchUpdates } from '../../utils/performanceUtils';
+import { debounceHeavy, batchUpdates } from '../../../../utils/performanceUtils';
 import { Box, Container, Typography, Card, CardContent, Grid, FormControl,
   InputLabel, Select, MenuItem, Divider, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Paper, Chip
 } from '@mui/material';
-import { ThroughputBarChart } from '../charts/ThroughputBarChart';
+import { ThroughputBarChart } from '../../../charts/ThroughputBarChart';
 import { useTheme } from '@mui/material/styles';
 
 const API_BASE = process.env.REACT_APP_API_BASE;

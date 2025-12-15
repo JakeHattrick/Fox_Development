@@ -37,7 +37,6 @@ import { isLowEndDevice, LightweightBackdrop } from './utils/muiOptimizations';
 import './components/theme/theme.css';
 import { GlobalSettingsProvider } from './data/GlobalSettingsContext';
 import FixturesPage from "./components/pages/FixturesPage";
-import FixtureMaintenance from './components/pages/FixtureMaintenance';
 import HealthPage from './components/pages/healthPage';
 
 //Main content component
@@ -112,7 +111,6 @@ function App() {
   return (
     <DashboardThemeProvider>
       <CssBaseline />
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
         <Box sx={{ display: 'flex' }}>
           <AppHeader onMenuClick={handlersRef.current.toggleDrawer} />
           {backdrop}
@@ -125,7 +123,6 @@ function App() {
           </MainContent>
           <SimplePerformanceMonitor />
         </Box>
-      </LocalizationProvider>
     </DashboardThemeProvider>
   );
 }

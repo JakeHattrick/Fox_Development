@@ -7,13 +7,13 @@ import { Box, FormGroup, FormControlLabel, Checkbox, Typography, CircularProgres
 // Material UI Icons
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 // Custom Components
-import PackingOutputBarChart from '../charts/PackingOutputBarChart';
+import PackingOutputBarChart from '../../charts/PackingOutputBarChart';
 // Data and Configuration
-import { ALL_MODELS } from '../../data/dataTables';
+import { ALL_MODELS } from '../../../data/dataTables';
 // Custom Hooks
-import { useWeekNavigation } from '../hooks/packingCharts/useWeekNavigation';
-import { usePackingData } from '../hooks/packingCharts/usePackingData';
-import { buttonStyle } from '../theme/themes';
+import { useWeekNavigation } from '../../hooks/packingCharts/useWeekNavigation';
+import { usePackingChartData as usePackingData } from '../../hooks/packingCharts/usePackingChartData';
+import { buttonStyle } from '../../theme/themes';
 
 // Configuration Constants
 const API_BASE = process.env.REACT_APP_API_BASE;

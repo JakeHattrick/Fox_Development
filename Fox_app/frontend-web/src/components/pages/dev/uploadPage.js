@@ -23,7 +23,7 @@ const PostgresTablesPage = () => {
       setUploadError(null);
       setUploadResponse(null);
       
-      const response = await fetch('http://10.23.8.97:5000/api/v1/upload/catch-file', {
+      const response = await fetch('http://10.23.8.215:5000/api/v1/upload/catch-file', {
         method: 'POST',
         body: formData,
       });

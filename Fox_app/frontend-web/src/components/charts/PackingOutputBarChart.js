@@ -106,6 +106,7 @@ const PackingOutputBarChart = ({
                 isAnimationActive={false}
                 name="Trend"
                 connectNulls
+                label={"Trend"}
               />
           )}
         </ComposedChart>

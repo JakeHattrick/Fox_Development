@@ -5,16 +5,17 @@ import { Box} from '@mui/material';
 // Third Party Libraries
 import 'react-datepicker/dist/react-datepicker.css';
 // Custom Charts
-import { TestStationChart } from '../charts/TestStationChart';
-import { FixtureFailParetoChart } from '../charts/FixtureFailParetoChart';
+import { TestStationChart } from '../../charts/TestStationChart.js';
+import { FixtureFailParetoChart } from '../../charts/FixtureFailParetoChart.js';
 //import { ParetoChart } from '../charts/ParetoChart';
 // Page Components
-import { Header } from '../pagecomp/Header.jsx';
-import { DateRange } from '../pagecomp/DateRange.jsx';
+import { Header } from '../../pagecomp/Header.jsx';
+import { DateRange } from '../../pagecomp/DateRange.jsx';
 // Utilities and Helpers
-import { dataCache } from '../../utils/cacheUtils';
-import { gridStyle } from '../theme/themes.js';
-import { fetchFixtureQuery, fetchWorkstationQuery } from '../../utils/queryUtils.js';
+import { dataCache } from '../../../utils/cacheUtils.js';
+import { gridStyle } from '../../theme/themes.js';
+import { fetchFixtureQuery, fetchWorkstationQuery } from '../../../utils/queryUtils.js';
+import { ALL_MODELS } from '../../../data/dataTables.js';
 
 const ReadOnlyInput = React.forwardRef((props, ref) => (
   <input {...props} ref={ref} readOnly />
@@ -72,74 +73,6 @@ export const TestStationPerformancePage = () => {
         API_Route: '/api/v1/functional-testing/fixture-performance?'
       });
 
-    // const fetchFailStations = () => {
-    //   const params = new URLSearchParams();
-    //   if (startDate) {
-    //     const utcStartDate = new Date(startDate);
-    //     utcStartDate.setUTCHours(0, 0, 0, 0);
-    //     params.append('startDate', utcStartDate.toISOString());
-    //   }
-    //   if (endDate) {
-    //     const utcEndDate = new Date(endDate);
-    //     utcEndDate.setUTCHours(23, 59, 59, 999);
-    //     params.append('endDate', utcEndDate.toISOString());
-    //   }
-
-    //   const cacheKey = `failStations_${params.toString()}`;
-
-    //   const cachedData = dataCache.get(cacheKey);
-    //   if (cachedData) {
-    //     setFailStationsData(cachedData);
-    //     return Promise.resolve(cachedData);
-    //   }
-
-    //   return fetch(`${API_BASE}/api/defect-records/fail-stations?${params.toString()}`)
-    //     .then(res => res.json())
-    //     .then(data => {
-    //       setFailStationsData(data);
-    //       dataCache.set(cacheKey, data);
-    //       return data;
-    //     })
-    //     .catch(() => {
-    //       setFailStationsData([]);
-    //       return [];
-    //     });
-    // };
-
-    // const fetchDefectCodes = () => {
-    //   const params = new URLSearchParams();
-    //   if (startDate) {
-    //     const utcStartDate = new Date(startDate);
-    //     utcStartDate.setUTCHours(0, 0, 0, 0);
-    //     params.append('startDate', utcStartDate.toISOString());
-    //   }
-    //   if (endDate) {
-    //     const utcEndDate = new Date(endDate);
-    //     utcEndDate.setUTCHours(23, 59, 59, 999);
-    //     params.append('endDate', utcEndDate.toISOString());
-    //   }
-
-    //   const cacheKey = `defectCodes_${params.toString()}`;
-
-    //   const cachedData = dataCache.get(cacheKey);
-    //   if (cachedData) {
-    //     setDefectCodesData(cachedData);
-    //     return Promise.resolve(cachedData);
-    //   }
-
-    //   return fetch(`${API_BASE}/api/defect-records/defect-codes?${params.toString()}`)
-    //     .then(res => res.json())
-    //     .then(data => {
-    //       setDefectCodesData(data);
-    //       dataCache.set(cacheKey, data);
-    //       return data;
-    //     })
-    //     .catch(() => {
-    //       setDefectCodesData([]);
-    //       return [];
-    //     });
-    // };
-
     Promise.all([fetchSXM4(), fetchSXM5(), fetchSXM6(), fetchFixtures()])
       .then(() => setLoading(false)) 
       .catch(error => {
@@ -175,47 +108,25 @@ export const TestStationPerformancePage = () => {
         <TestStationChart 
           label={"SXM4 Test Station Performance"}
           data={testStationDataSXM4} 
-          loading={loading}/>
+          loading={loading}
+          filter = {ALL_MODELS.find(m => m.value === 'SXM4')?.filter || []}
+          />
         <TestStationChart 
           label="SXM5 Test Station Performance"
           data={testStationDataSXM5}
-          loading={loading} />
+          loading={loading} 
+          filter = {ALL_MODELS.find(m => m.value === 'SXM5')?.filter || []}
+          />
         <TestStationChart 
           label="SXM6 Test Station Performance"
           data={testStationDataSXM6}
-          loading={loading} />
+          loading={loading} 
+          filter = {ALL_MODELS.find(m => m.value === 'SXM6')?.filter || []}
+          />
         <FixtureFailParetoChart 
           label={"Fixture Performance"}
           data={topFixturesData}
           loading={loading} />
-        {/* <Paper sx={{ p: 2 }}>
-          <Box sx={flexStyle}>
-            <Typography variant="h6" sx={typeStyle} >
-              Defect Fail Stations
-            </Typography>
-          </Box>
-          <Box sx={boxStyle}>
-            {loading ? (
-              <CircularProgress />
-            ) : (
-              <ParetoChart data={failStationsData} lineLabel="Cumulative %" />
-            )}
-          </Box>
-        </Paper>
-        <Paper sx={{ p: 2 }}>
-          <Box sx={flexStyle}>
-            <Typography variant="h6" sx={typeStyle} >
-              Most Common Defects
-            </Typography>
-          </Box>
-          <Box sx={boxStyle}>
-            {loading ? (
-              <CircularProgress />
-            ) : (
-              <ParetoChart data={defectCodesData} lineLabel="Cumulative %" />
-            )}
-          </Box>
-        </Paper> */}
       </Box>
     </Box>
   );
