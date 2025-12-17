@@ -65,7 +65,38 @@ export const getStationSummary = async (range = "7d") => {
 };
 export const getDailyUsage = (body) =>
   API.post("/v1/testboard-records/daily-usage", body);
+// api.js
+export const getStatusOverTime = (startDate, endDate) =>
+  API.get("/usage/status-over-time", {
+    params: { startDate, endDate },
+  });
 
+
+
+
+// ========================
+// Testboard Analytics
+// ========================
+
+// Fixture-level summary
+export const getTestboardSummary = (range = "7d") =>
+  API.get(`/testboard/summary?range=${range}`);
+
+// Status KPIs
+export const getTestboardStatus = (range = "7d") =>
+  API.get(`/testboard/status?range=${range}`);
+
+// Fixture history (timeline)
+export const getTestboardHistory = (fixtureNo) =>
+  API.get(`/testboard/history/${fixtureNo}`);
+
+// Weekly station activity (line chart)
+export const getTestboardWeeklyActivity = (days = 30) =>
+  API.get(`/testboard/weekly-activity?days=${days}`);
+
+// Station summary (table / KPIs)
+export const getTestboardStationSummary = (range = "7d") =>
+  API.get(`/testboard/station-summary?range=${range}`);
 
 // ========================
 // Export Axios instance

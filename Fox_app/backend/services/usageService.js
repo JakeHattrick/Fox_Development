@@ -112,7 +112,7 @@ class UsageService {
 
             const station = (LA.test_station || "").trim().toUpperCase();
 
-            if (station === "ASSY2") {
+            if (station === "ASSY2" || station === "OQC") {
                 fixture.status = "Finished";
                 fixture.notes = "Testing complete";
             } else {
@@ -151,20 +151,20 @@ class UsageService {
     // =========================================================================
     // HISTORY — FIXED SQL VERSION
     // =========================================================================
-    static async getUsageHistory() {
-        try {
-            const result = await pool.query(`
-                SELECT *
-                FROM usage_history
-                ORDER BY date ASC
-            `);
+    //static async getUsageHistory() {
+      //  try {
+        //    const result = await pool.query(`
+          //      SELECT *
+            //    FROM usage_history
+              //  ORDER BY date ASC
+         //   `);
 
-            return result.rows;
-        } catch (err) {
-            console.warn("⚠ usage_history table not found — returning empty[]");
-            return [];
-        }
-    }
+           // return result.rows;
+        //} catch (err) {
+          //  console.warn("⚠ usage_history table not found — returning empty[]");
+            //return [];
+       // }
+    //}
 
     // =========================================================================
     // NEW — WEEKLY STATION ACTIVITY (for the line graph)
@@ -233,6 +233,98 @@ class UsageService {
             client.release();
         }
     }
+
+    // =========================================================================
+// NEW — Fixture Status Over Time (by usage.create_date)
+// =========================================================================
+static async getFixtureStatusOverTime(startDate, endDate) {
+    const query = `
+        SELECT 
+            f.id AS fixture_id,
+            f.fixture_name,
+            fp.id AS fixture_part_id,
+            fp.tester_type,
+            u.gpu_pn,
+            u.gpu_sn,
+            u.test_station,
+            u.create_date
+        FROM fixtures f
+        JOIN fixture_parts fp 
+            ON fp.parent_fixture_id = f.id
+        JOIN usage u 
+            ON u.fixture_part_id = fp.id
+        WHERE u.create_date >= $1
+          AND u.create_date < $2::date + INTERVAL '1 day'
+        ORDER BY u.create_date ASC;
+    `;
+
+    const { rows } = await pool.query(query, [startDate, endDate]);
+
+    const dailyFixtures = {};
+
+    for (const row of rows) {
+        const day = row.create_date.toISOString().slice(0, 10);
+
+        if (!dailyFixtures[day]) dailyFixtures[day] = {};
+        if (!dailyFixtures[day][row.fixture_id]) {
+            dailyFixtures[day][row.fixture_id] = {
+                slots: { LA: null, RA: null },
+                status: "Unknown"
+            };
+        }
+
+        let slot = null;
+        if (row.tester_type === "LA Slot") slot = "LA";
+        if (row.tester_type === "RA Slot") slot = "RA";
+
+        if (slot) {
+            dailyFixtures[day][row.fixture_id].slots[slot] = {
+                gpu_pn: row.gpu_pn,
+                gpu_sn: row.gpu_sn,
+                test_station: row.test_station
+            };
+        }
+    }
+
+    const result = [];
+
+    for (const [day, fixtures] of Object.entries(dailyFixtures)) {
+        const statusCount = {};
+
+        for (const fixture of Object.values(fixtures)) {
+            const LA = fixture.slots.LA;
+            const RA = fixture.slots.RA;
+
+            let status = "Unknown";
+
+            if (!LA && !RA) status = "Idle";
+            else if (!LA || !RA) status = "Partial";
+            else if (
+                (!LA.gpu_pn && !LA.test_station) &&
+                (!RA.gpu_pn && !RA.test_station)
+            ) status = "Inactive";
+            else if (LA.gpu_pn !== RA.gpu_pn) status = "Error";
+            else if (LA.test_station !== RA.test_station) status = "Error";
+           else if (["ASSY2", "OQC"].includes((LA.test_station || "").toUpperCase())) 
+                status = "Finished";
+            else status = "Testing";
+
+            statusCount[status] = (statusCount[status] || 0) + 1;
+        }
+
+        for (const [status, count] of Object.entries(statusCount)) {
+            result.push({
+                date: day,
+                status,
+                count
+            });
+        }
+    }
+
+    return result;
+}
+
+
 }
 
 module.exports = UsageService;

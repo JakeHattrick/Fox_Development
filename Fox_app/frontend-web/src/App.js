@@ -35,6 +35,8 @@ import FixtureMaintenance from './components/pages/te/FixtureMaintenance';
 import FixturesPage from "./components/pages/te/FixturesPage";
 import HealthPage from './components/pages/te/HealthPage';
 import UsagePage from './components/pages/te/usagePage'; 
+import TestboardPage from "./components/pages/te/testboardPage";
+
 // Dev Pages
 import UploadPage from './components/pages/dev/uploadPage';
 import StationCycleTime from './components/pages/dev/CycleTime';
@@ -91,6 +93,7 @@ const AppRoutes = React.memo(() => (
     <Route path="/fixture-maintenance" element={<FixtureMaintenance />} />
     <Route path="/health" element={<HealthPage />} />
     <Route path="/usage" element={<UsagePage />} />
+    <Route path="/testboard" element={<TestboardPage />} />
 
     {process.env.NODE_ENV === 'development' && (
       <Route path="/dev/upload" element={<UploadPage />} />

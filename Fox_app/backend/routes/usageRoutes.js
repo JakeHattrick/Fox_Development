@@ -18,11 +18,14 @@ router.get("/summary/stations", allowReadUpdate, usageController.getStationSumma
 //Get Summary for UsageServices
 router.get("/summary", allowReadUpdate, usageController.getUsageSummary);
 
+// Get fixture status over time (line chart)
+router.get("/status-over-time", allowReadUpdate, usageController.getFixtureStatusOverTime);
+
 //Get status for UsageServices
 router.get("/status", usageController.getUsageStatus);
 
 //Get history for UsageServices
-router.get("/history", usageController.getUsageHistory);
+//router.get("/history", usageController.getUsageHistory);
 
 // READ single usage record by ID — allowed for all users
 router.get('/:id', allowReadUpdate, usageController.getUsageById);

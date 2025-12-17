@@ -29,7 +29,7 @@ import {
 } from "@mui/material";
 
 import RefreshIcon from "@mui/icons-material/Refresh";
-import { getUsageSummaryAll, getDailyUsage } from "../../../services/api";
+import { getUsageSummaryAll, getDailyUsage, getStatusOverTime }  from "../../../services/api";
 
 import {
   ResponsiveContainer,
@@ -81,6 +81,37 @@ export default function UsageSummaryPage() {
     return new Date().toISOString().slice(0, 10);
   });
 
+  // Fixture status over time
+  const [statusOverTimeRaw, setStatusOverTimeRaw] = useState([]);
+  const [statusLoading, setStatusLoading] = useState(false);
+  const [statusError, setStatusError] = useState("");
+
+  // Fetch fixture status over time
+const fetchStatusOverTime = useCallback(async () => {
+  setStatusLoading(true);
+  setStatusError("");
+
+  try {
+    const res = await getStatusOverTime(startDate, endDate);
+
+    const payload = res?.data;
+
+    if (Array.isArray(payload)) {
+      setStatusOverTimeRaw(payload);
+    } else {
+      setStatusOverTimeRaw([]);
+    }
+  } catch (err) {
+    console.error("status-over-time error:", err);
+    setStatusError(err?.message || "Failed to fetch status over time");
+    setStatusOverTimeRaw([]);
+  } finally {
+    setStatusLoading(false);
+  }
+}, [startDate, endDate]);
+
+
+
   // Fetch usage summary (existing)
   const fetchSummary = useCallback(async () => {
     setLoading(true);
@@ -128,7 +159,8 @@ export default function UsageSummaryPage() {
   useEffect(() => {
     fetchSummary();
     fetchDailyUsage();
-  }, [fetchSummary, fetchDailyUsage]);
+     fetchStatusOverTime();
+  }, [fetchSummary, fetchDailyUsage, fetchStatusOverTime]);
 
   // KPI top-left
   const widgets = useMemo(() => {
@@ -161,29 +193,34 @@ export default function UsageSummaryPage() {
   }, [usageData]);
 
   // ============================================================
-  // ⭐ Station-based stacked bar chart (LA vs RA) — unchanged
-  // ============================================================
-  const stationLineData = useMemo(() => {
-    if (!usageData || usageData.length === 0) return [];
+// Slot / Fixture Status OVER TIME (line chart)
+// Source: getStatusOverTime → [{ date, status, count }]
+// ============================================================
+const statusOverTimeData = useMemo(() => {
+  if (!statusOverTimeRaw || statusOverTimeRaw.length === 0) return [];
 
-    const map = {};
+  const statuses = ["Idle", "Partial", "Inactive", "Error", "Finished", "Testing"];
+  const map = {};
 
-    usageData.forEach((row) => {
-      const la = row.slots?.LA?.test_station;
-      const ra = row.slots?.RA?.test_station;
+  statusOverTimeRaw.forEach((row) => {
+    const day = row.date.slice(0, 10);
+    const status = row.status || "Unknown";
 
-      if (la) {
-        if (!map[la]) map[la] = { station: la, LA: 0, RA: 0 };
-        map[la].LA += 1;
-      }
-      if (ra) {
-        if (!map[ra]) map[ra] = { station: ra, LA: 0, RA: 0 };
-        map[ra].RA += 1;
-      }
-    });
+    if (!map[day]) {
+      map[day] = { date: day };
+      statuses.forEach((s) => (map[day][s] = 0));
+    }
 
-    return Object.values(map);
-  }, [usageData]);
+    if (map[day][status] !== undefined) {
+      map[day][status] += Number(row.count || 0);
+    }
+  });
+
+  return Object.values(map).sort((a, b) => (a.date > b.date ? 1 : -1));
+}, [statusOverTimeRaw]);
+
+
+
 
   // ============================================================
   // GEN5 vs GEN3 Usage (line chart) — derive from dailyUsage
@@ -212,7 +249,21 @@ export default function UsageSummaryPage() {
     // Ensure sorted by date
     const arr = Object.values(map).sort((a, b) => (a.date > b.date ? 1 : -1));
     return arr;
-  }, [dailyUsage]);
+   }, [dailyUsage]);
+
+
+
+  // Sort table rows so Error status appears on top
+  const sortedUsageData = useMemo(() => {
+    if (!usageData || usageData.length === 0) return [];
+
+    return [...usageData].sort((a, b) => {
+      if (a.status === "Error" && b.status !== "Error") return -1;
+      if (a.status !== "Error" && b.status === "Error") return 1;
+      return 0; // keep original relative order otherwise
+    });
+  }, [usageData]);
+
 
   return (
     <Container maxWidth={false} sx={{ px: 3 }}>
@@ -252,63 +303,112 @@ export default function UsageSummaryPage() {
           </Stack>
         </Grid>
 
-        {/* Station Usage (stacked bar) */}
+        {/* temporary debug line - that fetches the last recorded date in database */}
+        <Typography variant="caption">
+          Last date in data:{" "}
+          {statusOverTimeData.at(-1)?.date}
+        </Typography>
+
+        {/* Slot / Fixture Status Over Time */}
         <Grid item xs={12} md={6} lg={6}>
           <Paper sx={{ p: 2 }}>
-            <Typography variant="subtitle1">Station Usage (LA + RA)</Typography>
+            <Typography variant="subtitle1">
+              Slot / Fixture Status Over Time
+            </Typography>
+
+            <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: 1 }}>
+              <Box>
+                <Typography variant="caption">Start Date</Typography>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+              </Box>
+
+              <Box>
+                <Typography variant="caption">End Date</Typography>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                />
+              </Box>
+
+              <IconButton
+                color="primary"
+                onClick={fetchStatusOverTime}
+                sx={{ mt: 2 }}
+              >
+                <RefreshIcon />
+              </IconButton>
+            </Stack>
 
             <Box
               sx={{
-                width: 700,
+                width: "100%",
                 height: 450,
-                mx: "auto",
                 mt: 2,
                 border: "2px solid #ddd",
                 borderRadius: 2,
                 background: "white",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
+                overflowX: "auto",
+                overflowY: "hidden",
               }}
             >
-              {loading ? (
+              {statusLoading ? (
                 <CircularProgress />
+              ) : statusError ? (
+                <Typography color="error">{statusError}</Typography>
+              ) : statusOverTimeData.length === 0 ? (
+                <Typography>No data</Typography>
               ) : (
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart
-                    data={stationLineData}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 20}}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="station" />
-                    <YAxis />
-                    <ReTooltip />
-                    <Legend />
+                <Box
+                  sx={{
+                    minWidth: Math.max(statusOverTimeData.length * 80, 800),
+                    height: "100%",
+                  }}
+                >
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart
+                      data={statusOverTimeData}
+                      margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
 
-                    <Line
-                      type="monotone"
-                      dataKey="LA"
-                      name="LA Runs"
-                      strokeWidth={3}
-                      stroke="#1976d2"
-                      dot={{ r:4 }}
-                    />
+                      <XAxis
+                        dataKey="date"
+                        angle={-45}
+                        textAnchor="end"
+                        height={60}
+                        tick={{ fontSize: 12 }}
+                        interval={0} // 🔑 forces every tick to render
+                        padding={{ right: 20 }} 
+                      />
 
-                    <Line
-                      type="monotype"
-                      dataKey="RA"
-                      name="RA Runs"
-                      stroke="#2e7d32"
-                      strokeWidth={3}
-                      dot={{ r:4 }}
-                    />
-                  
-                  </LineChart>
-                </ResponsiveContainer>
+                      <YAxis allowDecimals={false} />
+                      <ReTooltip />
+                      <Legend />
+
+                      {Object.keys(PIE_COLORS).map((status) => (
+                        <Line
+                          key={status}
+                          type="monotone"
+                          dataKey={status}
+                          stroke={PIE_COLORS[status]}
+                          strokeWidth={2}
+                          dot={false}
+                        />
+                      ))}
+                    </LineChart>
+                  </ResponsiveContainer>
+                </Box>
               )}
             </Box>
           </Paper>
         </Grid>
+
+
 
         {/* Slot / Fixture Status (pie) */}
         <Grid item xs={12} md={3} lg={3}>
@@ -482,7 +582,8 @@ export default function UsageSummaryPage() {
                   </TableHead>
 
                   <TableBody>
-                    {usageData.map((row) => (
+                    {sortedUsageData.map((row) => (
+
                       <TableRow key={row.fixture_id} hover>
                         <TableCell>{row.fixture_name || row.fixture_id}</TableCell>
                         <TableCell>
