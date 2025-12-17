@@ -35,7 +35,7 @@ import {
   createMaintenance,
   updateMaintenance,
   deleteMaintenance,
-} from '../../../services/api';
+} from "../../../services/api";
 
 const FixtureMaintenance = () => {
   // ------------------------------
