@@ -303,6 +303,12 @@ const statusOverTimeData = useMemo(() => {
           </Stack>
         </Grid>
 
+        {/* temporary debug line - that fetches the last recorded date in database */}
+        <Typography variant="caption">
+          Last date in data:{" "}
+          {statusOverTimeData.at(-1)?.date}
+        </Typography>
+
         {/* Slot / Fixture Status Over Time */}
         <Grid item xs={12} md={6} lg={6}>
           <Paper sx={{ p: 2 }}>
@@ -350,10 +356,10 @@ const statusOverTimeData = useMemo(() => {
                 overflowY: "hidden",
               }}
             >
-              {dailyLoading ? (
+              {statusLoading ? (
                 <CircularProgress />
-              ) : dailyError ? (
-                <Typography color="error">{dailyError}</Typography>
+              ) : statusError ? (
+                <Typography color="error">{statusError}</Typography>
               ) : statusOverTimeData.length === 0 ? (
                 <Typography>No data</Typography>
               ) : (
@@ -377,6 +383,7 @@ const statusOverTimeData = useMemo(() => {
                         height={60}
                         tick={{ fontSize: 12 }}
                         interval={0} // 🔑 forces every tick to render
+                        padding={{ right: 20 }} 
                       />
 
                       <YAxis allowDecimals={false} />
