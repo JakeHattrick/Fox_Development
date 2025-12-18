@@ -32,6 +32,12 @@ process.on('unhandledRejection', (reason, promise) => {
 app.use(cors()); 
 app.use(express.json()); 
 
+// Temporary role mock for testing
+app.use((req, res, next) => {
+  req.user = { username: 'superadmin', role: 'superuser' };
+  next();
+});
+
 
 /*#################################################
 #    API Route Registration (v1)               #
@@ -91,6 +97,9 @@ app.use('/api/usage', usageRoutes);
 
 const fixturePartsRoutes = require('./routes/fixturePartsRoutes');
 app.use('/api/fixture-parts', fixturePartsRoutes);
+
+const testboardRoutes = require("./routes/testboardRoutes");
+app.use("/api/testboard", testboardRoutes);
 
 /*#################################################
 #    Optional Route Registration                #

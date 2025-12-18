@@ -210,15 +210,15 @@ class usageController {
     // =====================================================
     // READ — Fixture Usage History
     // =====================================================
-    static async getUsageHistory(req, res) {
-    try {
-        const data = await UsageService.getUsageHistory();  // data is an ARRAY
-        res.json(data);                                     // return the data
-    } catch (err){
-        console.error("Error in getUsageHistory:", err);
-        res.status(500).json({error: "Failed to fetch usage history" });
-        }
-    }
+    //static async getUsageHistory(req, res) {
+    //try {
+    //    const data = await UsageService.getUsageHistory();  // data is an ARRAY
+    //    res.json(data);                                     // return the data
+    //} catch (err){
+    //    console.error("Error in getUsageHistory:", err);
+    //    res.status(500).json({error: "Failed to fetch usage history" });
+     //   }
+    //}
 
     // =====================================================
     // READ — Station Summary (last 7d, 30d, 24h, etc.)
@@ -234,6 +234,32 @@ class usageController {
     }
 }
 
+        // =====================================================
+    // READ — Fixture Status Over Time (by usage.create_date)
+    // =====================================================
+    static async getFixtureStatusOverTime(req, res) {
+        const { startDate, endDate } = req.query;
+
+        if (!startDate || !endDate) {
+            return res.status(400).json({
+                error: "startDate and endDate query params are required",
+            });
+        }
+
+        try {
+            const data = await UsageService.getFixtureStatusOverTime(
+                startDate,
+                endDate
+            );
+
+            return res.status(200).json(data);
+        } catch (err) {
+            console.error("Error in getFixtureStatusOverTime:", err);
+            return res.status(500).json({
+                error: "Failed to fetch fixture status over time",
+            });
+        }
+    }
 
 }
 

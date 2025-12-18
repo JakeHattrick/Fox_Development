@@ -62,6 +62,7 @@ const MENU_ITEMS_TE = [
     { text: 'Fixture Maintenance', icon: <GridViewIcon />, route: '/fixture-maintenance' },
     { text: 'Health', icon: <GridViewIcon />, route: '/health' } ,
     { text: 'Usage', icon: <GridViewIcon />, route: '/usage' } ,
+    { text: 'Test Board', icon: <GridViewIcon />, route: '/testboard' } ,
   ]}
 
 ];
