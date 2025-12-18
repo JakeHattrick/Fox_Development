@@ -3,14 +3,29 @@ import pandas as pd
 import glob
 import os
 from psycopg2.extras import execute_values
-from db_config import DATABASE
 
-#----------------------------------------------------------------------
-# DATABASE Connection
-#----------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Database Connection (hardcoded)
+# ---------------------------------------------------------------------------
 def connect_to_db():
-    print("Attempting to connect database...")
-    return psycopg2.connect(**DATABASE)
+    """
+    Connect to the Postgres database using hardcoded credentials.
+    Returns:
+        psycopg2 connection object
+    """
+    try:
+        conn = psycopg2.connect(
+            host="localhost",      # replace with your production host if needed
+            database="fox_db",
+            user="gpu_user",
+            password="",           # add password if required
+            port="5432"
+        )
+        print(" Database connection successful")
+        return conn
+    except Exception as e:
+        print(f" Database connection failed: {e}")
+        raise
 
 #----------------------------------------------------------------------
 # Table Verification
