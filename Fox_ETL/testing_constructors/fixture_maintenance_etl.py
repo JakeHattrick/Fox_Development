@@ -3,14 +3,30 @@ import pandas as pd
 import glob
 import os
 from psycopg2.extras import execute_values
-from config import DATABASE
-
 
 # ---------------------------------------------------------------------------
-# Database
+# Database Connection (hardcoded)
 # ---------------------------------------------------------------------------
 def connect_to_db():
-    return psycopg2.connect(**DATABASE)
+    """
+    Connect to the Postgres database using hardcoded credentials.
+    Returns:
+        psycopg2 connection object
+    """
+    try:
+        conn = psycopg2.connect(
+            host="localhost",      # replace with your production host if needed
+            database="fox_db",
+            user="gpu_user",
+            password="",           # add password if required
+            port="5432"
+        )
+        print("✅ Database connection successful")
+        return conn
+    except Exception as e:
+        print(f"❌ Database connection failed: {e}")
+        raise
+
 
 
 # ---------------------------------------------------------------------------
@@ -66,7 +82,7 @@ def main():
 
     total_inserted = 0
 
-    for file in excel_files:
+    for file in excel_files: 
         print(f"Processing {os.path.basename(file)}")
 
         df = pd.read_excel(file)
@@ -81,7 +97,7 @@ def main():
 
             fixture_id = fixture_lookup.get(fixture_name)
             if not fixture_id:
-                print(f" ⚠️ Unknown fixture: {fixture_name}")
+                print(f"  Unknown fixture: {fixture_name}")
                 continue
 
             event_type = normalize_event_type(empty_to_none(r.get("event_type")))
