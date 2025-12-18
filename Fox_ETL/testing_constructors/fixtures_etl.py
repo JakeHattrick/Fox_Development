@@ -3,7 +3,7 @@ import pandas as pd
 import glob
 import os
 from psycopg2.extras import execute_values
-from config import DATABASE
+from db_config import DATABASE
 
 #----------------------------------------------------------------------
 # DATABASE Connection
