@@ -350,7 +350,7 @@ export default function TestboardPage() {
             </Grid>
 
             <Box sx={{ width: "100%", height: "600px", overflow: "auto" }}>
-              {loading ? (
+              {loading && summary.length === 0 ? (
                 <Box sx={{ textAlign: "center", py: 6 }}>
                   <CircularProgress />
                 </Box>

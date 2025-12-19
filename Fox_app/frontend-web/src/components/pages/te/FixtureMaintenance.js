@@ -258,7 +258,7 @@ const FixtureMaintenance = () => {
   const fixtureColumns = useMemo(() => [
     { accessorKey: 'fixture_name', header: 'Fixture Name' },
     { accessorKey: 'rack', header: 'Rack' },
-    { accessorKey: 'tester_type', header: 'Tester Type' },
+    { accessorKey: 'test_type', header: 'Tester Type' },
     {
       id: 'create_ticket',
       header: 'Create Ticket',

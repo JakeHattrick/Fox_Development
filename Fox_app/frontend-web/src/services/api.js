@@ -3,6 +3,7 @@ import axios from "axios";
 // Create a reusable Axios instance
 const API = axios.create({
   baseURL: "http://localhost:5000/api",
+  //baaseURL: import.meta.env.VITE_API_BASE_URL || "10.23.8.215:5000/api/api",
 });
 
 // ========================
