@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useMemo } from 'react';
-import { Box, Typography, Button, Divider, TextField, useTheme } from '@mui/material';
+import { Box, Typography, Button, Divider, TextField, useTheme, LinearProgress } from '@mui/material';
 import Papa from 'papaparse';
 import { Header } from '../../pagecomp/Header.jsx';
 import { buttonStyle } from '../../theme/themes.js';
@@ -14,6 +14,17 @@ if (!API_BASE) {
   console.error('REACT_APP_API_BASE environment variable is not set! Please set it in your .env file.');
 }
 
+const CHUNK_SIZE = 2000;
+
+// Helper function to split array into chunks
+const chunkArray = (array, size) => {
+  const chunks = [];
+  for (let i = 0; i < array.length; i += size) {
+    chunks.push(array.slice(i, i + size));
+  }
+  return chunks;
+};
+
 export const MostRecentFail = () => {
   // Date range state
   const [startDate, setStartDate] = useState(getInitialStartDate());
@@ -27,6 +38,8 @@ export const MostRecentFail = () => {
   const [passCheck, setPassCheck] = useState('');
   const [passData, setPassData] = useState([]);
   const [snData, setSnData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const theme = useTheme();
 
@@ -61,74 +74,101 @@ export const MostRecentFail = () => {
           console.warn('No serial numbers found in CSV');
           return;
         }
-        try {
-          // Fetch sn results
-            const qs = `?startDate=${encodeURIComponent(startDate.toISOString())}&endDate=${encodeURIComponent(endDate.toISOString())}`;
-            console.log('>> Request URL:', API_BASE + '/api/v1/testboard-records/sn-check' + qs);
-            console.log('>> Request body:', { sns });
-          
-          const backendSnData = await importQuery(
-            API_BASE,
-            '/api/v1/testboard-records/sn-check',
-            {  },
-            'POST',
-            { sns,startDate, endDate }
-          );
-          console.log('Backend SN data:', backendSnData);
 
-          // Store backend query results
-          setSnData(backendSnData);
+        setLoading(true);
+        setProgress(0);
+
+        // Split SNs into chunks
+        const snChunks = chunkArray(sns, CHUNK_SIZE);
+        const totalChunks = snChunks.length;
+        console.log(`Processing ${sns.length} SNs in ${totalChunks} chunks of up to ${CHUNK_SIZE}`);
+
+        try {
+          // Process SN check in chunks
+          let allSnData = [];
+          for (let i = 0; i < snChunks.length; i++) {
+            const chunk = snChunks[i];
+            console.log(`Processing SN check chunk ${i + 1}/${totalChunks} (${chunk.length} SNs)`);
+            
+            const backendSnData = await importQuery(
+              API_BASE,
+              '/api/v1/testboard-records/sn-check',
+              {},
+              'POST',
+              { sns: chunk, startDate, endDate }
+            );
+            
+            allSnData = allSnData.concat(backendSnData);
+            setProgress(((i + 1) / (totalChunks * 3)) * 100);
+          }
+          console.log('Combined SN data:', allSnData.length, 'records');
+          setSnData(allSnData);
         } catch (err) {
-          console.error('Failed to fetch Sn:', err);
+          console.error('Failed to fetch SN data:', err);
         }
-        try {
-          // Fetch backend Fail results
-            const qs = `?startDate=${encodeURIComponent(startDate.toISOString())}&endDate=${encodeURIComponent(endDate.toISOString())}`;
-            console.log('>> Request URL:', API_BASE + '/api/v1/testboard-records/most-recent-fail' + qs);
-            console.log('>> Request body:', { sns });
-          
-          const backendData = await importQuery(
-            API_BASE,
-            '/api/v1/testboard-records/most-recent-fail',
-            {  },
-            'POST',
-            { sns,startDate, endDate }
-          );
-          console.log('Backend Error data:', backendData);
 
-          // Store backend query results
-          setCodeData(backendData);
+        try {
+          // Process most recent fail in chunks
+          let allCodeData = [];
+          for (let i = 0; i < snChunks.length; i++) {
+            const chunk = snChunks[i];
+            console.log(`Processing fail check chunk ${i + 1}/${totalChunks} (${chunk.length} SNs)`);
+            
+            const backendData = await importQuery(
+              API_BASE,
+              '/api/v1/testboard-records/most-recent-fail',
+              {},
+              'POST',
+              { sns: chunk, startDate, endDate }
+            );
+            
+            allCodeData = allCodeData.concat(backendData);
+            setProgress(((totalChunks + i + 1) / (totalChunks * 3)) * 100);
+          }
+          console.log('Combined Error data:', allCodeData.length, 'records');
+          setCodeData(allCodeData);
         } catch (err) {
           console.error('Failed to fetch error codes:', err);
         }
+
         if(passCheck){
           const passCheckStations = passCheck
             .split(',')
             .map(s => s.trim())
             .filter(Boolean);
+          
           try {
-            // Fetch backend Pass results
-              const qs = `?startDate=${encodeURIComponent(startDate.toISOString())}&endDate=${encodeURIComponent(endDate.toISOString())}`;
-              console.log('>> Request URL:', API_BASE + '/api/v1/testboard-records/pass-check' + qs);
-              console.log('>> Request body:', { sns });
-            
-            const backendPassData = await importQuery(
-              API_BASE,
-              '/api/v1/testboard-records/pass-check',
-              {  },
-              'POST',
-              { sns,startDate, endDate, passCheck:passCheckStations }
-            );
-            console.log('Backend Pass data:', backendPassData);
-
-            // Store backend query results
-            setPassData(backendPassData);
+            // Process pass check in chunks
+            let allPassData = [];
+            for (let i = 0; i < snChunks.length; i++) {
+              const chunk = snChunks[i];
+              console.log(`Processing pass check chunk ${i + 1}/${totalChunks} (${chunk.length} SNs)`);
+              
+              const backendPassData = await importQuery(
+                API_BASE,
+                '/api/v1/testboard-records/pass-check',
+                {},
+                'POST',
+                { sns: chunk, startDate, endDate, passCheck: passCheckStations }
+              );
+              
+              allPassData = allPassData.concat(backendPassData);
+              setProgress(((totalChunks * 2 + i + 1) / (totalChunks * 3)) * 100);
+            }
+            console.log('Combined Pass data:', allPassData.length, 'records');
+            setPassData(allPassData);
           } catch (err) {
             console.error('Failed to fetch pass check:', err);
           }
         }
+
+        setLoading(false);
+        setProgress(100);
       },
-      error: err => console.error('Error parsing CSV:', err)
+      error: err => {
+        console.error('Error parsing CSV:', err);
+        setLoading(false);
+      }
     });
 
     e.target.value = null;
@@ -162,7 +202,6 @@ export const MostRecentFail = () => {
     }, {});
     const snup =snData.reduce((acc, row) => {
       acc[row.sn] = row;
-      //console.log(acc);
       return acc;
     }, {});
 
@@ -171,7 +210,6 @@ export const MostRecentFail = () => {
       const check = checkup[row.sn];
       const sn = snup[row.sn];
       const pn = snup[row.sn]?.pn;
-      //console.log(snup[row.sn]);
       return {
         ...row,
         pn: pn ? pn : 'NA',
@@ -179,7 +217,7 @@ export const MostRecentFail = () => {
         fail_time: match ? match.fail_time : passCheck ? check ? check.pass_time:sn?"Pending":"Missing": sn?"NA":"Missing"
       };
     });
-  }, [csvData, codeData, passData]);
+  }, [csvData, codeData, passData, snData, passCheck]);
 
   const [exportCooldown, setExportCooldown] = useState(false);
 
@@ -203,14 +241,13 @@ export const MostRecentFail = () => {
           'Last Fail/Pass Time'
         ];
         const filename = `most_recent_fail_data_${passCheck?passCheck+'_':''}${getTimestamp()}.csv`;
-        // Use secure export function
         exportSecureCSV(rows, headers, filename);
       } 
       catch (error) {
         console.error('Export failed:', error);
         alert('Export failed. Please try again.');
       };
-  }, [mergedDate]);
+  }, [mergedDate, passCheck]);
 
   function handleExportCSV() {
       if (exportCooldown) return;
@@ -221,7 +258,6 @@ export const MostRecentFail = () => {
       console.error(err);
       alert('Export failed');
       } finally {
-      // always clear cooldown
       setTimeout(()=>setExportCooldown(false),3000);
       }
   }
@@ -246,7 +282,7 @@ export const MostRecentFail = () => {
       { key: 'fail_time', label: 'Last Fail/Pass Time' },
     ];
 
-    const colMin = 180; // min px per column
+    const colMin = 180;
     const gridMinWidth = fields.length * colMin;
     const colTemplate = `repeat(${fields.length}, minmax(${colMin}px, 1fr))`;
 
@@ -298,7 +334,6 @@ export const MostRecentFail = () => {
           mt: 2,
         }}
       >
-        {/* sticky header */}
         <Box
           sx={{
             position: 'sticky',
@@ -327,7 +362,6 @@ export const MostRecentFail = () => {
           </Box>
         </Box>
 
-        {/* virtualized body */}
         <Box sx={{ height, minWidth: gridMinWidth }}>
           <List
             height={height}
@@ -362,7 +396,7 @@ export const MostRecentFail = () => {
           value={passCheck}
           onChange={(e)=>setPassCheck(e.target.value)}
         />
-        <Button sx={buttonStyle} onClick={handleImportClick}>
+        <Button sx={buttonStyle} onClick={handleImportClick} disabled={loading}>
           Import Serial Numbers (CSV)
         </Button>
         <input
@@ -372,12 +406,20 @@ export const MostRecentFail = () => {
           onChange={handleFileChange}
           style={{ display: 'none' }}
         />
-        {mergedDate.length>0 ?(
+        {mergedDate.length>0 && !loading && (
         <Button sx={buttonStyle} onClick={handleExportCSV}>
           Export Serial Numbers (CSV)
-        </Button>):
-        <></>}
+        </Button>)}
       </Box>
+
+      {loading && (
+        <Box sx={{ width: '100%', mb: 2 }}>
+          <LinearProgress variant="determinate" value={progress} />
+          <Typography variant="caption" sx={{ mt: 1 }}>
+            Processing chunks... {Math.round(progress)}%
+          </Typography>
+        </Box>
+      )}
 
       <Divider />
 
