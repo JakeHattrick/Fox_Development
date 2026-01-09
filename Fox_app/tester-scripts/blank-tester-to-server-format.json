@@ -1,0 +1,20 @@
+{
+  "fixture_name": "",
+  "gen_type": "",
+  "rack": "",
+  "fixture_sn": "",
+  "test_type": "",
+  "test_station": "",
+  "ip_address": "",
+  "mac_address": "",
+  "creator": "",
+  
+  "left-PN": "",
+"left-SN": "",
+"left-logpath": "",
+
+  "right-PN": "",
+"right-SN": "",
+"right-logpath": ""
+  
+}
