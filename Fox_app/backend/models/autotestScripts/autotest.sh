@@ -2401,3 +2401,468 @@ fi
 
 
 }
+
+Output_Wareconn_Serial_Number_RestAPI_Mode_Start()
+{
+Input_RestAPI_Message=""
+station_name=""
+
+###API
+
+##get_token#############################
+
+#if [ "$2" = "false" ];then
+
+	# echo "get token from wareconn API"
+	# max_attempts=3
+	# attempt=1
+	# sleep_time=5
+	# timeout=60
+	# while [ $attempt -le $max_attempts ]; do
+		# show_warning_message "connecting API $attempt times (timeout: ${timeout}s)..."   
+		# Input_RestAPI_Message=$(curl -m 60 -k "https://$API_IP:443/api/v1/Oauth/token?${ID}&${SECRET}&${TYPE}")
+		# curl_exit_code=$?
+
+		# if [ $curl_exit_code -eq 0 ]; then
+			# break
+		# fi
+
+		# if [ $attempt -lt $max_attempts ]; then
+			# sleep $sleep_time
+		# fi
+
+		# ((attempt++))
+	# done
+	# if [ -n "$Input_RestAPI_Message" ] && echo "$Input_RestAPI_Message" | jq -e '.code == 0' > /dev/null; then
+		# token=$(echo "$Input_RestAPI_Message" | awk -F '"' '{print $10 }')
+		# show_pass_message "get_token successful:$token"	
+	# else
+		# show_fail_message "$Input_RestAPI_Message"
+		# show_fail_message "get token Fail Please check net cable or call TE"
+		# exit 1
+	# fi
+
+	## result start to api/vi/Station/start
+	echo "upload start info to API "
+	max_attempts=3
+	attempt=1
+	sleep_time=5
+	timeout=60
+	while [ $attempt -le $max_attempts ]; do
+		show_warning_message "connecting API $attempt times (timeout: ${timeout}s)..."   
+		Input_RestAPI_Message=$(curl -m 60 -k -X GET "$turl?serial_number=$1&station_name=$current_stc_name&start_time=${stime}&operator_id=$operator_id&test_machine_number=$fixture_id&test_program_name=$diag_name&test_program_version=$CFG_VERSION&pn=$Input_Upper_PN&model=$PROJECT")
+		curl_exit_code=$?
+
+		if [ $curl_exit_code -eq 0 ]; then
+			break
+		fi
+
+		if [ $attempt -lt $max_attempts ]; then
+			sleep $sleep_time
+		fi
+
+		((attempt++))
+	done
+	if [ -n "$Input_RestAPI_Message" ] && echo "$Input_RestAPI_Message" | jq -e '.code == 0' > /dev/null; then
+		show_pass_msg "$1 upload start information"	
+
+	else	
+		show_fail_message "$Input_RestAPI_Message"
+		show_fail_message "$1 upload start information Fail Please call TE or wareconn team!!!"
+
+		exit 1
+	fi
+#fi
+	
+
+}
+
+##########################################################################################################
+Output_Wareconn_Serial_Number_RestAPI_Mode_End()
+{
+Input_RestAPI_Message=""
+
+###API
+
+##get_token#############################
+log_path="D:\\$PROJECT\\${Input_Upper_PN}\\${filename}"
+# echo "get token from wareconn API"
+# max_attempts=3
+# attempt=1
+# sleep_time=5
+# timeout=60
+# while [ $attempt -le $max_attempts ]; do
+    # show_warning_message "connecting API $attempt times (timeout: ${timeout}s)..."   
+    # Input_RestAPI_Message=$(curl -m 60 -k "https://$API_IP:443/api/v1/Oauth/token?${ID}&${SECRET}&${TYPE}")
+    # curl_exit_code=$?
+
+    # if [ $curl_exit_code -eq 0 ]; then
+        # break
+    # fi
+
+    # if [ $attempt -lt $max_attempts ]; then
+        # sleep $sleep_time
+    # fi
+
+    # ((attempt++))
+# done
+# if [ -n "$Input_RestAPI_Message" ] && echo "$Input_RestAPI_Message" | jq -e '.code == 0' > /dev/null; then
+	# token=$(echo "$Input_RestAPI_Message" | awk -F '"' '{print $10 }')
+	# show_pass_message "get_token successful:$token"	
+# else
+	# show_fail_message "$Input_RestAPI_Message"
+	# show_fail_message "Get token Fail Please check net cable or call TE"
+	# exit 1
+# fi
+
+##Report station result to api/vi/Station/end
+echo "report station result to wareconn API "
+
+max_attempts=3
+attempt=1
+sleep_time=5
+timeout=60
+while [ $attempt -le $max_attempts ]; do
+    show_warning_message "connecting API $attempt times (timeout: ${timeout}s)..."   
+    Input_RestAPI_Message=$(curl -m 60 -k "$rurl?serial_number=$1&log_path=$log_path")
+    curl_exit_code=$?
+
+    if [ $curl_exit_code -eq 0 ]; then
+        break
+    fi
+
+    if [ $attempt -lt $max_attempts ]; then
+        sleep $sleep_time
+    fi
+
+    ((attempt++))
+done
+if [ -n "$Input_RestAPI_Message" ] && echo "$Input_RestAPI_Message" | jq -e '.code == 0' > /dev/null; then
+	show_pass_msg "$1 report result pass"	
+else	
+	show_fail_message "$Input_RestAPI_Message"
+	show_fail_message "$1 report result FAIL Please call TE or wareconn Team"
+	#exit 1
+fi
+
+}
+
+##########################################################################################################
+
+check_station()
+{
+echo "checking station please wait a moment..."
+sleep 10
+Input_Wareconn_Serial_Number_RestAPI_Mode_ItemInfo $1
+
+if [ $station_name = "$2" ];then
+	if [ $3 = "PASS" ];then
+		show_warning_message "################################warning#################################" 
+		show_warning_message "$1 not pass $2 station please reboot and retest"
+		show_warning_message "If $1 still at $2 station please call TE!!!"
+	else
+		error_code=$4
+		error_code=${error_code: -3}
+		if [[ "${list_error[@]}" =~ "${error_code}" ]];then
+			show_warning_message "#################################warning##############################" 
+			show_warning_message "Current station is $2! EC$FactoryErrorCode can retest,please change the interposer and tester to retest!!!"
+		else
+			show_warning_message "#################################warning##############################" 
+			show_warning_message "Current station is $2! EC$FactoryErrorCode can retest,please change the tester and retest!!!"
+		fi	
+	fi	
+else
+	if [ $3 = "PASS" ];then
+		show_warning_message "################################warning####################################"
+		show_warning_message "$1 have passed $2 next station is $station_name"
+	else
+		error_code=$4
+		error_code=${error_code: -3}
+		if [[ "${list_tpc_error[@]}" =~ "${error_code}" ]];then
+			show_fail $1 $4 $5
+			show_warning_message "###############################warning#####################################" 
+			show_warning_message "$1 have failed $2,next please go to TPC process"	
+		elif [[ "${list_ist_error[@]}" =~ "${error_code}" ]];then
+			show_fail $1 $4 $5
+			show_warning_message "###############################warning#####################################" 
+			show_warning_message "$1 have failed $2 next please go to IST process"
+		else
+			show_fail $1 $4 $5
+			show_warning_message "###############################warning#####################################" 
+			show_warning_message "$1 have failed $2 next station is $station_name"
+		fi	
+	fi	
+fi	
+
+}
+
+#############################################################################################################
+#############################################################################################################
+####Main Part####
+#################
+
+#export flow_name="${current_stc_name}"
+
+if [ $site = "TJ" ];then
+	declare -u operator_id
+	diagserver_IP=$TJ_diagserver_IP
+	logserver_IP=$TJ_logserver_IP
+	API_IP=$TJ_API_IP
+	ID=$TID
+	SECRET=$TSECRET
+	pw_diag=$TJ_pw_diag
+	pw_log=$TJ_pw_log
+
+elif [ $site = "NC" ];then
+	diagserver_IP=$NC_diagserver_IP
+	logserver_IP=$NC_logserver_IP
+	API_IP=$NC_API_IP
+	ID=$NID
+	SECRET=$NSECRET
+	pw_diag=$NC_pw_diag
+	pw_log=$NC_pw_log
+else
+	show_warning_message "Please check the site"
+	exit 1	
+fi
+
+
+rm -rf $LOGFILE/*
+echo "" > /var/log/message
+#sleep 50
+if [ ! -f $OPID ] && [ ! -d ${INI_folder} ];then
+	Input_Server_Connection
+fi
+
+if [ -f "$INI_folder/list_st.ini" ] && [ -f "$INI_folder/list_stn.ini" ] && [ -f "$INI_folder/single_list_stn.ini" ] && [ -f "$INI_folder/list_st_all.ini" ] && [ -f "$INI_folder/list_error.ini" ] && [ -f "$INI_folder/list_tpc_error.ini" ] && [ -f "$INI_folder/list_ist_error.ini" ];then
+	mapfile -t list_st < "$INI_folder/list_st.ini" 2>/dev/null
+	mapfile -t list_stn < "$INI_folder/list_stn.ini" 2>/dev/null
+	mapfile -t single_list_stn < "$INI_folder/single_list_stn.ini" 2>/dev/null
+	mapfile -t list_st_all < "$INI_folder/list_st_all.ini" 2>/dev/null
+	mapfile -t list_error < "$INI_folder/list_error.ini" 2>/dev/null
+	mapfile -t list_tpc_error < "$INI_folder/list_tpc_error.ini" 2>/dev/null
+	mapfile -t list_ist_error < "$INI_folder/list_ist_error.ini" 2>/dev/null	
+else
+	show_warning_message "make sure ini file is exist please call TE to check diag server"
+	exit 1
+fi		
+
+	
+surl="https://$API_IP:4443/api/v1/test-profile/get"
+iurl="https://$API_IP:4443/api/v1/ItemInfo/get"
+rurl="https://$API_IP:4443/api/v1/Station/end"
+turl="https://$API_IP:4443/api/v1/Station/start"	
+update
+ntpdate $diagserver_IP
+hwclock -w
+StartTestTime=`date +"%Y%m%d%H%M%S"`
+if [ $site = "TJ" ];then
+	if [ ! -d aardvark ];then
+		if [ -d $Diag_Path/aardvark ];then
+			cp -rf $Diag_Path/aardvark ./
+		else
+			show_warning_message "Please call TE to check diag, aardvark is not exist"
+			exit 1
+		fi	
+	fi
+	stime=$(date '+%FT%T')%2B08:00
+elif [ $site = "NC" ];then
+	#####North America has time zone shifts to be judged
+	tz_abbrev=$(date +"%Z")
+	if [ "$tz_abbrev" = "EDT" ]; then
+		stime=$(date '+%FT%T'-04:00)
+	elif [ "$tz_abbrev" = "EST" ]; then
+		stime=$(date '+%FT%T'-05:00)
+	else
+		show_warning_message "Please call TE change Time Zone America/New_York"
+		exit 1
+	fi
+	
+else
+	show_warning_message "Please check the site"
+	exit 1	
+fi	
+export start_time=$(date '+%F %T')	
+
+Read_SN
+
+if [ -f $SCANFILE ]; then
+	Scan_Upper_SN=$(echo $(cat ${SCANFILE} | grep "^serial_number=" | awk -F '=' '{print$2}'))
+	Scan_Lower_SN=$(echo $(cat ${SCANFILE} | grep "^serial_number2=" | awk -F '=' '{print$2}'))
+#	echo ${Scan_Upper_SN}
+#	echo ${Output_Upper_SN}
+#	echo ${Scan_Lower_SN}
+#	echo ${Output_Lower_SN}
+#	pause
+	if [ $testqty = 2 ];then
+		if [ "${Scan_Upper_SN}" == "${Output_Upper_SN}" ] && [ "${Scan_Lower_SN}" == "${Output_Lower_SN}" ]; then
+			show_pass_message "Local Scan Info Have exist "
+		else
+			Output_Scan_Infor
+			Scan_Upper_SN=$(echo $(cat ${SCANFILE} | grep "^serial_number=" | awk -F '=' '{print$2}'))
+			Scan_Lower_SN=$(echo $(cat ${SCANFILE} | grep "^serial_number2=" | awk -F '=' '{print$2}'))
+			if [ "${Scan_Upper_SN}" == "${Output_Upper_SN}" ] && [ "${Scan_Lower_SN}" == "${Output_Lower_SN}" ]; then
+				echo ""
+			else
+				show_fail_message "Scan Wrong Please Check!!!!"
+				exit 1
+			fi	
+		fi
+	else
+		if [ "${Scan_Upper_SN}" == "${Output_Upper_SN}" ]; then
+			show_pass_message "Local Scan Info Have exist "
+		else
+			Output_Scan_Infor
+			Scan_Upper_SN=$(echo $(cat ${SCANFILE} | grep "^serial_number=" | awk -F '=' '{print$2}'))
+			if [ "${Scan_Upper_SN}" == "${Output_Upper_SN}" ]; then
+				echo ""
+			else
+				show_fail_message "Scan Wrong Please Check!!!!"
+				exit 1
+			fi	
+		fi
+	fi	
+		
+else
+	if [ -f "uutself.cfg.env" ]; then
+		rsync -av uutself.cfg.env $mods/cfg/
+		Output_Scan_Infor
+		if [ $testqty = 2 ];then
+			Scan_Upper_SN=$(echo $(cat ${SCANFILE} | grep "^serial_number=" | awk -F '=' '{print$2}'))
+			Scan_Lower_SN=$(echo $(cat ${SCANFILE} | grep "^serial_number2=" | awk -F '=' '{print$2}'))
+			if [ "${Scan_Upper_SN}" == "${Output_Upper_SN}" ] && [ "${Scan_Lower_SN}" == "${Output_Lower_SN}" ]; then
+				echo ""
+			else
+				show_fail_message "Scan Wrong Please Check!!!!"
+				exit 1
+			fi
+		else
+			Scan_Upper_SN=$(echo $(cat ${SCANFILE} | grep "^serial_number=" | awk -F '=' '{print$2}'))
+			if [ "${Scan_Upper_SN}" == "${Output_Upper_SN}" ]; then
+				echo ""
+			else
+				show_fail_message "Scan Wrong Please Check!!!!"
+				exit 1
+			fi
+		fi	
+	else
+		show_fail_message "uutself.cfg.env is not exist please call TE!!!"
+		exit 1 
+	fi	
+fi	
+
+#echo $testqty
+operator_id=$(echo $(cat ${SCANFILE} | grep "^operator_id=" | awk -F '=' '{print$2}'))
+if [ "$operator_id" = "DEBUG001" ];then
+	Run_Mode=1
+	PROJECT="DEBUG"
+fi	
+if [ $testqty = "2" ]; then
+	if [ $Run_Mode = "0" ];then
+		Input_Wareconn_Serial_Number_RestAPI_Mode_ItemInfo ${Output_Upper_SN}
+		Input_Upper_Station=$station_name
+		Input_Upper_ESN=$Eboard_SN
+		Input_Upper_Eboard=$Eboard
+		Input_Upper_Status=$service_status
+		Input_Upper_HSC=$HS_QR_CODE
+		Input_Upper_699PN=$board_699pn
+		Input_Wareconn_Serial_Number_RestAPI_Mode_ItemInfo ${Output_Lower_SN}
+		Input_Lower_Station=$station_name
+		Input_Lower_ESN=$Eboard_SN
+		Input_Lower_Eboard=$Eboard
+		Input_Lower_Status=$service_status
+		Input_Lower_HSC=$HS_QR_CODE
+		Input_Lower_699PN=$board_699pn	
+		if [[ "${list_st_all[@]}" =~ "$Input_Lower_Station" ]] && [[ "${list_st_all[@]}" =~ "$Input_Upper_Station" ]]; then
+			Input_Wareconn_Serial_Number_RestAPI_Mode ${Output_Upper_SN}
+			Input_Upper_PN=$(grep "part_number" $mods/cfg/${Output_Upper_SN}.RSP | awk -F '=' '{ print $2 }'  )
+			Input_Upper_Station=$(grep "current_stc_name" $mods/cfg/${Output_Upper_SN}.RSP | awk -F '=' '{ print $2 }'  )
+			Input_Wareconn_Serial_Number_RestAPI_Mode ${Output_Lower_SN}
+			Input_Lower_PN=$(grep "part_number" $mods/cfg/${Output_Lower_SN}.RSP | awk -F '=' '{ print $2 }'  )
+			Input_Lower_Station=$(grep "current_stc_name" $mods/cfg/${Output_Lower_SN}.RSP | awk -F '=' '{ print $2 }'  )
+			
+			if [ ${Input_Upper_PN} = ${Input_Lower_PN} ] && [ ${Input_Upper_Station} = ${Input_Lower_Station} ] && [[ ! "${single_list_stn[@]}" =~ "$Input_Upper_Station" ]]; then
+				analysis_sta
+			else
+				show_fail_message "make sure the cards PN and station is right!!! "
+				show_fail_message "!!!! ${Input_Upper_PN}:${Input_Upper_Station}!!!!${Input_Lower_PN}:${Input_Lower_Station}!!!!"
+				exit 1
+			fi
+		else
+			show_fail_message "Current Station is !!!!${Output_Upper_SN}:$Input_Upper_Station!!!${Output_Lower_SN}:${Input_Lower_Station}!!! not test station"
+			exit 1 
+		fi		
+	else
+		Input_Wareconn_Serial_Number_RestAPI_Mode_ItemInfo ${Output_Upper_SN}
+		Input_Upper_Station=$station_name
+		Input_Upper_ESN=$Eboard_SN
+		Input_Upper_Eboard=$Eboard
+		Input_Upper_Status=$service_status
+		Input_Upper_HSC=$HS_QR_CODE
+		Input_Upper_699PN=$board_699pn
+		Input_Wareconn_Serial_Number_RestAPI_Mode_ItemInfo ${Output_Lower_SN}
+		Input_Lower_Station=$station_name
+		Input_Lower_ESN=$Eboard_SN
+		Input_Lower_Eboard=$Eboard
+		Input_Lower_Status=$service_status
+		Input_Lower_HSC=$HS_QR_CODE
+		Input_Lower_699PN=$board_699pn
+		read -p "Please Input station :" station
+		if [[ "${list_st_all[@]}" =~ "$station" ]];then
+			Input_Wareconn_Serial_Number_RestAPI_Mode ${Output_Upper_SN} $station
+			Input_Upper_PN=$(grep "part_number" $mods/cfg/${Output_Upper_SN}.RSP | awk -F '=' '{ print $2 }'  )
+			Input_Upper_Station=$(grep "current_stc_name" $mods/cfg/${Output_Upper_SN}.RSP | awk -F '=' '{ print $2 }'  )
+			Input_Wareconn_Serial_Number_RestAPI_Mode ${Output_Lower_SN} $station
+			Input_Lower_PN=$(grep "part_number" $mods/cfg/${Output_Lower_SN}.RSP | awk -F '=' '{ print $2 }'  )
+			Input_Lower_Station=$(grep "current_stc_name" $mods/cfg/${Output_Lower_SN}.RSP | awk -F '=' '{ print $2 }'  )
+
+			if [ ${Input_Upper_PN} = ${Input_Lower_PN} ]; then
+				analysis_sta
+			else
+				show_fail_message "make sure the cards PN and station is right!!! "
+				show_fail_message "!!!! ${Input_Upper_PN}:${Input_Upper_Station}!!!!${Input_Lower_PN}:${Input_Lower_Station}!!!!"
+				exit 1
+			fi
+		else
+			show_fail_message "station wrong please check!!!"
+			exit 1
+		fi	
+	fi	
+		
+	
+else
+	if [ $Run_Mode = "0" ];then
+		Input_Wareconn_Serial_Number_RestAPI_Mode_ItemInfo ${Output_Upper_SN}
+		Input_Upper_Station=$station_name
+		Input_Upper_ESN=$Eboard_SN
+		Input_Upper_Eboard=$Eboard
+		Input_Upper_Status=$service_status
+		Input_Upper_HSC=$HS_QR_CODE
+		Input_Upper_699PN=$board_699pn
+		if [[ "${list_st_all[@]}" =~ "$Input_Upper_Station" ]]; then		
+			Input_Wareconn_Serial_Number_RestAPI_Mode ${Output_Upper_SN}
+			analysis_sta
+		else
+			show_fail_message "Current Station is $Input_Upper_Station  not test station"
+			exit 1 
+		fi
+	else
+		Input_Wareconn_Serial_Number_RestAPI_Mode_ItemInfo ${Output_Upper_SN}
+		Input_Upper_Station=$station_name
+		Input_Upper_ESN=$Eboard_SN
+		Input_Upper_Eboard=$Eboard
+		Input_Upper_Status=$service_status
+		Input_Upper_HSC=$HS_QR_CODE
+		Input_Upper_699PN=$board_699pn
+		read -p "Please Input station :" station
+		if [[ "${list_st_all[@]}" =~ "$station" ]];then
+			Input_Wareconn_Serial_Number_RestAPI_Mode ${Output_Upper_SN} $station
+			analysis_sta
+		else
+			show_fail_message "station wrong please check!!!"
+			exit 1
+		fi	
+	fi	
+
+fi	
+ 
