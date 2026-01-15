@@ -1,0 +1,77 @@
+#!/bin/bash
+
+
+
+#LOGPATH="/mnt/nv/server_logs/DEBUG"		#for Debug offline testing?
+LOGPATH="/mnt/nv/mods/test/logs"		#regular path
+STATUS=									#start as blank
+CFGPATH="/mnt/nv/mods/test/cfg/"
+
+OUTPUTFILENAME="$(hostname)_$(date +"%Y%m%d_%H%M%S").json"
+
+#SCREENFILE="/mnt/nv/autotest-output_$(date +"%Y%m%d_%H%M%S").txt"	#if monitoring output with screen
+
+if [[ -n $(pgrep autotest.sh) ]]; then
+	STATUS="TESTING"
+	if [[ -e $LOGPATH/log.txt ]]; then
+		read -r STATION STARTTIME < <(tail -n 5 $LOGPATH/log.txt | grep "start time" | awk '{ print $3" "$7"-"$8 }')
+		# grep -A 3 "bioscheck - end time"
+	fi
+else
+	STATUS="IDLE"
+	MOSTRECENTLOG=$(ls -t *.log | head -n 2)
+	if [[ $MOSTRECENTLOG =~ "PASS" ]];then
+		STATUS="passed"
+	elif [[ $MOSTRECENTLOG =~ "FAIL" ]];
+		STATUS="failed"
+	fi
+fi
+
+#gather information about fixture, cards, etc. give each one a variable
+FIXTURENAME=$(hostname)
+GENTYPE=$(dmidecode -s system-product-name | sed -e 's/PW-TOM-B-ATX-G5/Gen 5 B tester/' -e 's/TOM-B-ATX/Gen 3 B tester/')
+RACKNO="Rack-"$(hostname | cut -c 8-9)					#this seems pointless as fixture name already contains rack information. I'd like to get rid of it.
+FIXTURESN=$(dmidecode -s system-serial-number)			#serial number of tester
+IPADDR=$(hostname -i)              						#doesn't work on gen3 tester? need tofind more portable method
+MACADDR=$(ifconfig | grep ether | awk '{print $2}')     #should I use ifconfig for IPADDR also?
+CREATOR="tester"
+
+# echo "getting individual GPU info"
+# gather information about the units in each slot
+# LEFTPORT=$(lspci | grep 17)
+# RIGHTPORT=$(lspci | grep 9b)
+# if [[ -n $RIGHTPORT && -n $LEFTPORT]];then	#both slots occupied
+	# RIGHTSN=$(grep serial_number2 $CFGPATH/uutself.cfg.ini | sed 's/serial_number2=//')
+	# RIGHTPN=$(grep part_number $CFGPATH/$RIGHTSN.RSP | sed 's/part_number=//')
+	# RIGHT699=$(grep 699PN $CFGPATH/$RIGHTSN.RSP | sed 's/699PN=//')
+	# LEFTSN=$(grep serial_number= $CFGPATH/uutself.cfg.ini | sed 's/serial_number=//')
+	# LEFTPN=$(grep part_number $CFGPATH/$LEFTSN.RSP | sed 's/part_number=//')
+	# LEFT699=$(grep 699PN $CFGPATH/$LEFTSN.RSP | sed 's/699PN=//')
+# elif [[ -n $RIGHTPORT ]]					#only right slot occupied
+	# RIGHTSN=$(grep serial_number= $CFGPATH/uutself.cfg.ini | sed 's/serial_number=//')
+	# RIGHTPN=$(grep part_number $CFGPATH/$RIGHTSN.RSP | sed 's/part_number=//')
+	# RIGHT699=$(grep 699PN $CFGPATH/$RIGHTSN.RSP | sed 's/699PN=//')
+# elif [[ -n $LEFTPORT ]];then	#only left slot occupied
+	# LEFTSN=$(grep serial_number= $CFGPATH/uutself.cfg.ini | sed 's/serial_number=//')
+	# LEFTPN=$(grep part_number $CFGPATH/$LEFTSN.RSP | sed 's/part_number=//')
+	# LEFT699=$(grep 699PN $CFGPATH/$LEFTSN.RSP | sed 's/699PN=//')
+# fi
+
+
+sed -i "s/fixture_name.*/fixture_name\":\"$FIXTURENAME\",/" $NEWFILENAME
+sed -i "s/gen_type.*/gen_type\":\"$GENTYPE\",/" $NEWFILENAME
+sed -i "s/rack.*/rack\":\"$RACKNO\",/" $NEWFILENAME
+sed -i "s/fixture_sn.*/fixture_sn\":\"$FIXTURESN\",/" $NEWFILENAME
+sed -i "s/test_type.*/test_type\":\"$STATUS\",/" $NEWFILENAME
+sed -i "s/test_station.*/test_station\":\"$STATION\",/" $NEWFILENAME
+sed -i "s/ip_address.*/ip_address\":\"$IPADDR\",/" $NEWFILENAME
+sed -i "s/mac_address.*/mac_address\":\"$MACADDR\",/" $NEWFILENAME
+sed -i "s/creator.*/creator\":\"$CREATOR\",/" $NEWFILENAME
+
+sed -i "s/left-PN.*/left-PN\":\"$LEFTPN\",/" $NEWFILENAME
+sed -i "s/left-SN.*/left-SN\":\"$LEFTSN\",/" $NEWFILENAME
+sed -i "s/left-logpath.*/left-logpath\":\"$LEFTLOG\",/" $NEWFILENAME
+
+sed -i "s/right-PN.*/right-PN\":\"$RIGHTPN\",/" $NEWFILENAME
+sed -i "s/right-SN.*/right-SN\":\"$RIGHTSN\",/" $NEWFILENAME
+sed -i "s/right-logpath.*/right-logpath\":\"$RIGHTLOG\"/" $NEWFILENAME
