@@ -142,3 +142,71 @@ export async function fetchErrorQuery({
 
   return fetchWithCache(url, cacheKey, setDataCache, mapFn);
 }
+
+export async function fetchTestYieldsQuery({
+  dates,
+  key = 'test_yields',
+  setDataCache,
+  API_BASE,
+  API_Route
+}) {
+  try {
+    const toYmd = (value) => {
+      if (value == null) return null;
+
+      if (typeof value === 'string') {
+        const s = value.trim();
+        if (!s) return null;
+
+        // Fast path for YYYY-MM-DD
+        if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+
+        const d = new Date(s);
+        return Number.isNaN(d.getTime()) ? null : d.toISOString().slice(0, 10);
+      }
+
+      const d = new Date(value);
+      return Number.isNaN(d.getTime()) ? null : d.toISOString().slice(0, 10);
+    };
+
+    let normalizedDates = [];
+    if (Array.isArray(dates)) {
+      normalizedDates = dates.map(toYmd).filter(Boolean);
+    } else if (typeof dates === 'string') {
+      normalizedDates = dates.split(',').map(toYmd).filter(Boolean);
+    }
+
+    if (normalizedDates.length === 0) {
+      if (typeof setDataCache === 'function') setDataCache([]);
+      return [];
+    }
+
+    const cacheKey = `${key}_${normalizedDates.join('|')}`;
+    const cachedData = dataCache.get(cacheKey);
+    if (cachedData) {
+      if (typeof setDataCache === 'function') setDataCache(cachedData);
+      return cachedData;
+    }
+
+    const data = await importQuery(API_BASE, API_Route, {}, 'POST', { dates: normalizedDates });
+
+    const mapped = Array.isArray(data)
+      ? data.map(row => ({
+          model: row.model,
+          assy2_total: row.assy2_total == null ? 0 : Number(row.assy2_total),
+          fla_total: row.fla_total == null ? 0 : Number(row.fla_total),
+          fct_total: row.fct_total == null ? 0 : Number(row.fct_total),
+          test_yield_fla: row.test_yield_fla == null ? null : Number(row.test_yield_fla),
+          test_yield_fct: row.test_yield_fct == null ? null : Number(row.test_yield_fct),
+        }))
+      : [];
+
+    if (typeof setDataCache === 'function') setDataCache(mapped);
+    dataCache.set(cacheKey, mapped);
+    return mapped;
+  } catch (error) {
+    console.error('fetchTestYieldsQuery error:', error);
+    if (typeof setDataCache === 'function') setDataCache([]);
+    return [];
+  }
+}
