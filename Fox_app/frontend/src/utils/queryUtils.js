@@ -210,3 +210,74 @@ export async function fetchTestYieldsQuery({
     return [];
   }
 }
+
+export async function fetchFilteredYieldsQuery({
+  dates,
+  sns,
+  key = 'test_yields',
+  setDataCache,
+  API_BASE,
+  API_Route
+}) {
+  try {
+    const toYmd = (value) => {
+      if (value == null) return null;
+
+      if (typeof value === 'string') {
+        const s = value.trim();
+        if (!s) return null;
+
+        // Fast path for YYYY-MM-DD
+        if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+
+        const d = new Date(s);
+        return Number.isNaN(d.getTime()) ? null : d.toISOString().slice(0, 10);
+      }
+
+      const d = new Date(value);
+      return Number.isNaN(d.getTime()) ? null : d.toISOString().slice(0, 10);
+    };
+
+    const normalizeList = (v) => {
+      if (v==null)return[];
+      if (Array.isArray(v))return v.map(x => String(x).trim()).filter(Boolean);
+      if(typeof v === 'string')return v.split(',').map(s => s.trim()).filter(Boolean);
+      return [];
+    }
+    const normalizedDates = normalizeList(dates).map(toYmd).filter(Boolean);
+    const normalizedSns = normalizeList(sns);
+
+    if (normalizedDates.length === 0 || normalizedSns.length === 0) {
+      if (typeof setDataCache === 'function') setDataCache([]);
+      return [];
+    }
+
+    const cacheKey = `${key}_d:${normalizedDates.join('|')}_sn:${normalizedSns.join('|')}`;
+    const cachedData = dataCache.get(cacheKey);
+    if (cachedData) {
+      if (typeof setDataCache === 'function') setDataCache(cachedData);
+      return cachedData;
+    }
+
+    const data = await importQuery(API_BASE, API_Route, {}, 'POST', { dates: normalizedDates, sns: normalizedSns });
+
+    const mapped = Array.isArray(data)
+      ? data.map(row => ({
+          model: row.model,
+          assy2_total: row.assy2 == null ? 0 : Number(row.assy2),
+          fla_total: row.fla == null ? 0 : Number(row.fla),
+          fct_total: row.fct == null ? 0 : Number(row.fct),
+          test_yield_fla: row.test_yield_fla == null ? null : Number(row.test_yield_fla),
+          test_yield_fct: row.test_yield_fct == null ? null : Number(row.test_yield_fct),
+        }))
+      : [];
+
+    if (typeof setDataCache === 'function') setDataCache(mapped);
+    dataCache.set(cacheKey, mapped);
+    return mapped;
+  } catch (error) {
+    console.error('fetchTestYieldsQuery error:', error);
+    if (typeof setDataCache === 'function') setDataCache([]);
+    return [];
+  }
+}

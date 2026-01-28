@@ -1,15 +1,16 @@
 // Widget for TestStation Reports
 // ------------------------------------------------------------
 // Imports
-import React, { useState, useEffect, useMemo } from 'react';
-import { Box, Button, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, FormControl, Select, MenuItem, Checkbox, ListItemText, OutlinedInput } from '@mui/material';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { Box, Button, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip } from '@mui/material';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 // Page Comps
 import { Header } from '../../pagecomp/Header.jsx';
 import { DateRange } from '../../pagecomp/DateRange.jsx'
 // Style Guides
 import { buttonStyle, paperStyle } from '../../theme/themes.js';
 // Utils
-import { fetchTestYieldsQuery } from '../../../utils/queryUtils.js';
+import { fetchFilteredYieldsQuery } from '../../../utils/queryUtils.js';
 // Global Settings
 import { useGlobalSettings } from '../../../data/GlobalSettingsContext.js';
 
@@ -43,12 +44,32 @@ function getWeekDates(date) {
 }
 
 // ------------------------------------------------------------
+// Helper: Parse CSV file for serial numbers
+function parseSerialNumbersCSV(text) {
+  const lines = text.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+  const serialNumbers = [];
+  
+  // Skip header if it exists (check if first line contains common header terms)
+  const startIndex = lines[0] && /serial|sn|number/i.test(lines[0]) ? 1 : 0;
+  
+  for (let i = startIndex; i < lines.length; i++) {
+    const parts = lines[i].split(',').map(p => p.trim()).filter(Boolean);
+    // Take the first column value
+    if (parts[0]) {
+      serialNumbers.push(parts[0]);
+    }
+  }
+  
+  return serialNumbers;
+}
+
+// ------------------------------------------------------------
 // Component
-export function TestYieldWidget({ widgetId }) {
+export function FilteredYieldWidget({ widgetId }) {
   // ----- Local state (must be at top level)
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedModels, setSelectedModels] = useState([]);
+  const fileInputRef = useRef(null);
 
   // ----- Global settings & extractions
   const { state, dispatch } = useGlobalSettings();
@@ -66,6 +87,7 @@ export function TestYieldWidget({ widgetId }) {
 
   // Use a stable primitive key for dependencies
   const dateISO = widgetSettings.date ?? state.startDate.value;
+  const serials = widgetSettings.sns ?? [];
   const mode = widgetSettings.mode ?? 'daily';
 
   // Only create Date object when dateISO actually changes
@@ -85,23 +107,6 @@ export function TestYieldWidget({ widgetId }) {
     }
   }, [date, mode]);
 
-  // Get unique models from data
-  const availableModels = useMemo(() => {
-    return [...new Set(data.map(item => item.model))].filter(Boolean).sort();
-  }, [data]);
-
-  // Initialize selected models when data changes
-  useEffect(() => {
-    if (availableModels.length > 0 && selectedModels.length === 0) {
-      setSelectedModels(availableModels);
-    }
-  }, [availableModels]);
-
-  // Filter data based on selected models
-  const filteredData = useMemo(() => {
-    return data.filter(item => selectedModels.includes(item.model));
-  }, [data, selectedModels]);
-
   // ----------------------------------------------------------
   // Helper: update current widget's settings (merge)
   const updateWidgetSettings = (updates) => {
@@ -113,23 +118,83 @@ export function TestYieldWidget({ widgetId }) {
   };
 
   // ----------------------------------------------------------
-  // Fetch: test yields data
+  // Helper: split array into chunks
+  const chunkArray = (array, size) => {
+    const chunks = [];
+    for (let i = 0; i < array.length; i += size) {
+      chunks.push(array.slice(i, i + size));
+    }
+    return chunks;
+  };
+
+  // ----------------------------------------------------------
+  // Fetch: test yields data with batching
   useEffect(() => {
-    if (!date || !mode || dateRange.length === 0) return;
+    if (!date || !mode || dateRange.length === 0 || serials.length === 0) {
+      setLoading(false);
+      return;
+    }
 
     let isMounted = true;
+    const CHUNK_SIZE = 2000;
 
     const fetchData = async () => {
       setLoading(true);
       
       try {
-        await fetchTestYieldsQuery({
-          dates: dateRange,
-          key: 'tpy_test_yields',
-          setDataCache: setData,
-          API_BASE,
-          API_Route: '/api/v1/tpy/test-yields'
-        });
+        // Split serials into chunks
+        const snChunks = chunkArray(serials, CHUNK_SIZE);
+        const totalChunks = snChunks.length;
+        
+        console.log(`Processing ${serials.length} SNs in ${totalChunks} chunks of up to ${CHUNK_SIZE}`);
+
+        // Accumulate results from all chunks
+        const allResults = [];
+
+        // Process each chunk
+        for (let i = 0; i < snChunks.length; i++) {
+          if (!isMounted) break;
+
+          const chunk = snChunks[i];
+          console.log(`Processing chunk ${i + 1}/${totalChunks} (${chunk.length} SNs)`);
+          
+          const chunkResults = await fetchFilteredYieldsQuery({
+            dates: dateRange,
+            sns: chunk,
+            key: `tpy_filtered_yields_chunk_${i}`,
+            setDataCache: () => {}, // Don't update state for individual chunks
+            API_BASE,
+            API_Route: '/api/v1/workstation-routes/filtered-yields'
+          });
+          
+          allResults.push(...chunkResults);
+        }
+
+        // Merge results by model
+        const mergedByModel = allResults.reduce((acc, item) => {
+          const existing = acc.find(m => m.model === item.model);
+          if (existing) {
+            existing.assy2_total += item.assy2_total || 0;
+            existing.fla_total += item.fla_total || 0;
+            existing.fct_total += item.fct_total || 0;
+            // Recalculate yields based on aggregated totals
+            existing.test_yield_fla = existing.assy2_total && existing.fla_total 
+              ? Number(((existing.assy2_total / existing.fla_total) * 100).toFixed(2))
+              : null;
+            existing.test_yield_fct = existing.assy2_total && existing.fct_total
+              ? Number(((existing.assy2_total / existing.fct_total) * 100).toFixed(2))
+              : null;
+          } else {
+            acc.push({ ...item });
+          }
+          return acc;
+        }, []);
+
+        console.log('Combined data:', mergedByModel.length, 'models');
+
+        if (isMounted) {
+          setData(mergedByModel);
+        }
       } catch (err) {
         console.error('Error fetching data', err);
         if (isMounted) {
@@ -149,7 +214,7 @@ export function TestYieldWidget({ widgetId }) {
       isMounted = false;
       clearInterval(intervalId);
     };
-  }, [dateRange, widgetId]);
+  }, [dateRange, serials, widgetId]);
 
   // ----------------------------------------------------------
   // Handlers (selection + trigger load)
@@ -161,9 +226,37 @@ export function TestYieldWidget({ widgetId }) {
     }
   };
 
-  const handleModelChange = (event) => {
-    const value = event.target.value;
-    setSelectedModels(typeof value === 'string' ? value.split(',') : value);
+  const handleFileUpload = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result;
+      if (typeof text === 'string') {
+        const serialNumbers = parseSerialNumbersCSV(text);
+        if (serialNumbers.length > 0) {
+          updateWidgetSettings({ sns: serialNumbers });
+        } else {
+          alert('No serial numbers found in the CSV file');
+        }
+      }
+    };
+    reader.onerror = () => {
+      alert('Error reading file');
+    };
+    reader.readAsText(file);
+    
+    // Reset input so same file can be uploaded again
+    event.target.value = '';
+  };
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleClearSerials = () => {
+    updateWidgetSettings({ sns: [] });
   };
 
   // ----------------------------------------------------------
@@ -176,29 +269,28 @@ export function TestYieldWidget({ widgetId }) {
             <Button sx={buttonStyle} onClick={changeMode}>
               {mode}
             </Button>
-            <FormControl size="small" sx={{ minWidth: 200 }}>
-              <Select
-                multiple
-                value={selectedModels}
-                onChange={handleModelChange}
-                input={<OutlinedInput />}
-                renderValue={(selected) => `Models (${selected.length})`}
-                MenuProps={{
-                  PaperProps: {
-                    style: {
-                      maxHeight: 300,
-                    },
-                  },
-                }}
-              >
-                {availableModels.map((model) => (
-                  <MenuItem key={model} value={model}>
-                    <Checkbox checked={selectedModels.indexOf(model) > -1} />
-                    <ListItemText primary={model} />
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Button 
+              sx={buttonStyle} 
+              onClick={handleImportClick}
+              startIcon={<UploadFileIcon />}
+            >
+              Import CSV
+            </Button>
+            {serials.length > 0 && (
+              <Chip 
+                label={`${serials.length} Serial${serials.length !== 1 ? 's' : ''}`}
+                onDelete={handleClearSerials}
+                size="small"
+                color="primary"
+              />
+            )}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv"
+              style={{ display: 'none' }}
+              onChange={handleFileUpload}
+            />
           </Stack>
           <DateRange 
             startDate={date}
@@ -206,9 +298,13 @@ export function TestYieldWidget({ widgetId }) {
           />
         </Stack>
         
-        {loading ? (
+        {serials.length === 0 ? (
+          <Box sx={{ textAlign: 'center', py: 3 }}>
+            Please import a CSV file with serial numbers
+          </Box>
+        ) : loading ? (
           <Box sx={{ textAlign: 'center', py: 3 }}>Loading...</Box>
-        ) : filteredData.length > 0 ? (
+        ) : data.length > 0 ? (
           <TableContainer component={Paper} variant="outlined">
             <Table size="small" aria-label="Model totals and yields">
               <TableHead>
@@ -223,7 +319,7 @@ export function TestYieldWidget({ widgetId }) {
               </TableHead>
 
               <TableBody>
-                {filteredData.map((item, index) => (
+                {data.map((item, index) => (
                   <TableRow key={item.model ?? index} hover>
                     <TableCell component="th" scope="row">
                       <strong>{item.model}</strong>
@@ -240,27 +336,27 @@ export function TestYieldWidget({ widgetId }) {
                     <strong>Grand Total</strong>
                   </TableCell>
                   <TableCell align="right">
-                    <strong>{filteredData.reduce((sum, item) => sum + (item.assy2_total || 0), 0)}</strong>
+                    <strong>{data.reduce((sum, item) => sum + (item.assy2_total || 0), 0)}</strong>
                   </TableCell>
                   <TableCell align="right">
-                    <strong>{filteredData.reduce((sum, item) => sum + (item.fla_total || 0), 0)}</strong>
+                    <strong>{data.reduce((sum, item) => sum + (item.fla_total || 0), 0)}</strong>
                   </TableCell>
                   <TableCell align="right">
-                    <strong>{filteredData.reduce((sum, item) => sum + (item.fct_total || 0), 0)}</strong>
+                    <strong>{data.reduce((sum, item) => sum + (item.fct_total || 0), 0)}</strong>
                   </TableCell>
                   <TableCell align="right">
                     <strong>
-                      {filteredData.length > 0 
-                        ? ((filteredData.reduce((sum, item) => sum + (item.assy2_total || 0), 0) / 
-                            filteredData.reduce((sum, item) => sum + (item.fla_total || 0), 0) * 100) || 0).toFixed(2)
+                      {data.length > 0 
+                        ? ((data.reduce((sum, item) => sum + (item.assy2_total || 0), 0) / 
+                            data.reduce((sum, item) => sum + (item.fla_total || 0), 0) * 100) || 0).toFixed(2)
                         : '0.00'}%
                     </strong>
                   </TableCell>
                   <TableCell align="right">
                     <strong>
-                      {filteredData.length > 0
-                        ? ((filteredData.reduce((sum, item) => sum + (item.assy2_total || 0), 0) / 
-                            filteredData.reduce((sum, item) => sum + (item.fct_total || 0), 0) * 100) || 0).toFixed(2)
+                      {data.length > 0
+                        ? ((data.reduce((sum, item) => sum + (item.assy2_total || 0), 0) / 
+                            data.reduce((sum, item) => sum + (item.fct_total || 0), 0) * 100) || 0).toFixed(2)
                         : '0.00'}%
                     </strong>
                   </TableCell>
@@ -269,7 +365,7 @@ export function TestYieldWidget({ widgetId }) {
             </Table>
           </TableContainer>
         ) : (
-          <Box sx={{ textAlign: 'center', py: 3 }}>No data available</Box>
+          <Box sx={{ textAlign: 'center', py: 3 }}>No data available for selected serial numbers</Box>
         )}
       </Box>
     </Paper>
