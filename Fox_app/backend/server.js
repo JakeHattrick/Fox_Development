@@ -30,7 +30,7 @@ process.on('unhandledRejection', (reason, promise) => {
 #    express.json() parses JSON request bodies #
 #################################################*/
 app.use(cors()); 
-app.use(express.json()); 
+app.use(express.json());   
 
 // Temporary role mock for testing
 app.use((req, res, next) => {
@@ -100,6 +100,10 @@ app.use('/api/fixture-parts', fixturePartsRoutes);
 
 const testboardRoutes = require("./routes/testboardRoutes");
 app.use("/api/testboard", testboardRoutes);
+
+const ingestionRoutes = require('./routes/ingestionRoutes');
+app.use('/api', ingestionRoutes);
+
 
 /*#################################################
 #    Optional Route Registration                #
