@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Pool } = require('pg');
+const { Pool, types } = require('pg');
 const dotenv = require('dotenv');
 
 dotenv.config();
@@ -11,6 +11,9 @@ dotenv.config();
 #    Provides SQL query interface for analysts   #
 #    Version: v1 (October 2025)                   #
 #################################################*/
+
+types.setTypeParser(1114, (val) => val);
+types.setTypeParser(1184, (val) => val);
 
 // Create dedicated read-only connection pool
 const observerPool = new Pool({

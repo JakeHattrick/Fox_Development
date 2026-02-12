@@ -390,4 +390,47 @@ router.get('/station-performance', async (req, res) => {
     }
 });
 
+router.post('/test-yields', async (req, res) => {
+  try {
+    let { dates } = req.body;
+
+    // Normalize inputs to arrays
+    if (typeof dates === 'string') dates = dates.split(',').map(s => s.trim()).filter(Boolean);
+
+    if (!Array.isArray(dates) || dates.length === 0) {
+      return res.status(400).json({ error: 'Missing required query parameters: dates' });
+    }
+
+    const query = `
+      WITH pivot AS (
+        SELECT
+          model,
+          SUM(total_parts) FILTER (WHERE workstation_name = 'ASSY2') AS assy2_total,
+          SUM(total_parts) FILTER (WHERE workstation_name = 'FLA')   AS fla_total,
+          SUM(total_parts) FILTER (WHERE workstation_name = 'FCT')   AS fct_total
+        FROM daily_tpy_metrics
+        WHERE date_id = ANY($1::date[])
+        GROUP BY model
+      )
+      SELECT
+        model,
+        COALESCE(assy2_total, 0) AS assy2_total,
+        COALESCE(fla_total, 0)   AS fla_total,
+        COALESCE(fct_total, 0)   AS fct_total,
+        ROUND((COALESCE(assy2_total,0)::numeric / NULLIF(fla_total, 0)) * 100, 2) AS test_yield_fla,
+        ROUND((COALESCE(assy2_total,0)::numeric / NULLIF(fct_total, 0)) * 100, 2) AS test_yield_fct
+      FROM pivot
+      ORDER BY model;
+    `;
+
+    const params = [dates];
+    const result = await pool.query(query, params);
+    return res.json(result.rows);
+  } catch (error) {
+    console.error('by-error:', error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+
 module.exports = router; 

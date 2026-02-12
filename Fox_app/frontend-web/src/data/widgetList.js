@@ -8,6 +8,8 @@ import { PackingOutputWidget } from '../components/pagecomp/widget/PackingOutput
 import { ThroughputWidget } from '../components/pagecomp/widget/ThroughputWidget.jsx';
 import { PChartWidget } from '../components/pagecomp/widget/PChartWidget.jsx';
 import { XbarRWidget } from '../components/pagecomp/widget/XbarRWidget.jsx';
+import { TestYieldWidget } from '../components/pagecomp/widget/TestYieldWidget.jsx';
+import { FilteredYieldWidget } from '../components/pagecomp/widget/FilteredYieldWidget.jsx';
 
 
 export const widgetList = [
@@ -19,4 +21,6 @@ export const widgetList = [
   {type:"Throughput chart",comp:ThroughputWidget,tools:["dateRange","barLimit"]},
   {type:"P-chart",comp:PChartWidget,tools:["dateRange","barLimit"]},
   {type:"X bar and R -chart",comp:XbarRWidget,tools:["dateRange"]},
+  {type:"Test Yield Report",comp:TestYieldWidget,tools:[]},
+  {type:"Filtered Yield Report",comp:FilteredYieldWidget,tools:[]},
 ];

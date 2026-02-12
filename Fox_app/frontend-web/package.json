@@ -1,6 +1,6 @@
 {
   "name": "fox-quality-dashboard-web",
-  "version": "2.2.10",
+  "version": "2.2.11",
   "description": "Quality Dashboard for Fox Manufacturing - Web Version",
   "private": true,
   "scripts": {
