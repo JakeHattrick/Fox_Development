@@ -30,6 +30,7 @@ def connect_to_db():
 #----------------------------------------------------------------------
 # Table Verification
 #----------------------------------------------------------------------
+## This "s" is needed there for table creation 
 def create_fixtures_table(conn):
     print("Creating/verifying fixture table ...")
     cursor = conn.cursor()
