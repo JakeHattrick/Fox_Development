@@ -12,9 +12,10 @@ const pool = new Pool({
 });
 
 pool.on('error', (err) => {
+  console.error('Unexpected DB error', err);
 });
 
 pool.on('connect', () => {
+  console.log('Database connected');
 });
-
 module.exports = { pool };
