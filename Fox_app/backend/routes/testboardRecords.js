@@ -398,4 +398,36 @@ router.post('/daily-usage', async (req,res) => {
   }
 });
 
+router.get('/station-dive', async (req, res) => {
+  try {
+    const { startDate, endDate} = req.query;
+
+    if (!startDate || !endDate) {
+      return res
+        .status(400)
+        .json({ error: 'Missing required query parameters: startDate, endDate' });
+    }
+
+    const query = `
+      SELECT
+        model,
+        sn,
+        workstation_name,
+        history_station_passing_status,
+        failure_reasons as error_code,
+        failure_note as description
+
+      FROM testboard_master_log
+      where history_station_end_time >= $1 and history_station_end_time <= $2;
+    `;
+
+    const params = [startDate, endDate];
+    const result = await pool.query(query, params);
+    return res.json(result.rows);
+  } catch (error) {
+    console.error('pass-check:', error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router; 
