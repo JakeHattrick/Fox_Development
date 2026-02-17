@@ -2,16 +2,6 @@ import psycopg2
 import json
 from datetime import datetime, timedelta
 import argparse
-<<<<<<< HEAD
-
-DB_CONFIG = {
-    'host': 'localhost',
-    'database': 'fox_db',
-    'user': 'gpu_user',
-    'password': '',
-    'port': '5432'
-}
-=======
 import sys
 import os
 # Add Fox_ETL directory to path to find config.py
@@ -23,7 +13,6 @@ while current_dir != '/':
         break
     current_dir = os.path.dirname(current_dir)
 from config import DATABASE
->>>>>>> origin/main
 
 def get_week_bounds(target_date):
     """Get the Monday (start) and Sunday (end) of the week containing target_date"""
@@ -44,11 +33,7 @@ def calculate_weekly_starters_for_date(target_date):
     
     print(f"Week {week_id}: {week_start.strftime('%Y-%m-%d')} to {week_end.strftime('%Y-%m-%d')}")
     
-<<<<<<< HEAD
-    conn = psycopg2.connect(**DB_CONFIG)
-=======
     conn = psycopg2.connect(**DATABASE)
->>>>>>> origin/main
     try:
         with conn.cursor() as cur:
             start_date = week_start
@@ -108,11 +93,7 @@ def calculate_daily_completions_from_week_starters(target_date, week_starters_li
     
     print(f"Daily completions on {target_date.strftime('%Y-%m-%d')} from week starters...")
     
-<<<<<<< HEAD
-    conn = psycopg2.connect(**DB_CONFIG)
-=======
     conn = psycopg2.connect(**DATABASE)
->>>>>>> origin/main
     try:
         with conn.cursor() as cur:
             if not week_starters_list:
@@ -182,11 +163,7 @@ def aggregate_daily_tpy_for_date(target_date):
     print(f"\nAGGREGATING DAILY TPY FOR: {target_date.strftime('%Y-%m-%d')}")
     print("=" * 60)
     
-<<<<<<< HEAD
-    conn = psycopg2.connect(**DB_CONFIG)
-=======
     conn = psycopg2.connect(**DATABASE)
->>>>>>> origin/main
     try:
         with conn.cursor() as cur:
             week_data = calculate_weekly_starters_for_date(target_date)
@@ -211,7 +188,6 @@ def aggregate_daily_tpy_for_date(target_date):
                     AND history_station_end_time < %s
                     AND service_flow NOT IN ('NC Sort', 'RO')
                     AND service_flow IS NOT NULL
-                    AND (model IN ('Tesla SXM4', 'Tesla SXM5') OR model = 'SXM6')
                 GROUP BY model, workstation_name
                 HAVING COUNT(*) >= 1
                 ORDER BY model, total_parts DESC;
@@ -267,11 +243,7 @@ def get_all_available_dates():
     """Get all unique dates when actual testing occurred"""
     print("Finding all dates with actual test activity...")
     
-<<<<<<< HEAD
-    conn = psycopg2.connect(**DB_CONFIG)
-=======
     conn = psycopg2.connect(**DATABASE)
->>>>>>> origin/main
     try:
         with conn.cursor() as cur:
             cur.execute("""
@@ -323,11 +295,7 @@ def aggregate_daily_tpy_metrics_all_time():
     print(f"Errors: {error_count} dates")
     
     # Show sample results
-<<<<<<< HEAD
-    conn = psycopg2.connect(**DB_CONFIG)
-=======
     conn = psycopg2.connect(**DATABASE)
->>>>>>> origin/main
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT COUNT(*) FROM daily_tpy_metrics")

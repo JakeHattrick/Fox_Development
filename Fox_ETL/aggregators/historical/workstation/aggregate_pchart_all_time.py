@@ -7,8 +7,6 @@ import psycopg2
 import logging
 from datetime import datetime
 import pandas as pd
-<<<<<<< HEAD
-=======
 import sys
 import os
 # Add Fox_ETL directory to path to find config.py
@@ -20,7 +18,6 @@ while current_dir != '/':
         break
     current_dir = os.path.dirname(current_dir)
 from config import DATABASE
->>>>>>> origin/main
 
 # Setup simple console logging
 logging.basicConfig(
@@ -31,17 +28,7 @@ logging.basicConfig(
 def connect_to_db():
     """Establish database connection"""
     logging.info('🔌 Connecting to database...')
-<<<<<<< HEAD
-    return psycopg2.connect(
-        host="localhost",
-        database="fox_db",
-        user="gpu_user",
-        password="",
-        port="5432"
-    )
-=======
     return psycopg2.connect(**DATABASE)
->>>>>>> origin/main
 
 def create_pchart_table(conn):
     """Create the P-Chart aggregation table if it doesn't exist"""

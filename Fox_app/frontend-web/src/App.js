@@ -27,6 +27,7 @@ import StationHourlySummaryPage from './components/pages/quality/stationReports/
 import ParetoPage from './components/pages/quality/ParetoPage';
 import QueryPage from './components/pages/quality/QueryPage';
 import XbarRPage from './components/pages/quality/performance/XbarRPage';
+import StationBreakdownPage from './components/pages/quality/stationReports/StationBreakdown';
 // Test Engineer Pages
 import FixtureDash from './components/pages/te/FixtureDash';
 import FixtureDetails from './components/pages/te/FixtureDetails';
@@ -81,6 +82,7 @@ const AppRoutes = React.memo(() => (
     <Route path="/station-performance" element={<TestStationPerformancePage/>}/>
     <Route path="/query-page" element={<QueryPage/>}/>
     <Route path="/xbar-r-chart" element={<XbarRPage/>}/>
+    <Route path="/station-breakdown" element = {<StationBreakdownPage/>}/>
     {/* TE */}
     <Route path="/fixture-dash" element={<FixtureDash/>}/>
     <Route path="/fixture-details" element={<FixtureDetails/>}/>
