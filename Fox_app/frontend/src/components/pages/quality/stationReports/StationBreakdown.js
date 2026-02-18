@@ -11,6 +11,7 @@ import { Header } from '../../../pagecomp/Header.jsx';
 import { DateRange } from '../../../pagecomp/DateRange.jsx';
 import { NumberRange } from '../../../pagecomp/NumberRange.jsx';
 import { TestStationChart } from '../../../charts/TestStationChart.js';
+import { PieChart } from '../../../charts/PieChart.js';
 
 // Hooks
 
@@ -26,15 +27,20 @@ if (!API_BASE) {
   console.error('REACT_APP_API_BASE environment variable is not set! Please set it in your .env file.');
 }
 
+const maxDescLength = 50;
+
 const codeActions = [
-    { codes: [501], message: "False failure" },
-    { codes: [445, 139], message: "Thermal Issues" }
+    { codes: [665,220,143,77,0o3,0o0,551,514,773,516,999,852,12,2], message: "False Failure / Re-Test" },
+    { codes: [511,363,317,229,319,167,321,316,167,320], message: "Scrap" },
+    { codes: [139,445,534,538,999,14,6,679,818,600,709,140,541,97,288,1,281,603,280,83,41], message: "Simple / Debug" },
+    { codes: [301,539,97], message: "Hard / Component Repair" },
+    { codes: [501], message: "Customer Support Req / Notify Customer" }
 ];
 
 const getCodeAction = (shortCode) => {
     const num = Number(shortCode);
     const match = codeActions.find(ca => ca.codes.includes(num));
-    return match ? match.message : "Repair needed";
+    return match ? match.message : "Other Issue / Failure Analysis";
 };
 
 const StationBreakdownPage = () => {
@@ -75,7 +81,8 @@ const StationBreakdownPage = () => {
 
             // Group by error code
             if (item.error_code) {
-                const shortCode = String(item.error_code).slice(-3);
+                let shortCode = String(item.error_code).slice(-3);
+                if (shortCode === '_na' && item.error_code.length >= 6){ shortCode = String(item.error_code).slice(-6,-3);}
                 
                 if (!grouped[key].errorCodes[shortCode]) {
                     grouped[key].errorCodes[shortCode] = {
@@ -250,6 +257,20 @@ const StationBreakdownPage = () => {
         URL.revokeObjectURL(url);
     }, [filteredData, model]);
 
+    const getActionPieData = useCallback((errorCodes) => {
+        const actionCounts = {};
+        
+        errorCodes.forEach(ec => {
+            const action = ec.action;
+            actionCounts[action] = (actionCounts[action] || 0) + ec.count;
+        });
+        
+        return Object.entries(actionCounts).map(([action, count]) => ({
+            status: action,
+            value: count
+        }));
+    }, []);
+
   // Render
     return (
         <Box p={1}>
@@ -304,47 +325,75 @@ const StationBreakdownPage = () => {
                 />
             </Box>
             <Box sx={{ mt: 2 }}>
-                {filteredData.slice(0, itemsPerPage).map(ws => (
-                    <TableContainer
-                        key={`${ws.model}|${ws.workstation}`}
-                        component={Paper}
-                        sx={{ mb: 2, p: 1 }}
-                    >
-                        <Typography variant="subtitle1" sx={{ px: 1, pb: 1 }}>
-                            {ws.workstation} — Failed: {ws.totalFailed} | Passed: {ws.totalPassed}
-                        </Typography>
+                {filteredData.slice(0, itemsPerPage).map(ws => {
+                    const actionPieData = getActionPieData(ws.errorCodes);
+                    
+                    return (
+                        <Box key={`${ws.model}|${ws.workstation}`} sx={{ mb: 3 }}>
+                            <TableContainer
+                                component={Paper}
+                                sx={{ mb: 2, p: 1 }}
+                            >
+                                <Typography variant="subtitle1" sx={{ px: 1, pb: 1 }}>
+                                    {ws.workstation} — Failed: {ws.totalFailed} | Passed: {ws.totalPassed}
+                                </Typography>
 
-                        <Table size="small">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Error Code</TableCell>
-                                    <TableCell align="right">Count</TableCell>
-                                    <TableCell>Descriptions</TableCell>
-                                    <TableCell>Action</TableCell>
-                                </TableRow>
-                            </TableHead>
-
-                            <TableBody>
-                                {ws.errorCodes.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={4}><em>No error codes</em></TableCell>
-                                    </TableRow>
-                                ) : (
-                                    ws.errorCodes.map(ec => (
-                                        <TableRow key={`${ws.workstation}|${ec.error_code}`}>
-                                            <TableCell>{ec.error_code}</TableCell>
-                                            <TableCell align="right">{ec.count}</TableCell>
-                                            <TableCell>
-                                                {ec.descriptions.length ? ec.descriptions.join(' | ') : <em>No descriptions</em>}
-                                            </TableCell>
-                                            <TableCell>{ec.action}</TableCell>
+                                <Table size="small">
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell>Error Code</TableCell>
+                                            <TableCell align="right">Count</TableCell>
+                                            <TableCell>Descriptions</TableCell>
+                                            <TableCell>Action</TableCell>
                                         </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                ))}
+                                    </TableHead>
+
+                                    <TableBody>
+                                        {ws.errorCodes.length === 0 ? (
+                                            <TableRow>
+                                                <TableCell colSpan={4}><em>No error codes</em></TableCell>
+                                            </TableRow>
+                                        ) : (
+                                            ws.errorCodes.map(ec => (
+                                                <TableRow key={`${ws.workstation}|${ec.error_code}`}>
+                                                    <TableCell>{ec.error_code}</TableCell>
+                                                    <TableCell align="right">{ec.count}</TableCell>
+                                                    <TableCell>
+                                                        {ec.descriptions.length ? (() => {
+                                                            const full = ec.descriptions.join(' | ');
+                                                            const truncated = full.length > maxDescLength ? `${full.slice(0, maxDescLength)}…` : full;
+
+                                                            return (
+                                                                <span title={full} style={{ cursor: 'help' }}>
+                                                                    {truncated}
+                                                                </span>
+                                                            );
+                                                        })() : (
+                                                            <em>No descriptions</em>
+                                                        )}
+                                                    </TableCell>
+
+                                                    <TableCell>{ec.action}</TableCell>
+                                                </TableRow>
+                                            ))
+                                        )}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+
+                            {/* Pie Chart for Actions */}
+                            {ws.errorCodes.length > 0 && (
+                                <PieChart
+                                    label={`${ws.workstation} - Action Breakdown`}
+                                    data={actionPieData}
+                                    getPercent={false}
+                                    showTag={true}
+                                    loading={false}
+                                />
+                            )}
+                        </Box>
+                    );
+                })}
             </Box>
         </Box>
         
