@@ -1,5 +1,20 @@
--- DROP the table first
+
+-- DROP the table first (be careful, this deletes all rows)
 DROP TABLE IF EXISTS ingestion_events;
+
+-- CREATE table without NOT NULL constraints
+CREATE TABLE ingestion_events (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    source VARCHAR(32),               -- can be NULL now
+    source_host VARCHAR(64),
+    received_at TIMESTAMPTZ,          -- can be NULL
+    event_time TIMESTAMPTZ,           -- optional, can be NULL
+    event_type VARCHAR(64),           -- optional, can be NULL
+    payload JSONB,                    -- optional, can be NULL
+    status VARCHAR(32),               -- optional, can be NULL
+    processed_at TIMESTAMPTZ
+);
+
 
 CREATE TABLE ingestion_events (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

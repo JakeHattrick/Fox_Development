@@ -84,13 +84,13 @@ app.use('/api/v1/sql-portal', sqlPortalRouter);
 //Comments by: Mansi
 
 const fixturesRouter = require('./routes/fixturesRoutes');
-app.use('/api/fixtures', fixturesRouter); // no versioning for now - This one is from Darvin, which we do not use / will NOT use. 
+app.use('/api/fixtures', fixturesRouter); // no versioning for now - This one is from Darvin 
 
 const usersRoutes = require('./routes/usersRoutes'); 
 app.use('/api/users', usersRoutes); // Disregard for now - as we will NOT implement Oauth and User registartion until the full development is finished. 
 
 const fixtureMaintenanceRoutes = require('./routes/fixtureMaintenanceRoutes');
-app.use('/api/fixture-maintenance', fixtureMaintenanceRoutes); // Will NOT use it until we do (TE - Maintenance) provides a full inventory 
+app.use('/api/fixture-maintenance', fixtureMaintenanceRoutes); // Will NOT use it until (TE - Maintenance) provides a full inventory 
 
 const healthRoutes   = require('./routes/healthRoutes');   
 app.use('/api/health', healthRoutes);   // Will NOT use until we change the backend configuration to implement Gen 3 vs Gen 5 Uptime / Event treand - Things for Prod Manager - highly relay on WC 

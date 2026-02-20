@@ -56,7 +56,7 @@ CREATE TABLE usage (
     FOREIGN KEY (fixture_part_id) REFERENCES fixture_parts(id),
 
     test_slot VARCHAR(16) NOT NULL,
-    CHECK (test_slot IN ('LA', 'RA')),  0 -- only these two
+    CHECK (test_slot IN ('LA', 'RA')),   -- only these two
 
     test_station VARCHAR(32),
     test_type VARCHAR(32),

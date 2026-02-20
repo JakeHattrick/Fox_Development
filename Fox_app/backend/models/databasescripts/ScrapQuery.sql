@@ -9,7 +9,26 @@ WITH weekly_fixture_runtime AS (
         ) AS total_run_seconds
     FROM testboard_master_log
     WHERE fixture_no IN (
-        -- your full Gen5 list here
+        -- full Gen3 List
+        'NCT005-01','NCT005-02','NCT005-03','NCT005-04',
+        'NCT004-01','NCT004-02','NCT004-03','NCT004-04',
+        'NCT003-01','NCT003-02','NCT003-03','NCT003-04',
+        'NCT002-01','NCT002-02','NCT002-03','NCT002-04',
+        'NCT001-01','NCT001-02',
+        'NCT006-01','NCT006-02','NCT006-03','NCT006-04',
+        'NCT007-01','NCT007-02','NCT007-03','NCT007-04',
+        'NCT008-01','NCT008-02','NCT008-03','NCT008-04',
+        'NCT009-01','NCT009-02','NCT009-03','NCT009-04',
+        'NCT010-01','NCT010-02','NCT010-03','NCT010-04',
+        'NCT019-01','NCT019-02','NCT019-03','NCT019-04',
+        'NCT018-01','NCT018-02','NCT018-03','NCT018-04',
+        'NCT017-01','NCT017-02','NCT017-03','NCT017-04',
+        'NCT016-01','NCT016-02','NCT016-03','NCT016-04',
+        'NCT033-01','NCT033-02','NCT033-03','NCT033-04',
+        'NCB038-01','NCB038-02','NCB038-03','NCB038-04',
+        'NCB036-01','NCB036-02','NCB036-03','NCB036-04',
+        'NCB037-01','NCB037-02','NCB037-03','NCB037-04',
+        -- full Gen5 list
         'NCT032-01','NCT032-02','NCT032-03','NCT032-04',
         'NCT031-01','NCT031-02','NCT031-03','NCT031-04',
         'NCT030-01','NCT030-02','NCT030-03','NCT030-04',
@@ -37,7 +56,7 @@ WITH weekly_fixture_runtime AS (
         ---ARRAY['%FLA%', '%CHIFLASH%']
 
 		--- Cluster Test
-		ARRAY['%BAT%', '%BIT%', '%PHT%', '%FCT%', '%PDT%', '%FPF%', '%IST%', '%EFT%', '%TCP%']
+		ARRAY['%FLA%', '%CHIFLASH%', '%BAT%', '%BIT%', '%PHT%', '%FCT%', '%PDT%', '%FPF%', '%IST%', '%EFT%', '%TCP%']
 		
     )
     GROUP BY week_start, fixture_no
