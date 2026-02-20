@@ -11,6 +11,14 @@ SAVEDLOGPATH="/mnt/nv/logs"
 
 #SCREENFILE="/mnt/nv/autotest-output_$(date +"%Y%m%d_%H%M%S").txt"	#if monitoring output with screen
 
+OPID=$(grep operator_id $CFGPATH/uutself.cfg.env | sed 's/operator_id=//')
+if [[ $OPID =~ "DEBUG001" ]]; then
+	TESTTYPE="DEBUG"
+else
+	TESTTYPE="Refurbish"
+fi
+
+
 if [[ -n $(pgrep autotest.sh) ]]; then
 	STATUS="TESTING"
 
@@ -81,7 +89,8 @@ echo -n "{
   \"fixture_name\": \"$FIXTURENAME\",
   \"gen_type\": \"$GENTYPE\",
   \"fixture_sn\": \"$FIXTURESN\",
-  \"test_type\": \"$STATUS\",
+  \"test_type\": \"$TESTTYPE\",
+  \"test_status\": \"$STATUS\",
   \"test_station\": \"$STATION\",
   \"ip_address\": \"$IPADDR\",
   \"mac_address\": \"$MACADDR\",
