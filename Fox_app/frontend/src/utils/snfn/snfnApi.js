@@ -1,4 +1,4 @@
-import { importQuery } from "../queryUtils";;
+import { importQuery } from "../queryUtils";
 
 export async function fetchSnFnData(apiBase, startDate, endDate) {
   const params = {

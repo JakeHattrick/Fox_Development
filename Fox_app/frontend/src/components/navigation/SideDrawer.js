@@ -40,11 +40,13 @@ const MENU_ITEMS_QUALITY = [
   { text: 'Station Reports', icon: <GradingIcon />, children:[
     { text: 'SnFn Reports', icon: <GridViewIcon />, route: '/snfn' },
     { text: 'Station Hourly Summary', icon: <TableChartIcon />, route: '/station-hourly-summary' },
+    { text: 'Station Breakdown', icon: <TableChartIcon />, route: '/station-breakdown'},
   ]},
   { text: 'Performance', icon: <SpeedIcon />, children:[
     { text: 'Quality Control Charts', icon: <SpeedIcon />, route: '/performance' },
     { text: 'Throughput', icon: <TrendingUpIcon />, route: '/throughput' },
     { text: 'Xbar-R Chart', icon: <SpeedIcon />, route: '/xbar-r-chart' },
+    { text: 'Yield Reports', icon: <TrendingUpIcon/>, route:'fpy-yield'},
   ]},
   { text: 'Utility Reports', icon: <SpeedIcon />, children:[
     { text: 'Most Recent Fail', icon: <AccessTimeIcon />, route: '/most-recent-fail'}

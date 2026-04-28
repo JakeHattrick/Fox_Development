@@ -1,21 +1,16 @@
-// ============================================================================
-// File: App.js
-//
-// PURPOSE:
-//   Main application entry point. Integrates MUI theming, global settings,
-//   header, side drawer navigation, and main page routing. 
-//   - Maintains all existing routes for other teams.
-// ============================================================================
-
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { CssBaseline, Box } from '@mui/material';
 import { DashboardThemeProvider } from './components/theme/ThemeContext';
 import { SideDrawer } from './components/navigation/SideDrawer';
 import { AppHeader } from './components/navigation/AppHeader';
+
+
 // Page Components
 import { Dashboard } from './components/pages/Dashboard';
 import Home from './components/pages/Home';
+
+
 // Quality Pages
 import PackingPage from './components/pages/quality/PackingPage';
 import PerformancePage from './components/pages/quality/performance/PerformancePage';
@@ -27,6 +22,10 @@ import StationHourlySummaryPage from './components/pages/quality/stationReports/
 import ParetoPage from './components/pages/quality/ParetoPage';
 import QueryPage from './components/pages/quality/QueryPage';
 import XbarRPage from './components/pages/quality/performance/XbarRPage';
+import StationBreakdownPage from './components/pages/quality/stationReports/StationBreakdown';
+import FirstPassPage from './components/pages/quality/performance/FPYPage';
+
+
 // Test Engineer Pages
 import FixtureDash from './components/pages/te/FixtureDash';
 import FixtureDetails from './components/pages/te/FixtureDetails';
@@ -44,28 +43,32 @@ import MostRecentFail from './components/pages/dev/MostRecentFail';
 import ByErrorCode from './components/pages/dev/ByErrorCode';
 import JsonToCsv from './components/pages/dev/JsonToCSV';
 import DidTheyFail from './components/pages/dev/DidTheyFail';
+
 import { SimplePerformanceMonitor } from './components/debug/SimplePerformanceMonitor';
 import { isLowEndDevice, LightweightBackdrop } from './utils/muiOptimizations';
 import './components/theme/theme.css';
 import { GlobalSettingsProvider } from './data/GlobalSettingsContext';
 
-//Main content component
+
+
+
+
 const MainContent = React.memo(({ children }) => {
-  const mainContentStyle = useMemo(() => ({
-    flexGrow: 1,
-    p: 3,
-    minHeight: '100vh',
+  const mainContentStyle = useMemo(() => ({ 
+    flexGrow: 1, 
+    p: 3, 
+    minHeight: '100vh', 
     paddingTop: '64px',
     backgroundColor: 'background.default'
   }), []);
- 
+
   return (
     <Box component="main" sx={mainContentStyle}>
       {children}
     </Box>
   );
 });
-//App Route components
+
 const AppRoutes = React.memo(() => (
   <Routes>
     <Route path="/" element={<Home />} />
@@ -77,10 +80,17 @@ const AppRoutes = React.memo(() => (
     <Route path="/snfn" element={<SNFNPage />} />
     <Route path="/packing-charts" element={<PackingCharts />} />
     <Route path="/station-hourly-summary" element={<StationHourlySummaryPage />} />
+    <Route path="/cycle-time" element={<StationCycleTime />} />
+    <Route path="/most-recent-fail" element={<MostRecentFail />} />
     <Route path="/pareto" element={<ParetoPage />} />
     <Route path="/station-performance" element={<TestStationPerformancePage/>}/>
+    <Route path="/by-error" element={<ByErrorCode/>}/>
+    <Route path="/json-to-csv" element={<JsonToCsv/>}/>
+    <Route path="/did-they-fail" element={<DidTheyFail/>}/>
     <Route path="/query-page" element={<QueryPage/>}/>
     <Route path="/xbar-r-chart" element={<XbarRPage/>}/>
+    <Route path="/station-breakdown" element = {<StationBreakdownPage/>}/>
+    <Route path="/fpy-yield" element={<FirstPassPage />}/>
     {/* TE */}
     <Route path="/fixture-dash" element={<FixtureDash/>}/>
     <Route path="/fixture-details" element={<FixtureDetails/>}/>
@@ -90,11 +100,6 @@ const AppRoutes = React.memo(() => (
     <Route path="/health" element={<HealthPage />} />
     <Route path="/usage" element={<UsagePage />} />
     {/* DEV */}
-    <Route path="/cycle-time" element={<StationCycleTime />} />
-    <Route path="/most-recent-fail" element={<MostRecentFail />} />
-    <Route path="/by-error" element={<ByErrorCode/>}/>
-    <Route path="/json-to-csv" element={<JsonToCsv/>}/>
-    <Route path="/did-they-fail" element={<DidTheyFail/>}/>
     <Route path="/testboard" element={<TestboardPage />} />
 
     {process.env.NODE_ENV === 'development' && (
@@ -107,7 +112,7 @@ const AppRoutes = React.memo(() => (
 function App() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isLowEnd, setIsLowEnd] = useState(false);
-
+  
   useEffect(() => {
     setIsLowEnd(isLowEndDevice());
   }, []);
@@ -126,23 +131,23 @@ function App() {
 
   return (
     <GlobalSettingsProvider>
-      <DashboardThemeProvider>
-        <CssBaseline />
-          <Box sx={{ display: 'flex' }}>
-            <AppHeader onMenuClick={handlersRef.current.toggleDrawer} />
-            {backdrop}
-            <SideDrawer 
-              open={drawerOpen} 
-              onClose={handlersRef.current.closeDrawer} 
-            />
-            <MainContent>
-              <AppRoutes />
-            </MainContent>
-            <SimplePerformanceMonitor />
-          </Box>
-      </DashboardThemeProvider>
+    <DashboardThemeProvider>
+      <CssBaseline />
+        <Box sx={{ display: 'flex' }}>
+          <AppHeader onMenuClick={handlersRef.current.toggleDrawer} />
+          {backdrop}
+          <SideDrawer 
+            open={drawerOpen} 
+            onClose={handlersRef.current.closeDrawer} 
+          />
+          <MainContent>
+            <AppRoutes />
+          </MainContent>
+          <SimplePerformanceMonitor />
+        </Box>
+    </DashboardThemeProvider>
     </GlobalSettingsProvider>
   );
 }
 
-export default App;
+export default App; 

@@ -113,6 +113,10 @@ export const MostRecentFail = () => {
         setProgress(0);
         setError(null);
 
+        setSnData([]);
+        setCodeData([]);
+        setPassData([]);
+
         // Determine if pass check mode is active
         const hasPassCheck = Boolean(passCheck?.trim());
         const totalOperations = hasPassCheck ? 3 : 2;
@@ -266,16 +270,13 @@ export const MostRecentFail = () => {
       const sn = snup[row.sn];
       const pn = sn?.pn || STATUS.NA;
 
-      // Determine error_code and fail_time
       let error_code;
       let fail_time;
 
       if (match) {
-        // Has a fail record - fail takes precedence
         error_code = cleanCode(match.error_code);
         fail_time = match.fail_time;
       } else if (hasPassCheck) {
-        // Pass check mode: verify device passed required stations
         if (check) {
           error_code = STATUS.PASSED;
           fail_time = check.pass_time;
@@ -287,7 +288,6 @@ export const MostRecentFail = () => {
           fail_time = STATUS.MISSING;
         }
       } else {
-        // Standard mode: no fail = pass (if device exists)
         if (sn) {
           error_code = STATUS.PASSED;
           fail_time = STATUS.NA;
@@ -297,10 +297,18 @@ export const MostRecentFail = () => {
         }
       }
 
+      const workstation_name = 
+        match?.workstation_name ||
+        check?.workstation_name ||
+        sn?.workstation_name ||
+        row.workstation_name ||
+        STATUS.NA;
+
       return {
         ...row,
         pn,
         error_code,
+        workstation_name,
         fail_time
       };
     });
@@ -319,6 +327,7 @@ export const MostRecentFail = () => {
         row.sn,
         row.pn,
         row.error_code,
+        row.workstation_name,
         row.fail_time
       ]);
 
@@ -326,6 +335,7 @@ export const MostRecentFail = () => {
         'Serial Number',
         'Part Number',
         'Error Code',
+        'Workstation',
         'Last Fail/Pass Time'
       ];
 
@@ -378,6 +388,7 @@ export const MostRecentFail = () => {
       { key: 'sn', label: 'Serial Number' },
       { key: 'pn', label: 'Part Number' },
       { key: 'error_code', label: 'Error Code' },
+      { key: 'workstation_name', label: 'Workstation'},
       { key: 'fail_time', label: 'Last Fail/Pass Time' },
     ];
 

@@ -281,3 +281,63 @@ export async function fetchFilteredYieldsQuery({
     return [];
   }
 }
+
+export async function fetchDiveData(
+  apiBase,
+  startDate,
+  endDate,
+  { key = 'station_dive', setDataCache } = {}
+) {
+  const params = {
+    startDate: startDate.toISOString(),
+    endDate: endDate.toISOString(),
+  };
+
+  const queryString = new URLSearchParams(params).toString();
+  const cacheKey = `${key}_${apiBase}_${queryString}`;
+
+  const cachedData = dataCache.get(cacheKey);
+  if (cachedData) {
+    if (typeof setDataCache === 'function') setDataCache(cachedData);
+    return cachedData;
+  }
+
+  const raw = await importQuery(apiBase, '/api/v1/testboard-records/station-dive?', params);
+  if (!Array.isArray(raw)) {
+    throw new Error('SNFN API did not return an array');
+  }
+
+  dataCache.set(cacheKey, raw);
+  if (typeof setDataCache === 'function') setDataCache(raw);
+  return raw;
+}
+
+export async function fetchYieldData(
+  apiBase,
+  startDate,
+  endDate,
+  { key = 'fpy_yield', setDataCache } = {}
+) {
+  const params = {
+    startDate: startDate.toISOString(),
+    endDate: endDate.toISOString(),
+  };
+
+  const queryString = new URLSearchParams(params).toString();
+  const cacheKey = `${key}_${apiBase}_${queryString}`;
+
+  const cachedData = dataCache.get(cacheKey);
+  if (cachedData) {
+    if (typeof setDataCache === 'function') setDataCache(cachedData);
+    return cachedData;
+  }
+
+  const raw = await importQuery(apiBase, '/api/v1/master-routes/master-yield?', params);
+  if (!Array.isArray(raw)) {
+    throw new Error('master routes API did not return an array');
+  }
+
+  dataCache.set(cacheKey, raw);
+  if (typeof setDataCache === 'function') setDataCache(raw);
+  return raw;
+}

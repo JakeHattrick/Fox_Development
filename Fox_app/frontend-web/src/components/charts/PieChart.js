@@ -21,6 +21,7 @@ const COLORS = [ // extended color set
   '#2196f3', // blue
   '#9c27b0', // purple
   '#607d8b', // gray
+  '#e12bbc', // pink
 ];
 
 export const PieChart = memo(function PieChart({ label, data, getPercent = true, showTag = true, loading = false }) {

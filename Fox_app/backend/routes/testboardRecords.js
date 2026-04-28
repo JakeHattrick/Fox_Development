@@ -34,11 +34,13 @@ router.post('/most-recent-fail', async (req, res) => {
     const query = `
       SELECT DISTINCT ON (sn)
         sn,
+        workstation_name,
         error_code,
         fail_time
       FROM (
         SELECT
           sn,
+          workstation_name,
           failure_reasons AS error_code,
           history_station_start_time AS fail_time,
           1 as priority
@@ -47,11 +49,13 @@ router.post('/most-recent-fail', async (req, res) => {
           AND history_station_start_time >= $2
           AND history_station_end_time   <= $3
           AND history_station_passing_status = 'Fail'
+          AND workstation_name not ilike '%REPAIR'
 
         UNION ALL
 
         SELECT
           sn,
+          workstation_name,
           'EC-WS' AS error_code,
           history_station_start_time AS fail_time,
           2 as priority
@@ -60,6 +64,7 @@ router.post('/most-recent-fail', async (req, res) => {
           AND history_station_start_time >= $2
           AND history_station_end_time   <= $3
           AND history_station_passing_status = 'Fail'
+          AND workstation_name not ilike '%REPAIR'
       ) AS combined
       ORDER BY
         sn,
@@ -97,10 +102,12 @@ router.post('/pass-check', async (req, res) => {
     const query = `
       SELECT DISTINCT ON (sn)
         sn,
+        workstation_name,
         pass_time
       FROM (
         SELECT
           sn,
+          workstation_name,
           history_station_start_time AS pass_time
         FROM testboard_master_log
         WHERE sn = ANY($1)
@@ -113,6 +120,7 @@ router.post('/pass-check', async (req, res) => {
 
         SELECT
           sn,
+          workstation_name,
           history_station_start_time AS pass_time
         FROM workstation_master_log
         WHERE sn = ANY($1)
@@ -154,11 +162,13 @@ router.post('/sn-check', async (req, res) => {
       SELECT DISTINCT ON (sn)
         sn,
         pn,
+        workstation_name,
         pass_time
       FROM (
         SELECT
           sn,
           pn,
+          workstation_name,
           history_station_start_time AS pass_time
         FROM testboard_master_log
         WHERE sn = ANY($1)
@@ -170,6 +180,7 @@ router.post('/sn-check', async (req, res) => {
         SELECT
           sn,
           pn,
+          workstation_name,
           history_station_start_time AS pass_time
         FROM workstation_master_log
         WHERE sn = ANY($1)
@@ -395,6 +406,90 @@ router.post('/daily-usage', async (req,res) => {
   } catch (err) {
       console.error("daily-usage error:", err);
       return res.status(500).json({error: err.message});
+  }
+});
+
+router.get('/station-dive', async (req, res) => {
+  try {
+    const { startDate, endDate} = req.query;
+
+    if (!startDate || !endDate) {
+      return res
+        .status(400)
+        .json({ error: 'Missing required query parameters: startDate, endDate' });
+    }
+
+    const query = `
+      SELECT DISTINCT ON (sn, workstation_name, error_code)
+        model,
+        sn,
+        pn,
+        workstation_name,
+        history_station_passing_status,
+        error_code,
+        description,
+        history_station_end_time
+      FROM (
+        -- testboard rows always take priority
+        SELECT
+          model,
+          sn,
+          pn,
+          workstation_name,
+          history_station_passing_status,
+          failure_reasons AS error_code,
+          failure_note    AS description,
+          history_station_end_time,
+          1 AS prio
+        FROM testboard_master_log
+        WHERE history_station_end_time >= $1
+          AND history_station_end_time <= $2
+          AND workstation_name <> 'TEST'
+          AND workstation_name NOT LIKE '%REPAIR'
+
+        UNION ALL
+
+        -- workstation rows only where no matching testboard row exists
+        SELECT
+          w.model,
+          w.sn,
+          w.pn,
+          w.workstation_name,
+          w.history_station_passing_status,
+          CASE WHEN w.history_station_passing_status = 'Fail' THEN 'EC-WS' ELSE NULL END,
+          CASE WHEN w.history_station_passing_status = 'Fail' THEN 'Other Failure' ELSE NULL END,
+          w.history_station_end_time,
+          2 AS prio
+        FROM workstation_master_log w
+        LEFT JOIN testboard_master_log t
+          ON  t.sn                       = w.sn
+          AND t.workstation_name         = w.workstation_name
+          AND t.history_station_end_time = w.history_station_end_time
+          AND t.history_station_end_time >= $1
+          AND t.history_station_end_time <= $2
+          AND t.workstation_name <> 'TEST'
+          AND t.workstation_name NOT LIKE '%REPAIR'
+        WHERE w.history_station_end_time >= $1
+          AND w.history_station_end_time <= $2
+          AND w.workstation_name NOT LIKE '%REPAIR'
+          AND w.workstation_name <> 'TEST'
+          AND t.sn IS NULL
+      ) combined
+      ORDER BY
+        sn,
+        workstation_name,
+        error_code,
+        prio,
+        history_station_end_time DESC;
+    `;
+
+
+    const params = [startDate, endDate];
+    const result = await pool.query(query, params);
+    return res.json(result.rows);
+  } catch (error) {
+    console.error('pass-check:', error);
+    return res.status(500).json({ error: error.message });
   }
 });
 
