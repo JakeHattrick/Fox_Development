@@ -19,7 +19,8 @@ import { paperStyle, flexStyle, typeStyle, boxStyle } from '../theme/themes.js';
 const formatDate = (d) => {
   // expects ISO yyyy-mm-dd;
   try {
-    const dt = new Date(d);
+    const [y, m, day] = d.split('-').map(Number);
+    const dt = new Date(y, m - 1, day); // local time
     if (Number.isNaN(dt.getTime())) return String(d);
     return dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
   } catch {
@@ -28,10 +29,11 @@ const formatDate = (d) => {
 };
 
 export const LineChart = memo(function LineChart({ 
-  label, data, xKey, dateKey = true, yKeys, setRange = true,
+  label, yLabel = 'Percent', data, xKey, dateKey = true, yKeys, setRange = true, setDomain = true,
   ydomain = [0,100],
   ticks = [0,20,40,60,80,100], 
-  loading = false
+  loading = false,
+  lineStyle = 'monotone'  //  monotone = wavy, linear = straight, step = stair-step
 }) {
   const theme = useTheme();
 
@@ -130,10 +132,10 @@ export const LineChart = memo(function LineChart({
                 tick={{ fontSize: 12, fill: theme.palette.text.secondary }}
               />
               <YAxis
-                domain={setRange ? ydomain : autoDomain}
+                domain={setDomain ? ydomain : autoDomain}
                 ticks={setRange ? ticks : autoTicks}
                 tick={{ fontSize: 12, fill: theme.palette.text.secondary }}
-                label={{ value: 'Percent', angle: -90, position: 'insideLeft', dy: 10, fill: theme.palette.text.secondary }}
+                label={{ value: yLabel, angle: -90, position: 'insideLeft', dy: 10, fill: theme.palette.text.secondary }}
               />
               <Tooltip
                 formatter={(value, name) => [`${value}%`, name]}
@@ -143,7 +145,7 @@ export const LineChart = memo(function LineChart({
               {yKeys.map((line,idx) => (
                 <Line
                   key={idx}
-                  type="monotone"
+                  type={lineStyle}
                   dataKey={line.dataKey}
                   name={line.name || line.dataKey}
                   stroke={line.stroke || theme.palette.primary.main}

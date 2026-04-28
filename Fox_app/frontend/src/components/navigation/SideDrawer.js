@@ -46,6 +46,7 @@ const MENU_ITEMS_QUALITY = [
     { text: 'Quality Control Charts', icon: <SpeedIcon />, route: '/performance' },
     { text: 'Throughput', icon: <TrendingUpIcon />, route: '/throughput' },
     { text: 'Xbar-R Chart', icon: <SpeedIcon />, route: '/xbar-r-chart' },
+    { text: 'Yield Reports', icon: <TrendingUpIcon/>, route:'fpy-yield'},
   ]},
   { text: 'Utility Reports', icon: <SpeedIcon />, children:[
     { text: 'Most Recent Fail', icon: <AccessTimeIcon />, route: '/most-recent-fail'}

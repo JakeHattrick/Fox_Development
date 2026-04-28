@@ -141,7 +141,7 @@ router.post('/query', async (req, res) => {
         
         // Basic validation - only allow SELECT queries
         const trimmedSql = sql.trim().toUpperCase();
-        if (!trimmedSql.startsWith('SELECT')) {
+        if (!trimmedSql.startsWith('SELECT') && !trimmedSql.startsWith('WITH')) {
             return res.status(403).json({
                 success: false,
                 error: 'Only SELECT queries are allowed'

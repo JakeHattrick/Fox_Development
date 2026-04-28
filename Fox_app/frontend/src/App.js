@@ -4,9 +4,13 @@ import { CssBaseline, Box } from '@mui/material';
 import { DashboardThemeProvider } from './components/theme/ThemeContext';
 import { SideDrawer } from './components/navigation/SideDrawer';
 import { AppHeader } from './components/navigation/AppHeader';
+
+
 // Page Components
 import { Dashboard } from './components/pages/Dashboard';
 import Home from './components/pages/Home';
+
+
 // Quality Pages
 import PackingPage from './components/pages/quality/PackingPage';
 import PerformancePage from './components/pages/quality/performance/PerformancePage';
@@ -19,12 +23,14 @@ import ParetoPage from './components/pages/quality/ParetoPage';
 import QueryPage from './components/pages/quality/QueryPage';
 import XbarRPage from './components/pages/quality/performance/XbarRPage';
 import StationBreakdownPage from './components/pages/quality/stationReports/StationBreakdown';
+import FirstPassPage from './components/pages/quality/performance/FPYPage';
 
 
 // Test Engineer Pages
 import FixtureDash from './components/pages/te/FixtureDash';
 import FixtureDetails from './components/pages/te/FixtureDetails';
 import FixtureInventory from './components/pages/te/FixtureInventory';
+
 
 //TE new Pages:
 import FixturesPage from "./components/pages/te/FixturesPage";
@@ -91,6 +97,7 @@ const AppRoutes = React.memo(() => (
     <Route path="/query-page" element={<QueryPage/>}/>
     <Route path="/xbar-r-chart" element={<XbarRPage/>}/>
     <Route path="/station-breakdown" element = {<StationBreakdownPage/>}/>
+    <Route path="/fpy-yield" element={<FirstPassPage />}/>
       
     <Route path="/fixtures" element={<FixturesPage />} />
     <Route path="/users" element={<UsersPage />} />

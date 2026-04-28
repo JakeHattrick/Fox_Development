@@ -122,7 +122,6 @@ export function PackingChartWidget({ widgetId }) {
       setLoading(loadingWeekly);
       setError(errorWeekly);
     }
-    
   }, [loaded, timeFrame, dailyData, loadingDaily, errorDaily, weeklyData, loadingWeekly, errorWeekly]);
 
   // ----------------------------------------------------------
