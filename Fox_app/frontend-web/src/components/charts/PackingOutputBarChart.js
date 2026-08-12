@@ -64,7 +64,7 @@ const PackingOutputBarChart = ({
 
 
   const theme = useTheme();
-  console.log(showTrendLine, data.length,title?.toLowerCase().includes('weekly'))
+  
   return (
     <div style={{ marginBottom: '40px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginBottom: 4 }}>

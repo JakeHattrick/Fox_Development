@@ -30,7 +30,7 @@ process.on('unhandledRejection', (reason, promise) => {
 #    express.json() parses JSON request bodies #
 #################################################*/
 app.use(cors()); 
-app.use(express.json());   
+app.use(express.json());
 
 // Temporary role mock for testing
 app.use((req, res, next) => {
@@ -80,8 +80,8 @@ app.use('/api/v1/spc', spcRouter);
 const sqlPortalRouter = require('./routes/sqlPortal');
 app.use('/api/v1/sql-portal', sqlPortalRouter);
 
-//---------------------Test Enginnering Routes ------------------------//
-//Comments by: Mansi
+const masterRouter = require('./routes/masterRoutes');
+app.use('/api/v1/master-routes', masterRouter);
 
 const fixturesRouter = require('./routes/fixturesRoutes');
 app.use('/api/fixtures', fixturesRouter); // no versioning for now - This one is from Darvin 

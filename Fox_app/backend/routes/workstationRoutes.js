@@ -73,6 +73,4 @@ router.post('/filtered-yields', async (req, res) => {
     }
 });
 
-
-
 module.exports = router;

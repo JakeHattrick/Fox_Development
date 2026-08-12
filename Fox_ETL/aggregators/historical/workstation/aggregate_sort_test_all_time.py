@@ -1,15 +1,5 @@
 import psycopg2
 from datetime import datetime, timedelta
-<<<<<<< HEAD
-
-DB_CONFIG = {
-    'host': 'localhost',
-    'database': 'fox_db',
-    'user': 'gpu_user',
-    'password': '',
-    'port': '5432'
-}
-=======
 import sys
 import os
 # Add Fox_ETL directory to path to find config.py
@@ -21,7 +11,6 @@ while current_dir != '/':
         break
     current_dir = os.path.dirname(current_dir)
 from config import DATABASE
->>>>>>> origin/main
 
 AGGREGATE_SQL = '''
 SELECT
@@ -44,11 +33,7 @@ ORDER BY sort_code, test_date;
 '''
 
 def main():
-<<<<<<< HEAD
-    conn = psycopg2.connect(**DB_CONFIG)
-=======
     conn = psycopg2.connect(**DATABASE)
->>>>>>> origin/main
     try:
         with conn.cursor() as cur:
             print("Aggregating all historical TEST data...")
